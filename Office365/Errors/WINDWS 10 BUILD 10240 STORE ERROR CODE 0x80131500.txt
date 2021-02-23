@@ -1,0 +1,18 @@
+WINDWS 10 BUILD 10240 STORE ERROR CODE 0x80131500
+
+
+Method 1:
+
+Try doing Windows Store reset and check if it helps or not:
+
+Press Windows key+ R for run command to appear.
+Type wsreset.exe and press Enter.
+It will help you clean the Store cache, then check if it’s working or not.
+
+ 
+
+Method 2:
+
+Please click on the link below to run App troubleshooter and check if it helps:
+
+http://windows.microsoft.com/en-us/windows-10/run-the-troubleshooter-for-windows-apps

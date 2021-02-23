@@ -1,0 +1,2 @@
+$ source /usr/local/rvm/scripts/rvm
+	//* depending on the installation, instead it may be $ source /usr/local/rvm/scripts/rvm

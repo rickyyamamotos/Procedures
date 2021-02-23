@@ -1,0 +1,18 @@
+cfg hosts, groups, templates
+cd /etc/nagios3/conf.d
+
+cfg commands
+cd /etc/nagios3/
+cd /etc/nagios-plugins/config/
+others	/usr/share/doc/nagios3-common/examples/
+others	/usr/share/monitoring-plugins/templates-basic/
+others	/var/lib/ucf/cache/
+
+commands
+cd /usr/lib/nagios/plugins/
+
+
+
+html folder
+/usr/share/nagios3/htdocs
+

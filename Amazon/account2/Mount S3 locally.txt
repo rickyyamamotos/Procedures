@@ -1,0 +1,51 @@
+Mount a S3 bucket locally on ubuntu 16.04
+ref- https://fullstacknotes.com/mount-aws-s3-bucket-to-ubuntu-file-system/
+
+//* bucket belongs to AWS account <Site>omc
+
+sudo apt-get update
+sudo apt install s3fs
+sudo apt-get install -y mhddfs
+nano /etc/passwd-s3fs
+	<key>
+		//* AWS_ACCESS_KEY_ID:AWS_SECRET_ACCESS_KEY
+chmod 600 /etc/passwd-s3fs
+mkdir /tmp/cache
+
+#Using an existing directory
+	mv /var/www/html/wp-content/uploads/courses /var/www/html/wp-content/uploads/courses.dontdelete
+	mkdir /var/www/html/wp-content/uploads/courses
+	mkdir /mnt/s3
+chmod 777 /tmp/cache /var/www/html/wp-content/uploads/courses /mnt/s3
+chown www-data:www-data /tmp/cache /var/www/html/wp-content/uploads/courses /mnt/s3
+
+nano /etc/fuse.conf
+	//* uncomment
+	//* 	user_allow_other
+
+//* temporary mount s3 bucket (it will not remount at reboot)
+	s3fs -o passwd_file=/etc/passwd-s3fs,allow_other <Site>bridge-tincan /mnt/s3
+	mhddfs /mnt/s3/,/var/www/html/wp-content/uploads/courses.dontdelete/ /var/www/html/wp-content/uploads/courses/
+//* Unmount temparary mounts
+	umount /mnt/s3
+	fusermount -u /var/www/html/wp-content/uploads/courses/
+//* Permanent mount s3 bucket (it will remount at reboot)
+	nano /etc/fstab
+		s3fs#<Site>bridge-tincan /mnt/s3/ fuse _netdev,passwd_file=/etc/passwd-s3fs,allow_other,use_cache=/tmp/cache,default_acl=public-read,uid=33,gid=33 0 0
+			//* default_acl=public-read,uid=33,gid=33
+			//*	33 is www-data
+		mhddfs#/mnt/s3/,/var/www/html/wp-content/uploads/courses.dontdelete/ /var/www/html/wp-content/uploads/courses/ fuse defaults,uid=33,gid=33,allow_other 0 0
+			//* the above line combine 2 directories into one
+mount -a
+
+//* Make sure updatedb is not indexing the mounted s3 bucket, else the cost of s3 will shootsup exponentially.
+nano /etc/updatedb.conf
+	PRUNEPATHS="/tmp /var/spool /media /home/.ecryptfs /var/lib/schroot /mnt/s3 /var/www/html/wp-content/uploads/courses"
+		//* add /mnt/s3 /var/www/html/wp-content/uploads/courses
+	PRUNEFS="NFS nfs nfs4 rpc_pipefs afs binfmt_misc proc smbfs autofs iso9660 ncpfs coda devpts ftpfs devfs mfs shfs sysfs cifs lustre tmpfs usbfs udf fuse.glust erfs fuse.sshfs curlftpfs ecryptfs fusesmb devtmpfs fuse.s3fs s3fs"
+		//* add fuse.s3fs s3fs
+reboot
+
+
+
+

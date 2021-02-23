@@ -1,0 +1,319 @@
+nagios4
+IP XXX.XXX.XXX.58
+	username: <Username>	password: <Password>
+	username: <Username>	password: <Password>
+
+Plugins directory
+/usr/lib64/nagios/plugins/
+
+Configuration directory
+/usr/local/nagios/etc/objects/
+
+webpages location
+/usr/local/nagios/share
+
+icons location
+/usr/local/nagios/share/images/logos
+
+check configuration
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+
+http://www.aboutmonitoring.com/installing-nagios-core-4-pnp4nagios-check_mk-nagvis-centos-7-redhat-7/
+http://itclub.az/2016/08/02/nagios-core-with-check_mk/
+Installing Nagios Core 4.
+==============================
+yum install perl wget httpd php
+yum groupinstall "Development Tools"
+useradd nagios && passwd nagios
+	username <Username>
+	password: <Password>
+groupadd nagcmd
+usermod -a -G nagcmd nagios
+usermod -a -G nagcmd apache
+yum install wget httpd php gcc glibc glibc-common gd gd-devel make net-snmp libpng-devel libjpeg-turbo-devel
+cd /tmp
+wget https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.2.4.tar.gz?__hstc=118811158.ba49b8a31103b86e4bd5d9e3aac59c05.1520641326859.1520865819998.1520958698628.3&__hssc=118811158.4.1520958698628&__hsfp=633398250#_ga=2.36013408.1740647195.1520958698-742996443.1520641326
+tar zxfv nagios-4.2.4.tar.gz
+cd nagios-4.2.4
+./configure -with-command-group=nagcmd
+	Nagios executable:  nagios
+        Nagios user/group:  <Username>,<Username>
+        Command user/group:  <Username>,nagcmd
+        Event Broker:  yes
+        Install ${prefix}:  /usr/local/nagios
+    	Install ${includedir}:  /usr/local/nagios/include/nagios
+                Lock file:  ${prefix}/var/nagios.lock
+   	Check result directory:  ${prefix}/var/spool/checkresults
+           Init directory:  /etc/rc.d/init.d
+  	Apache conf.d directory:  /etc/httpd/conf.d
+             Mail program:  /bin/mail
+                  Host OS:  linux-gnu
+          IOBroker Method:  epoll
+
+	Web Interface Options:
+	------------------------
+                 HTML URL:  http://localhost/nagios/
+                  CGI URL:  http://localhost/nagios/cgi-bin/
+make all
+make install
+make install-init
+make install-commandmode
+make install-config
+make install-webconf
+cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/
+chown -R <Username>:<Username> /usr/local/nagios/libexec/eventhandlers
+
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+htpasswd -c /usr/local/nagios/etc/htpasswd.users <Username>
+	<Password>
+systemctl restart httpd.service && systemctl restart httpd.service
+chkconfig --add nagios && chkconfig --level 35 nagios on
+systemctl enable httpd.service
+
+firewall-cmd --permanent --zone=public --add-port=80/tcp
+firewall-cmd --permanent --zone=public --add-port=443/tcp
+systemctl restart firewalld.service
+setenforce 0
+service nagios restart
+
+Installing Nagios Plugins.
+===========================
+rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm
+yum install nagios-plugins-all nagios-plugins-nrpe
+nano  /usr/local/nagios/etc/resource.cfg
+	$<Username>$=/usr/lib64/nagios/plugins
+yum install bind-utils net-snmp net-snmp-devel net-snmp-utils net-snmp-perl perl-Net-SNMP
+cd /tmp
+wget https://www.monitoring-plugins.org/download/monitoring-plugins-2.2.tar.gz
+tar zxfv monitoring-plugins-2.2.tar.gz
+cd monitoring-plugins-2.2
+# If install nagios-plugins
+./configure -with-nagios-user=<Username> -with-nagios-group=<Username>
+# If you want install monitoring-plugins
+./configure -with-nagios-user=<Username> -with-nagios-group=<Username> --prefix=/usr/local/nagios
+make
+make install
+
+
+PNP4Nagios
+===================
+yum install rrdtool perl-Time-HiRes rrdtool-perl php-gd
+yum install rddtool-perl
+	//* optionally
+		cd /tmp
+		wget http://mirror.centos.org/centos/7/os/x86_64/Packages/rrdtool-perl-1.4.8-9.el7.x86_64.rpm
+		yum localinstall rrdtool-perl-1.4.8-9.el7.x86_64.rpm
+cd /tmp
+wget https://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.26.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fpnp4nagios%2Ffiles%2Flatest%2Fdownload&ts=1520963732
+tar zxfv pnp4nagios-0.6.26.tar.gz
+cd pnp4nagios-0.6.26
+./configure
+make all
+make fullinstall
+chkconfig --add npcd && chkconfig --level 35 npcd on
+systemctl reload httpd.service
+//* verify that htp://XXX.XXX.XXX.58/pnp4nagios/ shows a "Your environment passed all requirements." in green
+mv  /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.php.ORI
+//* verify that htp://XXX.XXX.XXX.58/pnp4nagios/ shows an error:
+Error:
+	Reloading pnp4nagios found an error: Please check the documentation for information about the following error. perfdata directory “/usr/local/pnp4nagios/var/perfdata/” is empty. Please check your Nagios config. Read FAQ online
+	At this time is normal error, we must continue configuring full integration with nagios.
+
+Integration with Nagios.
+=========================
+nano /usr/local/pnp4nagios/etc/nagios.cfg-sample
+//* copy the Bulk / NPCD mode lines
+	#
+	# Bulk / NPCD mode
+	#
+	process_performance_data=1
+	# *** the template definition differs from the one in the original nagios.cfg
+	#
+	service_perfdata_file=/usr/local/pnp4nagios/var/service-perfdata
+	service_perfdata_file_template=DATATYPE::SERVICEPERFDATA\tTIMET::$TIMET$\tHOSTNAME::$HOSTNAME$\tSERVICEDESC::$SERVICEDESC$\tSERVICEPERFDATA::$SERVICEPERFDATA$\tSERVICECHECKCOMMAND::$SERVICECHECKCOMMAND$\tHOSTSTATE::$HOSTSTATE$\tHOSTSTAT$
+	service_perfdata_file_mode=a
+	service_perfdata_file_processing_interval=15
+	service_perfdata_file_processing_command=process-service-perfdata-file
+	# *** the template definition differs from the one in the original nagios.cfg
+	#
+	host_perfdata_file=/usr/local/pnp4nagios/var/host-perfdata
+	host_perfdata_file_template=DATATYPE::HOSTPERFDATA\tTIMET::$TIMET$\tHOSTNAME::$HOSTNAME$\tHOSTPERFDATA::$HOSTPERFDATA$\tHOSTCHECKCOMMAND::$HOSTCHECKCOMMAND$\tHOSTSTATE::$HOSTSTATE$\tHOSTSTATETYPE::$HOSTSTATETYPE$
+	host_perfdata_file_mode=a
+	host_perfdata_file_processing_interval=15
+	host_perfdata_file_processing_command=process-host-perfdata-file
+nano /usr/local/nagios/etc/nagios.cfg
+	//* paste the above lines
+nano /usr/local/pnp4nagios/etc/misccommands.cfg-sample
+//* copy and uncomment the Bulk with NPCD mode lines
+	#
+	# Bulk with NPCD mode
+	#
+	define command {
+	       command_name    process-service-perfdata-file
+	       command_line    /bin/mv /usr/local/pnp4nagios/var/service-perfdata /usr/local/pnp4nagios/var/spool/service-perfdata.$TIMET$
+	}
+	define command {
+	       command_name    process-host-perfdata-file
+	       command_line    /bin/mv /usr/local/pnp4nagios/var/host-perfdata /usr/local/pnp4nagios/var/spool/host-perfdata.$TIMET$
+	}
+nano /usr/local/nagios/etc/objects/commands.cfg
+	//* paste the above lines, but uncommenting
+service npcd restart && service nagios restart
+//* verify that htp://XXX.XXX.XXX.58/pnp4nagios/ shows a graphs and data
+	//* you may need to clear your browser cache
+nano /usr/local/nagios/etc/objects/templates.cfg
+//* append the following
+	define host {
+		name host-pnp
+		action_url /pnp4nagios/index.php/graph?host=$HOSTNAME$&srv=_HOST_' class='tips' rel='/pnp4nagios/index.php/popup?host=$HOSTNAME$&srv=_HOST_
+		<Site> 0
+		}
+	define service {
+		name srv-pnp
+		action_url /pnp4nagios/index.php/graph?host=$HOSTNAME$&srv=$SERVICEDESC$' class='tips' rel='/pnp4nagios/index.php/popup?host=$HOSTNAME$&srv=$SERVICEDESC$
+		<Site> 0
+	}
+nano /usr/local/nagios/etc/objects/hosts.cfg
+//* append the following
+	define host{
+		use linux-server,host-pnp
+		host_name localhost
+		alias localhost
+		address 127.0.0.1
+	}
+nano /usr/local/nagios/etc/objects/services.cfg
+//* append the following
+	define service{
+	use local-service,srv-pnp
+	host_name localhost
+	service_description PING
+	check_command check_ping!100.0,20%!500.0,60%
+	}
+cd /tmp
+wget https://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.26.tar.gz?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fpnp4nagios%2Ffiles%2Flatest%2Fdownload&ts=1520963732
+tar zxfv pnp4nagios-0.6.26.tar.gz
+cp /tmp/pnp4nagios-0.6.26/contrib/ssi/status-header.ssi /usr/local/nagios/share/ssi/
+
+mod_python:
+============
+yum install httpd httpd-devel python-devel
+yum groupinstall "Development Tools"
+cd /tmp
+wget https://github.com/grisha/mod_python/archive/master.zip
+unzip master.zip
+cd mod_python-master
+./configure -with-apxs=/usr/bin/apxs
+nano ./src/Makefile
+	//* add the following lines after:
+		version.c:
+		 @MP_GIT_SHA=$$(git describe --always); \
+		 echo > version.c ; \
+		 echo "/* THIS FILE IS AUTO-GENERATED BY Makefile */" >> version.c ; \
+		 echo "#include \"mp_version.h\"" >> version.c ; \
+        include/mod_python.h include/psp_flex.h include/psp_parser.h \
+        include/requestobject.h include/tableobject.h include/connobject.h \
+        include/finfoobject.h include/hlistobject.h include/mp_version.h \
+        include/_pspmodule.h include/psp_string.h include/serverobject.h \
+nano ./dist/version.sh
+	//* append or comment out the following lines
+	#GIT=`git describe --always`
+	#echo $MAJ.$MIN.$PCH-$GIT
+	echo $MAJ.$MIN.$PCH-
+make
+make install
+Test :
+	mkdir /var/www/html/test
+	chown apache.apache /var/www/html/test
+	nano /etc/httpd/conf.d/test_mod_python.conf 
+		# FILE /etc/httpd/conf.d/test_mod_python.conf
+		<Directory /var/www/html/test>
+		  AddHandler mod_python .py
+		  PythonHandler mptest
+		  PythonDebug On
+		</Directory>
+	nano /var/www/html/test/mptest.py
+		# FILE /var/www/html/test/mptest.py
+		from mod_python import apache
+		def handler(req):
+		    req.content_type = 'text/plain'
+		    req.write("Hello World!")
+		    return apache.OK
+	nano /etc/httpd/conf.modules.d/01-mod_python.conf
+		# FILE /etc/httpd/conf.modules.d/01-mod_python.conf
+		LoadModule python_module modules/mod_python.so
+	systemctl restart httpd.service
+go to http://XXX.XXX.XXX.58/test/mptest.py
+	to obtain a “Hello Word!”
+
+
+Check_mk	(https://www.linuxtechi.com/install-configure-check-mk-centos-7-rhel-7/)
+==========
+//* this did not worked
+	yum install xinetd openssl -y
+	yum install python -y
+	yum install epel-release -y
+	firewall-cmd --permanent --zone=public --add-port=80/tcp
+	firewall-cmd --reload
+	setsebool -P httpd_can_network_connect 1
+	wget https://mathias-kettner.de/support/1.4.0p12/check-mk-raw-1.4.0p12-el7-59.x86_64.rpm
+	yum install --nogpgcheck check-mk-raw-1.4.0p12-el7-59.x86_64.rpm
+cd /tmp
+sudo wget http://mathias-kettner.com/download/check_mk-1.2.6p16.tar.gz
+sudo tar zxfv check_mk-1.X.XiX.tar.gz
+cd check_mk-
+sudo ./setup.sh
+	Nagios command pipe
+		( default –> /var/log/nagios/rw/nagios.cmd): /usr/local/nagios/var/rw/nagios.cmd
+	Path to check_icmp
+		( autodetected –> /usr/lib64/nagios/plugins/check_icmp): /usr/local/nagios/libexec/check_icmp
+	HTTP authentication file
+		( default –> /etc/nagios/htpasswd.users): /usr/local/nagios/etc/htpasswd.users
+	PNP4Nagios templates
+		( default –> /usr/share/check_mk/pnp-templates): /usr/local/pnp4nagios/share/templates
+	RRD files
+		( default –-> /var/lib/nagios/rrd): /usr/local/pnp4nagios/var/perfdata
+	Install Event Console
+		 ( default –-> no): yes
+systemctl restart httpd.service && service nagios restart
+Test
+	http://XXX.XXX.XXX.58/check_mk
+
+
+Nagvis
+=======
+cd /tmp
+sudo wget http://www.nagvis.org/share/nagvis-1.8.5.tar.gz
+sudo tar zxfv nagvis-1.8.5.tar.gz
+cd nagvis-1.8.5
+sudo ./install.sh
+	The installation scripts asks some  questions about our software paths, users, Backends to use (select only mklivestatus-for default-). For other settings defaults is enough..
+	Backends select only mklivestatus-for default
+	Results
+		NaVis home: /usr/local/nagvis
+		Owner of NagVis files: apache
+		Group of NagVis files: apache
+		Apache configuration dir: /etc/http/conf.d
+		Update isntruction: ./install.sh -n /usr/local/nagios -p /usr/local/nagvis -l "unix:/usr/local/nagios/var/rw/live" -b mklivestatus -u apache -g apache -w /etc/httpd/conf.d -a y
+		username: <Username>
+		password=<Password>
+		Acces NagVis: http://XXX.XXX.XXX.58/nagvis/
+		Change configuration: http://XXX.XXX.XXX.58/nagvis/config.php
+nano /etc/httpd/conf.d/nagvis.conf 
+	#AllowOverride None
+	Require all granted
+systemctl restart httpd.service
+Test:
+	go to http://XXX.XXX.XXX.58/nagvis/
+		<Username> / <Password>
+	click on Demo1. Datacenter Hamburg
+	Menu Edit map --> lock --> unlock all
+	Menu Edit Map --> Map Options --> listbox “backend_id” --> select live_1 --> select save.
+	Menu Edit Map --> Add Icon --> chose Host, point to map. Select a host in listbox and go.
+	Menu Edit Map --> lock --> unlock all to exit from edit mode.
+
+
+
+
+
+

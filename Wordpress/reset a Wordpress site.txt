@@ -1,0 +1,13 @@
+log onto the server
+$ nano /var/www/wp-config.php
+	//* change the mysql username and password if needed
+	//* f.e. <Password>
+$ mysqldump -u root -p -v WP_database > WP_database.sql
+	//* makes a backup
+$ mysql -uroot -p
+mysql> drop database WP_database;
+mysql> CREATE DATABASE WP_database DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+mysql> set password for 'WP_user'@'localhost' = PASSWORD('<Password>');
+GRANT ALL PRIVILEGES ON WP_database.* TO "WP_user"@"localhost";
+FLUSH PRIVILEGES;
+mysql> quit

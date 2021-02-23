@@ -1,0 +1,4 @@
+wget http://pathtoplugin 
+sudo mv pluginname.py pluginname.
+sudo chown <Username>:<Username> pluginname
+sudo chmod u=rwx,go=rx pluginname

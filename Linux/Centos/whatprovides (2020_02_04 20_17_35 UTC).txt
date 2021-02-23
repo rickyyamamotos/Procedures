@@ -1,0 +1,2 @@
+$ yum whatprovides netstat
+	//* show the package that is needed to install to use netstat

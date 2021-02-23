@@ -1,0 +1,16 @@
+//* Temporary change
+ifconfig eth0 XXX.XXX.XXX.48
+ifconfig eth0 netmask <Subnet>
+ifconfig eth0 broadcast XXX.XXX.XXX.255
+route add default gw XXX.XXX.XXX.1 eth0
+
+//* Permanent change
+sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet dhcp
+iface ens160 inet static
+	address XXX.XXX.XXX.48
+	netmask <Subnet>
+	gateway XXX.XXX.XXX.1
+dns-nameservers XXX.XXX.XXX.19 XXX.XXX.XXX.3
+

@@ -1,0 +1,52 @@
+Requirements:
+-database server - ACID compliant, for example PostgreSQL and MariaDB
+-main server that is able to share dataroot - locking support recommended, for example NFS
+-load balancer - for example Nginx
+-cluster nodes - web servers
+-Memcached server for shared caches
+
+Initial installation
+1)Perform standard CLI installation on the main server using shared database and dataroot directory.
+2) Setup web servers on cluster nodes - use local dirroot and shared database and dataroot.
+3) Configure load balancing.
+
+Related config.php settings
+$CFG->wwwroot
+	It must be the same on all nodes, it must be the public facing URL. It cannot be dynamic.
+$CFG->sslproxy
+	Enable if you have https:// wwwroot but the SSL is done by load-balancer instead of web server.
+	Please note that it is not compatible with $CFG->loginhttps. This is because in order for loginhttps to work, we need to know the original request, and whether it was http or https. This allows us to only provide the login form over ssl. The original request is lost when made through a "reverse" proxy / load balancer, so we cannot determine what protocol the request was made in. So we can't provide most of moodle over http and the login page over https.
+	Enable Secure cookies only to make your site really secure, without it cookie stealing is still trivial.
+$CFG->reverseproxy
+	Enable if your nodes are accessed via different URL.
+	Please note that it is not compatible with $CFG->loginhttps. This is because in order for loginhttps to work, we need to know the original request, and whether it was http or https. This allows us to only provide the login form over ssl. The original request is lost when made through a "reverse" proxy / load balancer, so we cannot determine what protocol the request was made in. So we can't provide most of moodle over http and the login page over https.
+$CFG->dirroot
+	It is strongly recommended that $CFG->dirroot (which is automatically set via realpath(config.php)) contains the same path on all nodes. It does not need to point to the same shared directory though. The reason is that some some low level code may use the dirroot value for cache invalidation.
+	The simplest solution is to have the same directory structure on each cluster node and synchronise these during each upgrade.
+	The dirroot should be always read only for apache process because otherwise built in plugin installation and uninstallation would get the nodes out of sync.
+$CFG->dataroot
+	This MUST be a shared directory where each cluster node is accessing the files directly. It must be very reliable, <Username> cannot manipulate files directly.
+	Locking support is not required, if any code tries to use file locks in dataroot outside of cachedir or muc directory it is a bug.
+$CFG->tempdir
+	This directory MUST be shared by all cluster nodes. Locking is required.
+$CFG->cachedir
+	This directory MUST be shared by all cluster nodes. Locking is required.
+$CFG->localcachedir
+	The difference from $CFG->cachedir is that the directory does not have to be shared by all cluster nodes, the file contents do not change. Use local fast filesystem on each cluster node.
+
+Performance recommendations
+1) Use OPcache extension on all cluster nodes.
+2) Set $CFG->localcachedir to fast local filesystem on each node.
+3) Use one big central memcached server for all shared caches that support it.
+4) Use local memcached instances on cluster nodes for local caches that support it.
+5) Store user sessions in one shared memcached server. (See Session_handling for details)
+6) Use fast local directory for dirroot on each cluster node.
+7) Use dynamic cluster node management.
+8) Use transparent proxy servers.
+
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+# ps ax | grep httpd | grep -v grep
+	//* replace httpd with the service name
+	//* httpd is for apache
+

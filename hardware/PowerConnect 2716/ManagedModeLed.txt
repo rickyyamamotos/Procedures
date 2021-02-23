@@ -1,0 +1,6 @@
+Managed Mode Led
+Off = unmanaged
+Solid green = Managed Mode
+Solid Amber = post test failed
+Solid Red   = post test failed
+

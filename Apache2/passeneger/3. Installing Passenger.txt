@@ -1,0 +1,80 @@
+https://www.phusionpassenger.com/library/walkthroughs/basics/ruby/fundamental_concepts.html
+https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/install_language_runtime.html
+
+Requirements:
+-Ruby on Rails
+	see C:\Users\rick.yamamoto\Desktop\Training\Apache2\Ruby on Rails\"2 - Installing Rails 5.1.4.txt"
+
+passenger is an app sever that allow apache to run ruby apps
+"rails server" uses Puma by default as of Rails 5.
+If you add Passenger to your Gemfile, then "rails server" will launch Passenger instead of Puma. You can also choose to launch Passenger directly.
+
+There are 3 modes in passenger
+1) Standalone
+   Passenger doesn't automatically collaborate with other components
+   you do not need to setup any other components besides Passenger
+   can host only 1 app at the same time.
+2) nginx integration
+3) apache integration
+   Passenger operates as an Apache module.
+   You operate Passenger mostly through Apache and through Apache configuration files
+   can host multiple apps at the same time.
+
+
+Installing passenger in standalone mode:
+$ sudo apt-get install -y dirmngr gnupg
+$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys <key>
+$ sudo apt-get install -y apt-transport-https ca-certificates
+$ sudo sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger xenial main > /etc/apt/sources.list.d/passenger.list'
+$ sudo apt-get update
+$ sudo apt-get install -y passenger
+
+check installation
+$ sudo /usr/bin/passenger-config validate-install
+ 	//* Checking whether this Phusion Passenger install is in PATH... Check
+	//* Checking whether there are no other Phusion Passenger installations... Check
+
+update regularly
+$ sudo apt-get update
+$ sudo apt-get upgrade
+
+
+Starting a server
+$ cd /home/<Username>/<Site>
+$ bundle exec passenger start
+
+Start passenger as a daemon (does not need a user to be logged)
+$ cd /home/<Username>/<Site>
+$ bundle exec passenger start -d
+
+
+Command line options
+//*temporarily changing a parameter
+$ bundle exec passenger start --port 4000 --log-file awesome.log
+
+Passengerfile.json
+//*permanently changing a parameter
+$ nano /home/<Username>/<Site>/Passengerfile.json
+
+Restart the Ruby App server by passenger
+$ passenger-config restart-app
+
+Passenger auto-start on boot
+$ crontab -e
+	@reboot cd /home/<Username>/<Site> && rvmsudo passenger start --daemonize --port 80 --user <Username>
+Other ways
+	see http://jaredstemen.blogspot.com/2015/03/auto-start-passenger-fusion-on-boot-up.html
+
+log as <Username>
+$ crontab -e
+	@reboot     cd /home/<Username>/<Site> && passenger start -a 0.0.0.0 -p 80 -d -e production
+
+
+Installing Passenger in Apache integration mode:
+https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/install_language_runtime.html\
+
+
+
+
+rvmsudo passenger start --daemonize --port 80 --user <Username>
+

@@ -1,0 +1,13 @@
+launch C:\Program Files (x86)\Spiceworks\bin\spicetray.exe
+right click on the spicetray Icon from the tool bar
+Click on Preferences
+Change the ports
+	HTTP: 9675
+	HTTPS: 9676
+Click OK
+
+https://www.spiceworks.com
+username: <Email>
+password: <Password>
+
+

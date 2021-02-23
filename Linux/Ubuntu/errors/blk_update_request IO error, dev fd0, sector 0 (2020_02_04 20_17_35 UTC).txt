@@ -1,0 +1,13 @@
+blk_update_request IO error, dev fd0, sector 0
+
+nano /etc/fstab
+comment fd
+
+
+If fd is not shown in fstab:
+https://unix.stackexchange.com/questions/282845/blk-update-request-i-o-error-dev-fd0-sector-0
+Your device doesn't have a floppy drive, but the floppy driver module is installed, so you have /dev/fd0, and many things will try to use it.
+
+$ sudo rmmod floppy
+$ echo "blacklist floppy" | sudo tee /etc/modprobe.d/blacklist-floppy.conf
+$ sudo dpkg-reconfigure initramfs-tools

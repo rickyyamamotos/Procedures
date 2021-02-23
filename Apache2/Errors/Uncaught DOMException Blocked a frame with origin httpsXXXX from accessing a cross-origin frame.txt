@@ -1,0 +1,58 @@
+Uncaught DOMException: Blocked a frame with origin "https://<Site>" from accessing a cross-origin frame.
+
+This is for CentOS, but can be also used in Ubuntu with minor changes
+
+This will let us put 
+	http://<Site>.s3.amazonaws.com/*
+	http://<Site>/*
+	http://nginx.<Site>/*
+in a iframe within <Site>.<Domain>
+
+Ensure that the following files exist in /etc/httpd/modules/
+	mod_proxy_ajp.so
+	mod_proxy_http.so
+	modules/mod_proxy_html.so
+	modules/mod_xml2enc.so
+If modules/mod_proxy_html.so or modules/mod_xml2enc.so are missing
+	$ yum install mod_proxy_html -y
+if not found
+	$ yum remove epel-release-6-8.noarch
+	$ yum install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+	$ yum update
+
+$ nano /etc/httpd/conf/httpd.comf
+	LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
+	LoadModule proxy_http_module modules/mod_proxy_http.so
+	LoadModule proxy_html_module modules/mod_proxy_html.so
+	LoadModule xml2enc_module modules/mod_xml2enc.so
+
+	<Location "/<Site>.s3.amazonaws.com">
+	        Order allow,deny
+	        Allow from all
+	</Location>
+	<Location "/<Site>">
+	        Order allow,deny
+	        Allow from all
+	</Location>
+	<Proxy *>
+		Order deny,allow
+		Allow from all
+	</Proxy>
+	ProxyRequests Off
+	#ProxyPreserveHost On
+	ProxyPass /<Site>.s3.amazonaws.com http://<Site>.s3.amazonaws.com
+	ProxyPassReverse /<Site>.s3.amazonaws.com http://<Site>.s3.amazonaws.com
+	ProxyPass /<Site> http://<Site>
+	ProxyPassReverse /<Site> http://<Site>
+	ProxyPass /nginx.<Site> http://nginx.<Site>/
+	ProxyPassReverse /nginx.<Site> http://nginx.<Site>/
+$service httpd restart
+	//* if this shows that one of the modules is already loaded, we can remove it from httd.conf
+
+Edit the page that have the frane (https://<Site>.<Domain>/mod/page/view.php?id=21857)
+FROM: 
+<iframe src="https://<Site>/includes/omav4/syllabus2016/instructions/InstructorGuide/oma_section_1/story_html5.html?lms=1"
+TO: 
+<iframe src="https://<Site>.<Domain>/<Site>/includes/omav4/syllabus2016/instructions/InstructorGuide/oma_section_1/story_html5.html?lms=1"
+
+

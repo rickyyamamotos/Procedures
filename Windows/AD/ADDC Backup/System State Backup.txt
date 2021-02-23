@@ -1,0 +1,7 @@
+
+Manually
+# makes a backup of AD database
+# run on <Site>
+wbadmin start systemstatebackup -quiet -backuptarget:Y:
+
+Script

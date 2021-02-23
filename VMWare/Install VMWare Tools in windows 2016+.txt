@@ -1,0 +1,5 @@
+download the last vmware tools from https://my.vmware.com/group/vmware/downloads/details?downloadGroup=VMTOOLS1105&productId=742
+
+Unzip and look for \VMware-Tools-windows-11.0.5-15389592\vmtools\windows.iso as a cdrom in the target vm
+
+In the target vm, open the cdroom, and install

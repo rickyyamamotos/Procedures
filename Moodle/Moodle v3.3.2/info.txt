@@ -1,0 +1,567 @@
+Moodle blank server with last version of moodle
+
+IP: XXX.XXX.XXX.35		Public IP XXX.XXX.XXX.248 (It is the IP of the nginx.<Site> server)
+OS login: <Username> / <Password>
+MySql login: <Username> / <Password>
+website: XXX.XXX.XXX.35/my
+Moodle credentials: <Username> / <Password>
+DNS A Name: moodle.<Site>
+
+
+Notes: in this installation moodle was installed on /var/www/html/ instead of /var/www/html/moodle/
+			    <Username>@'localhost' password is <Password> instead of <Password>
+			    root@'localhost' password is <Username> instead of yourpassword
+
+
+
+Requirements:
+-AMP (Apache, MySql, PHP)
+	PHP 5.6.5. PHP 7.0.x and 7.1.x are supported but have some engine limitations
+	PHP extensions openssl and fileinfo
+-If you use PostgreSQL the minimum supported version is now 9.3
+-If you use MySQL or MariaDB make sure your database supports full UTF-8 (utf8mb4).
+-Database requirements
+	PostgreSQL 9.3 or Latest
+	MySQL	5.5.31 or Latest
+	MariaDB	5.5.31 or Latest
+	Microsoft SQL Server 2008 or Latest
+	Oracle Database	10.2 or Latest
+-Hardware minimum:
+	5Gb free space
+	1 Gb of memory for every 20 concurrent users
+
+Install LAMP Option 1:
+check LAMP during the installation of Ubuntu
+Note-this will install PHP 7, but we want PHP 5.6.5
+
+Install LAMP Option 2:
+sudo apt-get update
+sudo apt-get install lamp-server^
+Note-this will install PHP 7, but we want PHP 5.6.5
+
+Install LAMP Option 3:
+sudo apt-get install libapache2-mod-php5
+sudo a2enmod php5
+mysql-server libapache2-mod-auth-mysql php5-mysql
+nano /etc/php5/apache2/php.ini
+	//*  increase the memory limit that PHP imposes on a script
+nano /etc/mysql/my.cnf
+	//* replace bind-address = localhost
+	//* with    bind-address = IP of server
+mysql -u root
+mysql> SET PASSWORD FOR 'root'@'localhost' = PASSWORD('yourpassword');
+$ sudo service apache2 restart
+
+Install Moodle
+$ apt-get install graphviz aspell php7.0-pspell php7.0-curl php7.0-gd php7.0-intl php7.0-mysql php7.0-xml php7.0-xmlrpc php7.0-ldap php7.0-zip
+$ apt-get install php-mbstring
+$ apt-get install php-soap
+$ service apache2 restart
+$ cd /tmp
+$ wget https://download.moodle.org/download.php/stable33/moodle-latest-33.tgz
+	//* Downloaded from https://download.moodle.org/releases/latest/
+$ tar -xvzf moodle-latest-33.tgz
+$ cp -R moodle\. /var/www/html/moodle
+$ rm -rf moodle 
+$ nano /etc/mysql/mysql.conf.d/mysqld.cnf
+	//* Add the following into the [Client] paragraph
+		default-character-set = utf8mb4
+	//* Add the following into the [mysqld] paragraph
+		bind-address XXX.XXX.XXX.35
+			//* replace XXX.XXX.XXX.37 with the address of your server
+		default_storage_engine = innodb
+		innodb_file_per_table = 1
+		innodb_file_format = Barracuda
+	//* Append the following
+		character-set-server = utf8mb4
+		collation-server = utf8mb4_unicode_ci
+		skip-character-set-client-handshake
+	//* Append the following
+		[mysql]
+		default-character-set = utf8mb4
+$ service mysql restart
+$ php /var/www/hmtl/moodle/<Username>/cli/mysql_collation.php --collation=utf8mb4_unicode_ci
+$ nano /var/www/html/moodle/config.php
+	//* change  'dbcollation' => 'utf8_unicode_ci', to 'dbcollation' => 'utf8mb4_unicode_ci',
+	//* replace $CFG->wwwroot = 'localhost'; TO $CFG->wwwroot = '';
+	//* add the following line: $CFG->reverseproxy = true;
+$ service apache2 restart
+$ mysql -u root -p
+	//** <Password>
+	mysql> CREATE DATABASE moodle DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+	mysql> create user '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,CREATE TEMPORARY TABLES,DROP,INDEX,ALTER ON moodle.* TO '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> quit;
+$ mkdir /var/moodledata
+$ chown -R www-data /var/moodledata
+$ chmod -R 0770 /var/moodledata
+$ nano /var/www/html/.htaccess
+	order deny,allow
+	deny from all
+REM $ find /var/www/html/moodle/ -exec chown www-data {} \;
+REM	//* On CentOS replace www-data with apache
+$ chmod -R 777 /var/www/html/moodle
+
+Option 1: Configuring Moodle using the browser
+In another computer open http://XXX.XXX.XXX.35
+	Choose English, click next
+	Web Address: http://XXX.XXX.XXX.35, Data Directory: /var/moodledata, next
+	Type: Improved MYSQL (native...), next
+	Database Settings:
+		Database host: localhost
+		Database Name: moodle
+		Database user: <Username>
+		Database password: <Password>
+		Tables prefix: mdl_
+		Database port: 3306
+		Unix Socket: /var/run/mysqld/mysqld.sock
+
+Option 2: Configuring Moodle using CLI
+$ cd /var/www/html/moodle/<Username>/cli
+$ sudo -u www-data /usr/bin/php install.php
+	//* On CentOS replace ww-data with apache
+$ chown -R root /var/www/html/moodle
+
+Adding HTTPS:
+//* we need to temporary assign a server a free public IP in order to install the certificate from letsencrypt
+Log onto <Site>
+	Add a A record on <Site>
+		moodle	XXX.XXX.XXX.243
+			//* where XXX.XXX.XXX.243 is a free IP
+	DNS\<Site>\properties\Start of Authority (SOA)\Serial NUmber\Click on Increment 3 times
+Log onto the router (XXX.XXX.XXX.1)
+	create a network object
+		moodle.<Site> XXX.XXX.XXX.35
+	create a nat from XXX.XXX.XXX.243 to XXX.XXX.XXX.35
+SSH onto moodle.<Site> (XXX.XXX.XXX.35)
+	ssh -p <PortNumber> <Username>@XXX.XXX.XXX.35
+		//* <Password>
+	$ sudo apt-get update
+	$ apt-get install git
+	$ cd /tmp
+	$ git clone https://github.com/letsencrypt/letsencrypt
+	$ cd letsencrypt
+	$ ./letsencrypt-auto --apache -d moodle.<Site>
+		//* email: <Email>
+		//* enable http to https redirection
+	$ cp /etc/letsencrypt/live/moodle.<Site>/*.* /tmp/
+Note- the certificate renewal must be done on the nginx.<Site> server
+
+Copy the certificates for documentation:
+	C:\> pscp -P <PortNumber> <Username>@XXX.XXX.XXX.35:/tmp/*.pem c:\temp\
+		//* <Password>
+Copy the certificates to nginx.<Site>
+	C:\> pscp -P <PortNumber> c:\temp\*.pem <Username>@XXX.XXX.XXX.42:/tmp/
+		//* <Password>
+SSH to ngix.<Site> 
+	ssh -p <PortNumber> <Username>@XXX.XXX.XXX.42
+		//* <Password>
+	$ sudo su
+	$ mkdir /etc/letsencrypt/live/moodle.<Site>
+	$ cp /tmp/*.pem /etc/letsencrypt/live/moodle.<Site>/
+	$ rm /tmp/*.pem
+	$ cp /etc/nginx/sites-available/<Site>-bal.<Site> /etc/nginx/sites-avialable/moodle.<Site>
+	$ ln -s /etc/nginx/sites-available/moodle.<Site> /etc/nginx/sites-enable/moodle.<Site>
+	$ nano /etc/nginx/sites-enabled/moodle.<Site>
+		//* replace <Site> with moodle.<Site>
+		//* replace XXX.XXX.XXX.44 with XXX.XXX.XXX.35
+			//* XXX.XXX.XXX.35 is the internal IP of the moodle server
+		//* replace /etc/letsencrypt/live/<Site>/<Site>_<Site>_org.crt; with /etc/letsencrypt/live/moodle.<Site>/cert.pem;
+        	//* replace /etc/letsencrypt/live/<Site>/<Site>_<Site>_org.key; with /etc/letsencrypt/live/moodle.<Site>/privkey.pem;
+	$ nginx -t
+		//* check that no errors exist
+	$ service nginx restart
+Log onto <Site>
+	Modify the A record for moodle in <Site>
+		from	XXX.XXX.XXX.243	XXX.XXX.XXX.248
+			//* where XXX.XXX.XXX.243 is a free IP
+	DNS\<Site>\properties\Start of Authority (SOA)\Serial NUmber\Click on Increment 3 times
+Log onto the router (XXX.XXX.XXX.1)
+	delete the network object
+		moodle.<Site> XXX.XXX.XXX.35
+	disable the nat from XXX.XXX.XXX.243 to XXX.XXX.XXX.35
+
+
+Finish the installation (improving security):
+$ chmod -R 0755 /var/www/html/moodle
+$ nano /var/www/html/moodle/config.php
+	//* change $CFG->directorypermissions = 0777; to $CFG->directorypermissions = 0770;
+$ chmod -R 0770 /var/moodledata
+$ chmod o+r /var/www/html/moodle/config.php
+
+$ nano /etc/apache2/apache.conf
+	//* replace AllowOverride None WITH AllowOverride All
+	//* for /var/www/html and for /var/www/
+$ cd /var/www/html
+$ nano .htaccess
+	Options -Indexes
+	<ifModule mod_rewrite.c>
+	        RewriteEngine On
+	        RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+	        RewriteRule .* - [F]
+	        RewriteCond %{HTTPS} off
+	</IfModule>
+	<ifModule mod_rewrite.c>
+	        RewriteEngine On
+	        RedirectMatch 403 (?i)(^#.*#|~)$
+	        RedirectMatch 403 (?i)/readme\.(html|txt)
+	        RedirectMatch 403 (?i)\.(ds_store|well-known)
+	        RedirectMatch 403 (?i)/wp-config-sample\.php
+	        RedirectMatch 403 (?i)\.(txt|7z|bak|bz2|com|conf|dist|fla|git|inc|ini|log|old|psd|rar|tar|tgz|save|sh|sql|svn|swo|swp)$
+	</IfModule>
+$ chown root:www.data .htaccess
+$ chmod 640 .htaccess
+$ service apache2 restart
+
+Disable <Site> Globals:
+$ nano /etc/php/7.0/apache2/php.ini
+	//* append the following line
+	<Site>_globals = Off
+$ service apache2 restart
+
+Disable Mysql Network Access
+$ mysql -u root -p
+	//* <Password>
+	mysql> show grants;
+		//* verify that all user are local (xxx@localhost)
+
+Disable guest access
+moodle -> Site <Site> -> Plugins -> Manage Authentication -> Guest Login Button = No
+	//* hides the guest login
+moodle -> Site <Site> -> Plugins -> Enrollments -> Manage enrol plugins -> Guest Access  Disabled
+
+Harden Folder and File Permissions:
+$ find /var/www/moodledata -type d -exec chmod 700 {} +
+$ find /var/www/moodledata -type f -exec chmod 600 {} +
+$ find /var/www/html/moodle -exec chown root:www-data {} \;
+If you do not allow local logins for regular users, then
+	$ find /var/www/html/moodle -type d -exec chmod 755 {} +
+	$ find /var/www/html/moodle -type f -exec chmod 644 {} +
+If you allow local logins for regular users, then
+	$ find /var/www/html/moodle -type d -exec chmod 750 {} +
+	$ find /var/www/html/moodle -type f -exec chmod 640 {} +
+
+Disable Execute Path
+$ nano /var/www/html/config.php
+	//* Add the following line
+	$CFG->preventexecpath = true;
+
+Disable Automatic SWF Plugins Player
+Site -> <Site> -> Plugins -> Media players -> Manage media players -> Flash Animation = disabled
+
+Run the Moodle Security Report:
+Settings > Site <Site> > Reports > Security overview
+
+Site Policies:
+Site <Site> -> Security -> Site policies -> Force users to login = checked
+Site <Site> -> Security -> Site policies -> Account lockout threshold = 5
+Site <Site> -> Security -> Site policies -> 
+
+Disable unsecured protocols
+On the moodle.<Site> server
+$ nano /etc/apache2/mods-enabled/ssl.conf
+	//* replace SSLCipher<Phone> -SSLv3  WITH SSLCipher<Phone> ecdhe:rsa:!sslv3:!rc4:!exp:!des:!3des
+	//* Add the following line:         SSLCompression off
+	//* replace SSLProtocol -SSLv2     WITH SSLProtocol -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+On the nginx.<Site> server
+$ nano /etc/nginx/nginx.conf
+	//* replace ssl_protocols TLSv1;     WITH ssl_protocols TLSv1.1 TLSv1.2;
+$ cd /etc/ssl/certs
+$ openssl dhparam -out dhparam.pem 4096
+$ nano /etc/nginx/sites-enabled/moodle.<Site>
+	//* add the following line after ssl_certicate line
+		ssl_protocols TLSv1.1 TLSv1.2;
+		ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!3DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+		ssl_prefer_server_ciphers on;
+		ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+Install Antivirus
+$ apt-get install clamav clamav-daemon
+$ crontab -e
+	00 00 * * * clamscan -r /var/www
+	30  3 * * * /usr/bin/freshclam –quiet
+
+Plugins
+Turnitin Moodle Direct v2
+	$ cd /tmp
+	$ wget https://moodle.org/plugins/download.php/14577/mod_turnitintooltwo_moodle33_2017080901.zip
+	$ tar - mod_turnitintooltwo_moodle33_2017080901.zip
+Attendance
+	mod_attendance
+HTML5 Quiz					(not available)
+	mod_htmlquiz
+Aclaim
+	assignsubmission_wordcount		(only for moodle ver 2.6and 2.7)
+Safe Exam Browser quiz access rule
+	quizaccess_safeexambrowser		(only for moodle ver 3.2-)
+About University
+	block_aboutus				(not available)
+Academic Status
+	block_academic_status			(not available)
+Announcements
+	block_announcements			(not available)
+<Site> LTI Deeplinking Management
+	block_<Site>_lti_connect			(not available)
+Cobalt classes status
+	block_clclasses_status			(not available)
+Cobalt Reports
+	block_cobalt_reports			(not available)
+Course dedication
+	block_dedication
+Events
+	block_events
+Exams
+	block_exams
+Help desk
+	block_help_desk
+Cobalt LMS dashboard
+	block_landing_board
+My Classes
+	block_mycourses
+Progress Bar
+	block_progress
+Question Pools
+	block_questionpool
+Quickmail
+	block_quickmail
+Cobalt report dashboard
+	block_reportdashboard
+Technical Support
+	block_technical_support
+Organization Structure
+	block_universitystructure
+Drag-and-Drop Matching
+	qtype_ddmatch
+Canvas
+	qformat_canvas
+Unique Login
+	auth_uniquelogin
+Flexible sections format
+	format_flexsections
+Collapsed Topics
+	format_topcoll
+File upload
+	profilefield_file
+Forum Graph
+	report_forumgraph
+VeriCite
+	plagiarism_vericite
+CoLMS
+	theme_colms
+Essential
+	theme_essential
+lambda
+	theme_lambda
+Academic Calendar
+local_academiccalendar
+Additional	2013051400	2.5				
+Required by: local_admission, local_onlinepayment
+Add/Drop Course
+local_adddrop
+Additional	2012122101	2.1			Uninstall	
+Admissions
+local_admission
+Additional	2013051401	2.5			Uninstall	
+Analytics
+local_analytics
+Additional	2014042900	1.4 (Build: 2014042900)			Uninstall	
+[pluginname,local_annotation]
+local_annotation
+Additional					Uninstall	
+Approvals
+local_approval
+Additional	2012122101	2.1			Uninstall	
+Manage Academic Advisor
+local_assignmentor
+Additional	2011121705	2.1			Uninstall	
+Attendance
+local_attendance
+Additional	2013082901	2.5.2			Uninstall	
+Audit trail
+local_audittrail
+Additional	2011121705	2.1			Uninstall	
+Manage Batches
+local_batches
+Additional	2013110303	2.1			Uninstall	
+CiviCRM
+local_civicrm
+Additional	2013010706	2.1			Uninstall	
+Classroom Resources
+local_classroomresources
+Additional	2013051401	2.5			Uninstall	
+Classes
+local_clclasses
+Additional	2013010713	2.1				
+Required by: local_adddrop, local_approval, local_courseregistration, local_gradesubmission, local_mentor, local_scheduleexam
+Manage Courses
+local_cobaltcourses
+Additional	2013110303	2.1				
+Required by: local_adddrop, local_approval, local_clclasses, local_courseregistration, local_mentor, local_onlinepayment, local_request
+Cobalt Settings
+local_cobaltsettings
+Additional	2011121705	2.1			Uninstall	
+College Structure
+local_collegestructure
+Additional	2013010707	2.1				
+Required by: local_academiccalendar, local_adddrop, local_admission, local_approval, local_classroomresources, local_clclasses, local_cobaltcourses, local_cobaltsettings, local_courseregistration, local_curriculum, local_departments, local_evaluations, local_examtype, local_gradeletter, local_gradesubmission, local_lecturetype, local_mentor, local_modules, local_onlinepayment, local_prefix, local_profilechange, local_programs, local_request, local_scheduleexam, local_semesters, local_users
+Course Registration
+local_courseregistration
+Additional	2012122101	2.1			Uninstall	
+Curriculums
+local_curriculum
+Additional	2013010706	2.1			Uninstall	
+Custom Moodl<Site>le app
+local_custommm
+Additional	2011101202	1.0 (Build: 2011101202)			Uninstall	
+Progress Bar
+local_dashboard
+Additional	2012122101	2.1			Uninstall	
+Manage Disciplines
+local_departments
+Additional	2011121705	2.1				
+Required by: local_clclasses, local_cobaltcourses
+Evaluations
+local_evaluations
+Additional	2013051400	2.5			Uninstall	
+Exam Types
+local_examtype
+Additional	2011121706	2.1			Uninstall	
+Google Analytics
+local_googleanalytics
+Additional	201308<PortNumber>	1.0 (Build: 2013071500)			Uninstall	
+Grade book
+local_gradebook
+Additional	2015101100	2.1			Uninstall	
+Grade Letters
+local_gradeletter
+Additional	2013090600	2.1			Uninstall	
+Grade submission
+local_gradesubmission
+Additional	2013092907	2.1				
+Required by: local_graduation
+Graduation
+local_graduation
+Additional	2013131100	2.5			Uninstall	
+Help Desk Personnel
+local_help_desk
+Additional	2013010706	2.1			Uninstall	
+[pluginname,local_helpmanuals]
+local_helpmanuals
+Additional	2013051400	2.5			Uninstall	
+IntelliBoard.net Plugin
+local_intelliboard
+Additional	2017100100	4.8			Uninstall	
+Jasper
+local_jasper
+Additional	2013010706	2.1			Uninstall	
+Mode of Exams
+local_lecturetype
+Additional	2012122101	2.1			Uninstall	
+LTI Provider
+local_ltiprovider
+Additional	2016020107	2.9.0			Uninstall	
+Mentor
+local_mentor
+Additional	2013110303	2.1			Uninstall	
+Modules
+local_modules
+Additional	2013010706	2.1			Uninstall	
+Muschub SSO
+local_musichubsso
+Additional	2015091609				Uninstall	
+My Transcripts
+local_myacademics
+Additional	2013051401	2.5			Uninstall	
+My Classes
+local_mycourses
+Additional	2013050100	2.5			Uninstall	
+Online Payment
+local_onlinepayment
+Additional	2013050100	2.5			Uninstall	
+Prefix Suffix
+local_prefix
+Additional	2011121705	2.1			Uninstall	
+Edit Profile
+local_profilechange
+Additional	2012122101	2.1			Uninstall	
+Manage Programs
+local_programs
+Additional	2013110303	2.1				
+Required by: local_admission
+Ratings
+local_ratings
+Additional	2013050100	2.5			Uninstall	
+Requests
+local_request
+Additional	2012122101	2.1			Uninstall	
+Resource Central
+local_resourcecentral
+Additional	2013051401	2.5			Uninstall	
+Sandbox
+local_sandbox
+Additional	2014111000	2.8 (Build: 2015012900)			Uninstall	
+There is a new version 2015051100 available!
+Release 2.9 (Build: 2015081800) Stable version Download More info...
+Help with thisPlugin files not writable
+Examinations
+local_scheduleexam
+Additional	2011121706	2.1			Uninstall	
+Manage Semesters
+local_semesters
+Additional	2013110303	2.1				
+Required by: local_academiccalendar, local_adddrop, local_approval, local_clclasses, local_courseregistration, local_evaluations, local_gradesubmission, local_mentor, local_onlinepayment, local_request, local_scheduleexam
+SmartKlass
+local_smart_klass
+Additional	2016032401	0.9.4 (Build: 20160324)			Uninstall	
+Tags
+local_tags
+Additional	2013050100	2.5			Uninstall	
+Timetable
+local_timetable
+Additional	2013110303	2.1			Uninstall	
+Townhall
+local_townhall
+Additional	2012122101	2.1				
+Required by: local_townhall
+Manage Users
+local_users
+Additional	2013110303	2.1				
+Required by: local_courseregistration, local_mentor
+classes Missing from disk!
+local_classes
+Additional	2013010713		Disabled		Uninstall	
+LTI Provider / LTI extensions
+SCORM bridge
+ltiproviderextension_scormbridge
+
+
+
+More to do:
+add plugins, follow the plugins from <Site>.<Domain>
+
+
+SSLCertificateFile /etc/httpd/ssl/<Site>_<Domain>.crt
+
+SSLCertificateKeyFile /etc/httpd/ssl/<Site>_<Domain>.key
+
+SSLCACertificateFile /etc/httpd/ssl/<Site>_ca.crt
+
+cert.pem
+chain.pem
+fullchain.pem
+privkey.pem
+
+
+
+Check LAMP version
+	PHP	$ php -v
+			//* 7.02	(some functions may not work)
+	Mysql	$ mysql -u root -p
+		mysql> SHOW VARIABLES LIKE "%version%";
+			//* 5.7.19
+	Apache	$ apache2 -v
+			//* 2.4.18
+
+
+Manually installing Memcached in PHP 7.x
+https://docs.moodle.org/dev/Moodle_and_PHP7#Can_I_use_PHP7_yet.3F

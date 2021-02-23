@@ -1,0 +1,20 @@
+Do the following to clean out the broken packages:
+    sudo apt-get clean
+    sudo apt-get update
+    sudo dpkg -r mysql-client-5.7
+    sudo dpkg -r mysql-server-5.7
+    sudo dpkg -r libmysqlclient20:i386
+    sudo dpkg -r libmysqlclient20:amd64
+    sudo dpkg -r libmysqlclient18:amd64
+    sudo dpkg -r mysql-common
+    sudo dpkg -r mysql 
+    sudo apt-get purge mysql\* mariadb\* libmysql\* libmariadb\*
+If anything fails, just run
+    sudo dpkg -r <failedpackage>
+After that reinstall it with:
+    sudo apt-get install mysql mysql-client* mysql-server*
+
+ 
+
+If it still did not work, try other options on
+    https://askubuntu.com/questions/773287/how-to-repair-corrupt-package-installation-mysql

@@ -1,0 +1,61 @@
+we will create a dummy user
+
+Cause
+Instead of starting with an empty database you can add the flag -Dsakai.demo=true in addition to the others shown here. During your first Tomcat launch it will populate your database with test data (students, courses, etc). Once the data has been created remove this flag for subsequent Tomcat launches. Be advised that this flag will not trigger on a database with data already in it so you must make this choice during the initial setup. It should also be noted that without this flag one will not be able to create any course sites in Sakai unless Academic Term, Subject, Course, and Section data is manually added to the "cm_" tables in the database
+
+
+Solution
+$ fuser 8080/tcp
+	//* I.E. 856
+$ kill -9 856
+$ msql -uroot -p
+myslq> drop database <DBName>;
+mysql> create database <DBName> default character set utf8;
+mysql> grant all privileges on <DBName>.* to 'sakai'@'localhost';
+mysql> flush privileges;
+mysql> quit
+$ export JAVA_OPTS="$JAVA_OPTS -Dsakai.demo=true"
+$ /opt/tomcat/bin/startup.sh
+
+
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+sudo openssl dhparam -out /etc/nginx/dhparam.pem 4096
+apt-get install nginx
+cd /etc/sites-available
+nano <Site>
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        server_name _;
+        location / {
+                   proxy_pass  http://127.0.0.1:8080;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_redirect          off;
+                  }
+
+}
+
+server {
+        listen 443 default_server;
+        listen [::]:443 default_server;
+        server_name _;
+
+        ssl on;
+        ssl_certificate     /etc/ssl/certs/nginx-selfsigned.crt;
+        ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+        server_name <Site>;
+        location / {
+                   proxy_pass  http://XXX.XXX.XXX.152:8080;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                   proxy_redirect          off;
+                  }
+
+}
+
+
+

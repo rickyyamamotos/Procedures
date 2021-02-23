@@ -1,0 +1,7 @@
+$ apache2 -v
+
+
+# Tell apache2.4 to use the PHP5.6 version
+>sudo apt-get install libapache2-mod-php5.6
+>sudo a2dismod php5.5
+>sudo a2enmod php5.6

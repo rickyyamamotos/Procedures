@@ -1,0 +1,8 @@
+$ nano /var/www/.htaccess
+$ nano /var/www/html/.htaccess
+
+check if any redirect exist to disaalow access to files
+disable any redirect
+
+
+check also that firewall is allowing connection through

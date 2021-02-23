@@ -1,0 +1,9 @@
+google drive converter for moodle
+cd /var/www/html/files/converter/googledrive
+
+
+
+editpdfplus
+/var/www/html/mod/assign/feedback/editpdf
+
+Chirs, /var/www/html/mod/assign/feedback/editpdf   and   /var/www/html/files/converter/googledrive are exactly the same on both <Site> and <Site>.<Domain>

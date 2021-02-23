@@ -1,0 +1,139 @@
+Port Forwarding w/o port translation/redirection
+steps:
+
+1) Creating the necessary Address Objects: (Public IP will be forwarded to Server's Private IP)
+	-Click Network -> Address Objects -> Add a new Address object -> Server's Public IP
+	-Click Network -> Address Objects -> Add a new Address object ->  Server's Private IP
+	-For example:
+		Name:		SERVER
+		Zone Assigment	LAN
+		Type		Host
+		IP Address	XXX.XXX.XXX.31
+2) Creating the necessary Service Object: (Public IP on port designated by a service object will be forwarded to 
+	Server's Private IP on a port designated by another service object)
+	-Click Network -> Service Objects -> Add a new Service object -> create the necessary Service Objects for 
+		the Ports required (we need at least 2 service object, one for the Public and one for the private IP)
+	-If you're unsure of which Protocol is in use, perform a Packet Capture.
+	-For example:
+		Name:		SERVICE1
+		Protocol	UDP
+		Port range	5060
+		Sub Type	None
+Firewall Subnets
+3) Creating the appropriate NAT Policies which can include Inbound, Outbound, and Loopback
+	Once the objects are in place, they can be referenced from the NAT policies.
+	A NAT Policy will allow SonicOS to translate incoming Packets destined for a Public IP Address to a 
+		Private IP Address, and/or a specific Port to another specific Port.
+	Every Packet contains information about the Source and Destination IP Addresses and Ports and with a NAT 
+		Policy SonicOS can examine Packets and rewrite those Addresses and Ports for incoming and outgoing traffic.
+	NAT policies define the actual port forwarding. For a port forwarding to work properly, there are 3 policies 
+		that have to be defined:
+		-Inbound policy: directs and translates the service from WAN to the computer behind the firewall.
+		-Outbound policy (also called "reflexive" policy): outbound traffic from the computer back to WAN 
+			(and the client) gets properly directed (and translated if needed).
+		-Loopback policy: allows clients behind the firewall to use the WAN IP to connect to the computer 
+			which is also behind the firewall. Sonicwall is one of the few firewalls that actually support this without strenuous configuration.
+	Note: When creating a NAT Policy you may select the "Create a reflexive policy" checkbox. This will 
+		create an inverse Policy automatically
+	-Click Network -> NAT Policies -> Add a new NAT Policy -> create a policy that translate address 
+		objects for the specific services objects
+	-Example: 
+		-Inbound policy (Client access XXX.XXX.XXX.186:5060 and server IP is XXX.XXX.XXX.31)
+			Original source		Any (any client with public or private IP)
+			Translate Source	Original (keep client's IP address)
+			Original Destination	WAN Primary IP (That arrives to the WAN interface of the sonicwall)
+			Translated Destination	SERVER (translate public IP(XXX.XXX.XXX.186) to SERVER or private IP(XXX.XXX.XXX.31))
+			Original Service	SERVICE1 (Port accessed by client, 5060)
+			Translated Service	Original (We are not doing PORT translation, port remains 5060)
+						SERVICE2 (Optionally, Use this if we want PORT translation, port to 5061)
+			Inbound Interface	Any
+			Outbound Interface	Any
+			Enable NAT Policy	Checked
+		-Outbound policy
+			Original source		SERVER (Packet originating from XXX.XXX.XXX.31)
+			Translate Source	WAN Primary IP (that arrives to gateway)
+			Original Destination	Any (to a Public IP destination)
+			Translated Destination	Original (keep the Public IP destination intact)
+			Original Service	SERVICE1 (only for destination port 5060)
+			Translated Service	Original (do not translate port, keep destination port as 5060)
+			Inbound Interface	Any
+			Outbound Interface	X1 
+			Enable NAT Policy	Checked
+		-Loopback policy
+			Original source		Firewalled Subnets (only packet comming from LAN)
+			Translate Source	WAN Primary IP (translate private IP to is XXX.XXX.XXX.186)
+			Original Destination	WAN Primary IP (which destination is XXX.XXX.XXX.186)
+			Translated Destination	SERVER (translate XXX.XXX.XXX.186 to XXX.XXX.XXX.31)
+			Original Service	SERVICE1 (only for port 5060)
+			Translated Service	Original (keep port 5060)
+			Inbound Interface	Any
+			Outbound Interface	Any
+			Enable NAT Policy	Checked
+4) Loopback NAT Policy
+	A Loopback NAT Policy is required when Users on the Local LAN/WLAN need to access an internal Server via its 
+		Public IP/Public DNS Name.
+	 Without a Loopback NAT Policy internal Users will be forced to use the Private IP of the Server to access 
+		it which will typically create problems with DNS.
+	For example If you wish to access this server from other internal zones using the Public IP address 
+		Http://1.1.1.1 consider creating a Loopback NAT Policy:
+			Original Source: Firewalled Subnets
+			Translated Source: X1 IP
+			Original Destination: X1 IP
+			Translated Destination: Example Name Private
+			Original Service: HTTPS
+			Translated Service: Original
+			Inbound Interface: Any
+			Outbound Interface: Any
+			Comment: Loopback policy
+			Enable NAT Policy: Checked
+			Create a reflexive policy: Unchecked
+5) Creating the necessary Firewall Access Rules
+	With the NAT policies in place, you still have to configure the required firewall rule to allow traffic to 
+		pass through the firewall. 
+	-Click Firewall -> Access Rules -> Select the View Type as Matrix -> select your WAN to Appropriate Zone 
+		Access Rule (This will be the Zone the Private IP of the Server resides on)
+	-Click the Add a new entry/Add... button and in the pop-up window create the required Access Rule 
+		by configuring the fields as shown below.
+			Action:	Allow
+			From		WAN
+			To		LAN
+			Source Port	Any
+			Service		Any
+			Source		Any
+			Destination	Example name public
+			Users included	All
+			Users excluded	None
+			Schedule	Always on
+			Enable logging	Checked
+			Allow Fragmented packet	Checked
+	-For example: Set the destination address object to the WAN IP address, as it will be enough 
+		to accept the traffic for the services on the WAN IP of your firewall. Once the traffic 
+		is on the firewall, the NAT policies will do the rest.
+			Action:	Allow
+			From		WAN
+			To		LAN
+			Source Port	Any
+			Service		Any
+			Source		Any
+			Destination	WAN Primary IP
+			Users included	All
+			Users excluded	None
+			Schedule	Always on
+			Enable logging	Checked
+			Allow Fragmented packet	Checked
+WAN > LAN 	NexVortex_3CX 	3CX Server	Any	Allow 	All
+
+
+
+Port Forwarding with port translation/redirection
+enable Port Address Translation with or without altering the IP Addresses involved
+
+
+
+
+
+
+Public Server Wizard:
+The Public Server Wizard is a straightforward and simple way to provide public access to an internal Server
+through the SonicWall. The Public Server Wizard will simplify the above three steps by prompting your for 
+information and creating the necessary Settings automatically.

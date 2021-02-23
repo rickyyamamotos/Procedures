@@ -1,0 +1,15 @@
+win32tm
+
+Event 1126
+Windows was unable to determine whether new Group Policy settings defined by a network <Username> should be enforced for this user or computer because this computer's clock is not synchronized with the clock of one of the domain controllers for the domain. Because of this issue, this computer system may not be in compliance with the network <Username>’s requirements, and users of this system may not be able to use some functionality on the network. Windows will periodically attempt to retry this operation, and it is possible that either this system or the domain controller will correct the time settings without intervention by an <Username>, so the problem will be corrected. 
+If this issue persists for more than an hour, checking the local system's clock settings to ensure they are accurate and are synchronized with the clocks on the network's domain controllers is one way to resolve this problem. A network <Username> may be required to resolve the issue if correcting the local time settings does not address the problem.
+
+Verification
+CMD as <Username>
+C:\> win32tm /query /status
+C:\> win32tm /query /peers
+C:\> win32tm /query /source
+	//* check the time is being sync from AD PDC
+C:\> win32tm /resync
+
+

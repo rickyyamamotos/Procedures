@@ -1,0 +1,31 @@
+$ cd /tmp/
+$ sudo yum update
+$ git clone https://github.com/letsencrypt/letsencrypt
+$ cd letsencrypt
+
+$ ./letsencrypt-auto certonly -d worktogether.<Domain>
+	//* 3: Place files in webroot
+	//* 1: Enter new webroot
+	//* /var/www/html/loowid/public	(or any other webroot you want)
+	//* email: <Email>
+	//* require HTTPS
+	//* the certificate is saved in /etc/letsencrypt/live/worktogether.<Site>/fullchain.pem
+	//*                             /etc/letsencrypt/live/worktogether.<Site>/privkey.pem
+https://www.ssllabs.com/ssltest/<Site>.html?d=myweb-<Site>&latest
+	//* verifies status of the SSL certificate
+
+Error: Detail: CAA record for worktogether.<Domain> prevents issuance
+	//* use another domain that dont have a CAA record
+	//* or temporary remove the CAA record if possible
+
+
+
+$ sudo crontab -e
+	//* Enter the following line
+	//*will execute the letsencrypt-auto renew command every Monday at 2:30 am.
+	30 2 * * 1 /usr/bin/letsencrypt-auto renew >> /var/log/le-renew.log
+
+
+Error:
+	No supported Python package available to install. Aborting bootstrap!
+		

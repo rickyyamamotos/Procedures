@@ -1,0 +1,20 @@
+centos blk_update_request IO error, dev fd0, sector 0
+	$ echo "blacklist floppy" | sudo tee /etc/modprobe.d/blacklist-floppy.conf
+	$ rmmod floopy
+
+
+if still not fixed
+$ lsmod | grep floppy
+	//* sees if floppy is still enabled
+$ nano /etc/dracut.conf.d/nofloppy.conf
+	omit_drivers+="floppy"
+$ nano /etc/modprobe.d/nofloppy.conf
+	blacklist floppy
+$ dracut --force
+$ lsmod | grep floppy
+	//* sees if floppy is still enabled
+$ reboot now
+$ lsmod | grep floppy
+$ dmesg | grep fd0
+
+

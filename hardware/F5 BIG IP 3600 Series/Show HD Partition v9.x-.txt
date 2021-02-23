@@ -1,0 +1,4 @@
+ssh rick@XXX.XXX.XXX.230
+pass: <Password>
+
+$ switchboot -l

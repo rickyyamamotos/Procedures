@@ -1,0 +1,7 @@
+C:\> arp  -a | findstr <MACAddress>
+	//* mac address in lower cases
+
+C:\> arp -a
+	//show all ips and their mac address
+
+you can also see the DHCP(<Site>) server for addresses leases

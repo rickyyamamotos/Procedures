@@ -1,0 +1,18 @@
+#
+# /etc/fstab
+# Created by anaconda on Tue Mar 13 06:01:11 2018
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=6cdde572-1e75-412b-b23b-30560af7a868 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-home /home                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+
+# Ransomware Honeypot file in the drobo
+# yum install samba-client samba-common cifs-utils
+\\XXX.XXX.XXX.19\backupserver/Dummy /mnt/shares/drobo cifs user,uid=500,rw,suid,username=<Username>,password=<Password>,vers=1.0 0 0
+\\XXX.XXX.XXX.19\<Site>-ftp\Dummy /mnt/shares/drobo800i cifs user,uid=500,rw,suid,username=<Username>,password=<Password>,vers=1.0 0 0
+#\\XXX.XXX.XXX.20\dfs\profiles\Dummy /mnt/shares/<Site> cifs user,uid=500,rw,suid,username=<Username>,password=<Password> 0 0

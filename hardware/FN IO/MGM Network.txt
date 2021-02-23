@@ -1,0 +1,3 @@
+The FN I/O address has to be on the same subnet/vlan of the idrac network.
+The production network on a different vlan/subnet, and recommended in different switches.
+So the FN I/O must have an address within the iDRAC network

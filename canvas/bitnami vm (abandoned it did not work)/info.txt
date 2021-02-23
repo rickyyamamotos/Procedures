@@ -1,0 +1,45 @@
+
+
+username: bitnami / 
+	  or
+	  bitnami / <Password>
+
+canvas credentials
+	user@example.com / <Password>
+
+root directory
+	/opt/bitnami/
+
+Logs:
+/opt/bitnami/apps/canvaslms/log/canvaslms.log
+
+Components directories:
+	/opt/bitnami/mysql/: MySQL Database.
+	/opt/bitnami/ruby/: Ruby, Ruby gems, Rails
+	/opt/bitnami/git/: Distributed version control system
+	/opt/bitnami/sqlite/: SQLite database server
+	/opt/bitnami/apache2/: Apache Web server
+	/opt/bitnami/memcached/: Distributed memory object caching system
+	/opt/bitnami/nginx/: NGinx Web server
+	/opt/bitnami/sphinx/: Sphinx search engine
+	/opt/bitnami/perl/: Perl scripting language
+	/opt/bitnami/varnish/: Varnish cache server
+	/opt/bitnami/licenses/: License files
+	/opt/bitnami/php/: PHP
+	/opt/bitnami/apps/phpmyadmin: Management tool for MySQL
+
+
+https://docs.bitnami.com/virtual-machine/infrastructure/ruby/
+sudo /opt/bitnami/ctlscript.sh start
+	//* start all services:
+sudo /opt/bitnami/ctlscript.sh restart apache
+	//* use it to restart a single service, such as Apache only, by passing the service name as argument:
+sudo /opt/bitnami/ctlscript.sh stop
+	//* Use this script to stop all services
+sudo /opt/bitnami/ctlscript.sh restart
+	//* Restart the services by running the script without any arguments
+sudo /opt/bitnami/ctlscript.sh
+	//* Obtain a list of available services and operations by running the script without any arguments:
+
+
+

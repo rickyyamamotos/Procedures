@@ -1,0 +1,114 @@
+This procedure was implemented in <Site>.<Domain> and in <Site>.<Domain>
+
+
+=============================================
+Info
+	master		XXX.XXX.XXX.31 				12.34.56.789
+	slave		XXX.XXX.XXX.32				12.23.34.456
+	database	v
+
+Preliminary verification
+	check the mysql version on master and slave. They must be the same. 
+		$ mysql --version
+			//* I.E. 5.5.62
+Replication Configuration:
+	In the master (first ssh window)
+		$ nano /etc/my.conf
+			bind-address = 0.0.0.0
+			server-id = 1
+			binlog_format=mixed
+			log_bin = /var/log/mysql/mysql-bin.log
+			binlog_do_db = v
+			binlog-ignore-db = mysql
+			innodb_flush_log_at_trx_commit=1
+				//* The default setting of 1 is required for full ACID compliance. Logs are written and flushed to disk at each transaction commit.
+				//* this setting is necessary if sync_binlog==1
+			sync_binlog=1
+				//* sync_binlog=1: Enables synchronization of the binary log to disk before transactions are committed. This is the safest setting but can have a negative impact on performance due to the increased number of disk writes. In the event of a power failure or operating system crash, transactions that are missing from the binary log are only in a prepared state. This permits the automatic recovery routine to roll back the transactions, which guarantees that no transaction is lost from the binary log.
+			replicate-same-server-id = 0
+			# expire_logs_days = 30
+			max_binlog_size = 9000M
+		$ mkdir /var/log/mysql
+		$ chown mysql:mysql /var/log/mysql
+		$ sudo service mysql restart
+		$ mysql -u root -p
+			//* <Password>
+		mysql> GRANT REPLICATION SLAVE ON *.* TO 'slave_user'@'XXX.XXX.XXX.32' IDENTIFIED BY '<Password>';
+		mysql> FLUSH PRIVILEGES;
+		mysql> use v;
+		mysql> FLUSH TABLES WITH READ LOCK;
+		mysql> SHOW MASTER STATUS;
+			//* take note of the value of Position
+			//* 342
+			//* take note of the file's name
+			//*  mysql-bin.000001
+	Open a new ssh window to the master (2nd ssh window)
+		$ cd /tmp
+		$ mysqldump -u root -p --opt v > v.sql
+		$ exit
+		$ exit
+	Back in the master  (first ssh windows)
+		mysql> UNLOCK TABLES;
+		mysql> QUIT;
+		$ exit
+		$ exit
+	In the slave server
+		$ mysql -uroot -p
+			//* <Password>
+		mysql> CREATE DATABASE v DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';
+		mysql> QUIT;
+		$ cd /tmp
+		$ scp -P 22 rick@XXX.XXX.XXX.31:/tmp/v.sql ./
+		$ mysql -u root -p v < /tmp/v.sql
+====>		$ sudo nano /etc/my.cnf
+			bind-address = 0.0.0.0
+			server-id = 2
+			binlog_format=mixed
+			relay-log =mysql-relay-bin.log
+			log_bin = /var/log/mysql/mysql-bin.log
+			binlog_do_db = v
+			binlog-ignore-db = mysql
+			replicate-ignore-db = mysql
+			replicate-same-server-id = 0
+			# expire_logs_days = 30
+			log-slave-updates
+				//* this takes SQL that was read from relay logs and records them in the Slave Binary Logs when the SQL is completed. 
+			max_binlog_size = 9000M
+		$ mkdir /var/log/mysql
+		$ chown mysql:mysql /var/log/mysql
+		$ sudo service mysql restart
+		$ mysql -uroot -p
+			//* <Password>
+		mysql> SLAVE STOP;
+		mysql> CHANGE MASTER TO MASTER_HOST='XXX.XXX.XXX.31',MASTER_USER='slave_user', MASTER_PASSWORD='<Password>', MASTER_LOG_FILE='YYY', MASTER_LOG_POS=  XXX;
+			//* replace XXX with the postion noted from the master "SHOW MASTER STATUS" done previously
+			//* replace YYY with the file's name noted from the master "SHOW MASTER STATUS" done previously
+		mysql> START SLAVE;
+		mysql> SHOW SLAVE STATUS\G
+			//* Slave_IO_Running: Yes
+			//* Slave_SQL_Running: Yes
+			//* Seconds_Behind_Master: 0
+			//* The Slave_IO_State field should show “Waiting for master to send event”. 
+			//* If it shows “Connecting to Master” please check your MySQL log file. By default it is /var/log/mysqld.log but it may be configured differently on your system.
+		If there is an issue in connecting, you can try starting slave with a command to skip over it:
+			mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1; SLAVE START; 
+Test Replication:
+	On the slave
+		mysql> SHOW SLAVE STATUS\G
+			//* Slave_IO_State: Waiting for master to send event
+	On the master
+		mysql> SHOW PROCESSLIST \G;
+			//* State: Has sent all binlog to slave; waiting for binlog to be updated
+
+firewall
+	On master
+		$ iptables -A INPUT -p tcp -s XXX.XXX.XXX.32 --dport 3306 -j ACCEPT
+		$ iptables -A INPUT -p tcp -m tcp --dport 3306 -j REJECT
+		$ service iptable restart
+	On the slave (Optionally)
+		$ iptables -A INPUT -p tcp -s XXX.XXX.XXX.31 --dport 3306 -j ACCEPT
+		$ iptables -A INPUT -p tcp -m tcp --dport 3306 -j REJECT
+		$ service iptable restart
+
+
+

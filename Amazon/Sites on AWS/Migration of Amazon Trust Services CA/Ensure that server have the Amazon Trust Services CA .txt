@@ -1,0 +1,5 @@
+$ curl https://s3-ats-migration-test.s3.eu-west-3.amazonaws.com/test.jpg
+	//* if this return a certificate error, then the "Amazon Trust Services CA" needs to be added to the server
+	//* 	curl: (60) Peer's certificate issuer has been marked as not trusted by the user.
+
+

@@ -1,0 +1,13 @@
+copy files from a linux server to a windows PC or viceversa
+===========================================================
+
+Install putty
+c:> c:\program files\putty
+c:> pscp rick@XXX.XXX.XXX.47:/usr/local/nagios/etc/object/* c:\temp\
+	//* replace <Site>-monitor1 with the name of the linux server or its IP address
+	//* you can see this name on the bash prompt. F.E. rick@<Site>-monitor1$ sudo su
+
+c:> pscp -p -P <PortNumber> rick@XXX.XXX.XXX.47:/etc/nagios3/conf.d/* c:\temp\conf.d\
+
+copy files to <Site>
+c:\> pscp -r -p -P <PortNumber> C:\Users\rick.yamamoto\Desktop\Training\Wordpress\<Site>\<Site>\<Site> rick@XXX.XXX.XXX.186:/tmp/html/

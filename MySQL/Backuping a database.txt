@@ -1,0 +1,14 @@
+$ mysqldump -h localhost -u moodle -p -C -Q -e --create-options v > /tmp/v-backup.sql
+	//* it locks the tables until the backup is finished
+
+$ mysqldump --lock-tables=false --quick -h localhost -u moodle -p -C -Q -e --create-options v > /tmp/v-backup.sql
+	//* for othen than InnoDB, it does not lock tables
+	//* it may create inconsistencies
+
+$ mysqldump --single-transaction=TRUE --quick -h localhost -u moodle -p -C -Q -e --create-options v > /tmp/v-backup.sql
+	//* for InnoDB, it does not lock tables
+
+
+
+Backing up databases when mysql wont work
+	/var/lib/mysql/

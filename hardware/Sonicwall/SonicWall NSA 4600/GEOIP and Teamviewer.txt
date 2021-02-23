@@ -1,0 +1,9 @@
+Teamviewer servers are all over the world. GeoIP will interfere with teamviewer.
+To allow teamviewer through the sonicwall do:
+
+create a address object
+	WAN	fqdn		*.teamviewer.com
+Add this group to following to Default Exclusion GEO-IP and Botnet group
+
+
+

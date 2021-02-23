@@ -1,0 +1,31 @@
+installing GDPR plugin on Wordpress 5.3.2
+
+
+Download and Activation
+	1) Upload the plugin files to the /wp-content/plugins, or install the plugin through the WordPress plugins screen directly.
+		https://wordpress.org/plugins/gdpr-framework/
+		https://downloads.wordpress.org/plugin/gdpr-framework.zip
+	2) Activate the plugin through the ‘Plugins’ screen in WordPress.
+	3) ‘The GDPR Framework’ will be managed at Tools > Data443 GDPR tab.
+	4) The page ‘Privacy Tools’ will be created after Setup Wizard. This page displays the form where visitors can submit their request.
+
+Setup Guide
+	Steps to add consent with contact form 7 are as follow:
+	1. First, need to create consent “Tools > Data443 GDPR > Consent > Add consent type” .
+	2. Then note down the slug for example the slug is “contact_acceptance”
+	3. Then go to the contact form 7 click on Acceptance button a pop-up will get open.
+	4. Add the name of that acceptance same as that of slug i.e “contact_acceptance”.
+	5. Insert the tag then save the form then it will be embedded with contact form 7.
+
+Compatibility Guide:
+	To make Easy Digital Download and Woo-commerce compatible with the plugin you need to check checkbox at Tools > Data443 
+		GDPR > general > Woocommerce Integration / Easy Digital Download Integration.
+
+Add consent to Easy Digital download:
+	You need to turn on the default EDD consent from Downloads > Settings > Privacy
+	and have to check checkboxs for “Agree to Privacy Policy” and “Show the Privacy Policy on checkout”.
+
+Plugin settings
+In WordPress <Username>, there is now a new page under the Tools menu item called "Privacy." Once you've finished the wizard, you can modify the plugin settings there.
+
+

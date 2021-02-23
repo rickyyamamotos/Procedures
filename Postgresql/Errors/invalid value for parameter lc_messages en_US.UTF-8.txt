@@ -1,0 +1,17 @@
+Error Trying to start Postgresql. Logs shows invalid value for parameter "lc_messages": "en_US.UTF-8"
+
+Logs:
+LOG:  invalid value for parameter "lc_messages": "en_US.utf8"                                                                                                                           
+pg0_1        | 2018-02-16 17:08:35.744 UTC [1] LOG:  invalid value for parameter "lc_monetary": "en_US.utf8"                                                                                                                           
+pg0_1        | 2018-02-16 17:08:35.745 UTC [1] LOG:  invalid value for parameter "lc_numeric": "en_US.utf8"        
+pg0_1        | 2018-02-16 17:08:35.745 UTC [1] LOG:  invalid value for parameter "lc_time": "en_US.utf8"           
+pg0_1        | 2018-02-16 17:08:35.745 UTC [1] FATAL:  configuration file "/var/lib/postgresql/data/10/postgresql.conf" contains errors         
+
+
+$ locale
+locale: Cannot set LC_CTYPE to default locale: No such file or directory                                           
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory                                        
+locale: Cannot set LC_ALL to default locale: No such file or directory 
+
+Fix:
+$ localedef -i en_US -f UTF-8 en_US.UTF-8

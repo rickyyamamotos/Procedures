@@ -1,0 +1,1 @@
+https://dougrathbone.com/blog/2013/11/18/testing-connectivity-to-microsoft-sql-server-without-any-tools-installed

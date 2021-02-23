@@ -1,0 +1,7 @@
+In the Domain DNS, add a CAA record with the following parameters
+	Name:	@
+	Flags:	0
+	Tag:	issue
+	Value:	letsencrypt.org
+	TTL:	1/2 hour
+This will allow a domain with an existing CAA record to also allow letsencrypt to issue certs for it

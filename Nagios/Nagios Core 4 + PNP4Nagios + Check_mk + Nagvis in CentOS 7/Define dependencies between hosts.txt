@@ -1,0 +1,18 @@
+Nagios 4 has a property for the host definition configuration
+	define host{
+		host_name		Nagios   ; <-- The local host has no parent - it is the topmost host
+		}
+	define host{
+		host_name		Switch1
+		parents		Nagios
+		}
+	define host{
+		host_name		Web
+		parents		Switch1
+		}
+	define host{
+		host_name		FTP
+		parents		Switch1
+		}
+
+#More definition deleted for confidential purposes

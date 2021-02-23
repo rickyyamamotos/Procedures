@@ -1,0 +1,26 @@
+
+Node interleaving disabled equals NUMA
+By using the default setting of Node Interleaving (disabled), the system will build a System Resource Allocation Table (SRAT). ESX uses the SRAT to understand which memory bank is local to a pCPU and tries* to allocate local memory to each vCPU of the virtual machine. By using local memory, the CPU can use its own memory controller and does not have to compete for access to the shared interconnect (bandwidth) and reduce the amount of hops to access memory (latency)
+
+Snoop Modes
+Broadwell introduces a new snoop mode option in the BIOS memory setting, Directory with Opportunistic Snoop Broadcast (DIR+OSB), which is the default snoop mode for Broadwell. In this mode, the memory snoop is spawned by the Home Agent and a directory is maintained in the DRAM ECC bits. DIR+OSB mode allows for low local memory latency, high local memory bandwidth and I/O directory cache to reduce directory update overheads for I/O accesses. The other three snoop modes: Home Snoop (HS), Early Snoop (ES), and Cluster-on-Die (COD) are similar to what was available with Haswell. The Cluster-on-die (COD) is only supported on processors that have two memory controllers per processor. The Dell BIOS on systems that support both Haswell and Broadwell will display the supported snoop modes based on the processor model populated in the system.  
+
+Raid security
+Local Key Management(LKM)
+The Dell PowerEdge RAID Controller (PERC) H710, H710P, and H810 cards support Self-Encrypting Disks (SED) for protection of data against loss or theft of SEDs. Protection is achieved by the use of encryption technology on the drives. There is one security key per controller. You can manage the security key under Local Key Management (LKM). The key can be escrowed in to a file using Dell OpenManage. The security key is used by the controller to lock and unlock access to encryption-capable physical disks
+
+Switch to HBA Mode
+Disables RAID and allow each drive to be seen separately
+
+Raid Boot Mode
+*Stop on errors: Interrupt the boot on all errors. Requires the user to either continue boot or enter the BIOS Configuration Utility to resolve errors.
+*Pause on errors: Interrupt the boot on serious errors. Requires the user to either continue boot or enter the BIOS Configuration Utility to resolve errors.
+*Ignore errors: The controller will take the default action for each error and will only halt boot when continuing is impossible.
+
+
+
+
+
+
+
+

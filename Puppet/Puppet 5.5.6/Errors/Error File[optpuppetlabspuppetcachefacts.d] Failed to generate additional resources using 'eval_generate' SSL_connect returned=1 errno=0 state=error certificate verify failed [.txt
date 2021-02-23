@@ -1,0 +1,37 @@
+Error File[optpuppetlabspuppetcachefacts.d] Failed to generate additional resources using 'eval_generate' SSL_connect returned=1 errno=0 state=error certificate verify failed 
+     [unable to get local issuer certificate for /CN=<Site>-puppet-office]
+
+
+THE ERROR IS CAUSED BY A PUPPET VERSION CONFLICT BETWEEN AGENT AND MASTER
+Verify puppet agent version
+	On the master:
+		puppet cert clean test2.<Domain>
+			//* replace test2.<Domain> with the hostname of the agent server
+		/opt/puppetlabs/bin/puppet --version
+			//* it should be 5.5.6 as on the puppet master
+	On the agent:
+		/opt/puppetlabs/bin/puppet --version
+			//* it should be 5.5.6 as on the puppet master
+remove current version of puppet-agent
+	apt-get purge puppet-agent
+	rm /etc/puppetlabs -rf
+	apt-cache showpkg puppet-agent
+		//* if the repository is already installed
+		//* The output should give something like 
+		//* 	5.5.7-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.6-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.4-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+	apt-get install puppet-agent=5.5.6-1xenial
+reconfigure puppet-agent
+
+
+
+The following did not work
+===========================
+On the master:
+	puppet cert clean test2.<Domain>
+On the agent:
+	1a. On most platforms: find /etc/puppetlabs/puppet/ssl -name test2.<Domain>.pem -delete
+	1b. On Windows: del "\etc\puppetlabs\puppet\ssl\certs\test2.<Domain>.pem" /f
+	2. puppet agent -t
+

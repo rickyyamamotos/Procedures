@@ -1,0 +1,6 @@
+stop iptables and try again
+	$ service iptables stop
+
+check apache startup errors
+	$ /etc/rc.d/http -t
+

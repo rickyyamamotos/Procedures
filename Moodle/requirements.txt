@@ -1,0 +1,12 @@
+
+-1 Gb of Memory for each 10-20 concurrent users.
+-PHP 5.3.2+
+-SQL 
+	MySQL - minimum version 5.1.33
+	PostgreSQL - minimum version 8.3
+	MSSQL - minimum version 9.0
+	Oracle - minimum version 10.2
+	SQLite - minimum version 2.0
+-
+
+

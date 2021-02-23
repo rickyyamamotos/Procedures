@@ -1,0 +1,2 @@
+$ cd /usr/local/nagios/libexec
+$ ./check_http -H XXX.XXX.XXX.48 

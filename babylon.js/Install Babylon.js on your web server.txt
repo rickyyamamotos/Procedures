@@ -1,0 +1,34 @@
+Nothing to install
+Just call the libraries which can be store locally if needed
+
+
+
+
+
+
+
+OLD (no necessary)
+https://doc.babylonjs.com/generals/how_to_start
+
+Log onto Git:
+or get  new git account from https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+$ git config --global user.name "John Doe"
+$ git config --global user.email johndoe@example.com
+
+install nodejs and its package manager:
+
+install in global the both major BJS dev dependencies
+$ npm install -g typescript
+$ npm install -g gulp
+
+Allow Visual Studio Code (for OS agnostic)
+	Install VSCode from their site: https://code.visualstudio.com/
+$ cd /tmp
+$ wget https://go.microsoft.com/fwlink/?LinkID=760868
+$ dpkg -i code_1.17.2-1508162334_amd64.deb
+
+$ cd /var/www/html
+$ git clone https://github.com/BabylonJS/Babylon.js.git
+$ cd BabylonJS/Tools/Gulp
+$ npm install
+

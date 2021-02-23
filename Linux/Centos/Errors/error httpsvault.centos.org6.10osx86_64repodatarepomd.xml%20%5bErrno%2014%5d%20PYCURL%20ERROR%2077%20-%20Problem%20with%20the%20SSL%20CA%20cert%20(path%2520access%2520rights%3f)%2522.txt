@@ -1,0 +1,21 @@
+http://vault.centos.org/6.10/os/x86_64/repodata/repomd.xml: [Errno 14] PYCURL ERROR 77 - "Problem with the SSL CA cert (path? access rights?)"
+Trying other mirror.
+Error: Cannot retrieve repository metadata (repomd.xml) for repository: base. Please verify its path and try again
+
+
+This worked
+cd /
+find -type f -name "ca-bundle.crt"
+cd /????
+cp ca* /etc/pki/tls/certs/
+
+
+
+The following did not work
+search google for "centos 6 download ca-certificates"
+find a valid download link. I.E. http://vault.centos.org/6.10/updates/Source/SPackages/ca-certificates-2020.2.41-65.1.el6_10.src.rpm
+mkdir /usr/src/ca-certificates && cd /usr/src/ca-certificates
+wget http://vault.centos.org/6.10/updates/Source/SPackages/ca-certificates-2020.2.41-65.1.el6_10.src.rpm --no-check-certificate
+rpm2cpio ca-certificates-2020.2.41-65.1.el6_10.src.rpm | cpio -idmv
+cp -pi /etc/pki/tls/certs/ca-bundle.* /etc/pki/tls/certs/
+cp -pi ./etc/pki/tls/certs/ca-bundle.* /etc/pki/tls/certs/

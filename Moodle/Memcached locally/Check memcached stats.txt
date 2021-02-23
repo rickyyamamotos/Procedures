@@ -1,0 +1,6 @@
+memcached-tool IP_ADDRESS:Port
+memcached-tool 127.0.0.1:11211 display
+memcached-tool 127.0.0.1:11211 stats
+memcached-tool 127.0.0.1:11211 settings
+memcached-tool 127.0.0.1:11211 sizes
+

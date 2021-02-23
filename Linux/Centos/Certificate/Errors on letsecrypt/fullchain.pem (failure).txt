@@ -1,0 +1,5 @@
+The following certs could not be renewed:
+  /etc/letsencrypt/live/dev-startinghearts.<Domain>/fullchain.pem (failure)
+
+check that the file permission are 644 for /etc/letsencrypt/archieve/dev-startinghearts.<Domain>/*.pem
+

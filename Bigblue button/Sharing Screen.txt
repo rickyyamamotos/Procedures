@@ -1,0 +1,2 @@
+If you are the presenter or moderator and you want to share your screen or desktop, make sure the latest version of Java is installed 
+

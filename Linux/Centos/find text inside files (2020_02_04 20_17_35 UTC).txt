@@ -1,0 +1,2 @@
+find / -type f -exec grep -H 'text-to-find-here' {} \;
+$ find ./ -type f -name '*.conf' -exec grep -H 'SSLCipher' {} \;

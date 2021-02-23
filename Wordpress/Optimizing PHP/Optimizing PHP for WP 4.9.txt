@@ -1,0 +1,34 @@
+$ cd /
+$ php -i | grep "Loaded Configuration File"
+	//* this will show the location of the used php.ini
+	//* I.E. /etc/php.ini
+$ nano /etc/php.ini
+	//* change the path with the result of the previous command
+		max_execution_time = 6000
+		memory_limit = 512M
+		upload_max_filesize = 50M
+
+$ yum install php-opcache
+$ nano /etc/php.d/10-opcache.ini
+	# opcache.enable_cli=1
+	opcache.enable=1
+	opcache.memory_consumption=128
+	opcache.interned_strings_buffer=8
+	opcache.max_accelerated_files=50000
+	opcache.revalidate_freq=60
+	opcache.fast_shutdown=1
+
+$ find / -name "www.conf"
+$ nano ./etc/opt/remi/php72/php-fpm.d/www.conf
+	//* replace
+		;max_input_vars = 1000
+	//* with
+		max_input_vars = 5000
+	//* replace
+		pm = dynamic
+	//* with
+		pm = static
+	//* set
+		set pm.max_children = 10
+$ service php7.2-fpm restart
+

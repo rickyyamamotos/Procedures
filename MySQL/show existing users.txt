@@ -1,0 +1,4 @@
+SELECT User FROM mysql.user;
+select User,Host from mysql.user;
+
+SHOW GRANTS FOR 'user'@'host';

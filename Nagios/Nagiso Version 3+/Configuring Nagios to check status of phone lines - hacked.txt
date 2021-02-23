@@ -1,0 +1,290 @@
+Phone lines monitoring with nagios
+==================================
+This was desinged by pasing the data that welltech web interface works.
+the link for the line status for both welltech are:
+	http://XXX.XXX.XXX.31/Line_status.asp
+	http://XXX.XXX.XXX.32/Line_status.asp
+		//* username: <Username> password=<Password>
+This asp script build the page using client-side's jscript
+But a variable with the important data is a call to a function, the parameters are the important part:
+	UpdateTableData("FXO,1,0|FXO,1,0|FXO,1,0|FXO,1,0"); for XXX.XXX.XXX.31
+	UpdateTableData("FXO,1,0|FXO,1,0|FXO,1,9|FXO,1,9"); for XXX.XXX.XXX.32
+		//* where the first digit after FXO:
+			0=iddle
+			1=<Site>ed
+			2=Predefine
+			Other=Unknown
+		//* where the second digit after FX0
+			0=Idle
+			1=Ring
+			2=Talk
+			9=Not Conected
+			Other=Unknown
+So from the Nagios server
+Testing Curl
+$ curl -u <Username>:<Password> http://XXX.XXX.XXX.31/Line_status.asp | grep UpdateTableData("FXO
+$ curl -u <Username>:<Password> http://XXX.XXX.XXX.31/Line_status.asp | grep 'UpdateTableData(\"FXO'
+	//* will return the variable, which can be parsed to monitor the lines
+	//* UpdateTableData("FXO,1,0|FXO,1,0|FXO,1,0|FXO,1,0");
+
+Testing the nagios command
+$ cd /usr/lib/nagios/plugins/
+$ ./check_http -I XXX.XXX.XXX.31 -u http://XXX.XXX.XXX.31/Line_status.asp -a <Username>:<Password> -s 'UpdateTableData("FXO,1,0|FXO,1,0|FXO,1,0|FXO,1,0")'
+	Meaning of the string
+		"FXO,1,0|FXO,1,0|FXO,1,0|FXO,1,0"
+		L1   r i L2  r i L3  r i L4  r i
+$ ./check_http -I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r 'UpdateTableData\("FXO,1,9' --invert-regex
+		//* check line 1 is not "Not Connected"
+for the first phone line
+	./check_http -I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r 'UpdateTableData\("FXO,1,9' --invert-regex
+for the second or third lines
+	./check_http -I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r '\|FXO,1,9\|' --invert-regex
+For the fourth phone line
+	./check_http -I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r 'FXO,1,9"\)' --invert-regex
+Repeat all the above for XXX.XXX.XXX.32, but note that XXX.XXX.XXX.32 has only 2 line available. As a consecuence Nagios configuration is different
+for the fifth phone line
+	./check_http -I XXX.XXX.XXX.32 -u /Line_status.asp -a <Username>:<Password> -r 'UpdateTableData\("FXO,1,9' --invert-regex
+for the sixth
+	./check_http -I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r '\|FXO,1,9\|FXO,1,9\|' --invert-regex
+
+
+Configuring the cfg files:
+$ vi templates.cfg
+define host{
+        name                    phone_line_1_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r "UpdateTableData\\(\\"FXO,1,9" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    phone_line_2_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r "\\|FXO,1,9\\|" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    phone_line_3_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r "\\|FXO,1,9\\|" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    phone_line_4_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.31 -u /Line_status.asp -a <Username>:<Password> -r "FXO,1,9\\"\\)" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    phone_line_5_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.32 -u /Line_status.asp -a <Username>:<Password> -r "UpdateTableData\\(\\"FXO,1,9" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    phone_line_6_template
+        use                     linux-server
+        check_period            24x7
+        check_interval          2
+        retry_interval          1
+        max_check_attempts      10
+        check_command           check_http!'-I XXX.XXX.XXX.32 -u /Line_status.asp -a <Username>:<Password> -r "\\|FXO,1,9\\|FXO,1,9\\|" --invert-regex'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+
+
+$ vi hosts.cfg
+define host{
+        use                     phone_line_1_template
+        host_name               phone_line_1
+        alias                   phone_line_1_in_welltech_1
+        address                 XXX.XXX.XXX.31
+        }
+define host{
+        use                     phone_line_2_template
+        host_name               phone_line_2
+        alias                   phone_line_2_in_welltech_1
+        address                 XXX.XXX.XXX.31
+        }
+define host{
+        use                     phone_line_3_template
+        host_name               phone_line_3
+        alias                   phone_line_3_in_welltech_1
+        address                 XXX.XXX.XXX.31
+        }
+define host{
+        use                     phone_line_4_template
+        host_name               phone_line_4
+        alias                   phone_line_4_in_welltech_1
+        address                 XXX.XXX.XXX.31
+        }
+define host{
+        use                     phone_line_5_template
+        host_name               phone_line_5
+        alias                   phone_line_1_in_welltech_2
+        address                 XXX.XXX.XXX.31
+        }
+define host{
+        use                     phone_line_6_template
+        host_name               phone_line_6
+        alias                   phone_line_2_in_welltech_2
+        address                 XXX.XXX.XXX.31
+        }
+
+
+Check nagios configurations
+	$ nagios3 -v /etc/nagios3/nagios.cfg
+Restart nagios
+	$ service nagios3 restart
+
+
+References:
+==========
+SNMP does not work because there is not documentation from welltech for their OIDs (Configuring Nagios to check status of phone lines hacker)
+===============================================================================
+
+
+
+Setup the Welltech WellGate-2540
+1) Log into XXX.XXX.XXX.31 <Username>/<Username>
+2) Click on Device settings from the left pane
+3) Click on the SNMP tab
+4) Configure SNMP trap
+	SNMP Agent: Enable
+	Read Only Community Name: <Site>comm
+	Read Write Community Name: <Site>comm
+	SNMP Agent Access on WAN: Enable (For some reason, if it is disabled trap is dropped)
+	Trusted Pier Type: Any Address
+	SNMP Trap: Enable
+	DEstination: XXX.XXX.XXX.47  (IP address of nagios)
+	Community: <Site>comm
+5) Apply
+
+On the Nagios Server
+1) ssh -p <PortNumber> <Username>@XXX.XXX.XXX.45   (<Password>)
+2) Get the responses from the WellGate-2540
+	$ snmpwalk -v 2c -c <Site>comm XXX.XXX.XXX.31
+		//* You will get the OID’s from the wellgate
+		//* OID = iso.3.6.1.4.1.8072.3.2.10
+3) Get a response for a specific metric
+	$ snmpwalk -Os -v 2c -c <Site>comm XXX.XXX.XXX.31 .iso.3.6.1.2.1.31.1.1.1.15.1 
+======================================================================================================================
+======================================================================================================================
+""""""""I NEED THE OID for each line status"""""
+	//* for example XXX.XXX.XXX.31 .iso.3.6.1.2.1.31.1.1.1.15.1 
+		//* SNMPv2-MIB .1.3.6.1.2.1.1
+		//* IF-MIB .1.3.6.1.2.1
+======================================================================================================================
+======================================================================================================================
+4) nano /usr/local/nagios/etc/hosts.cfg
+	define host{ 
+	 use linux­server
+	 host_name wellgate2540-1
+	 alias XXX.XXX.XXX.31
+	 address XXX.XXX.XXX.31
+	 }
+5) nano /usr/local/nagios/etc/services.cfg
+	define service{
+	        use                     generic-service
+	        host_name               wellgate-2540
+	        service_description     Line-online
+	        check_command           check_snmp!<Site>comm!.iso.3.6.1.2.1.31.1.1.1.15.1!
+	        }
+6) /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+7) service nagios restart
+
+
+
+
+
+<script language="javascript">
+function UpdateTableData(data)
+{
+   var arr = data.split("|");
+   var arr1 = "";
+   for(var i=0; arr!=null && i<arr.length; i++)
+   {
+      arr1 = arr[i].split(",");
+      if(arr1.length==3)
+      {
+         if(window.document.all["LineType"+i].value=="1")
+         {
+            window.document.all["TD"+i+"0"].innerHTML = "N/A";
+            window.document.all["TD"+i+"1"].innerHTML = "N/A";
+         }
+         else
+         {
+            window.document.all["TD"+i+"0"].innerHTML = arr1[0];
+            if(arr1[1]=="0")
+               window.document.all["TD"+i+"1"].innerHTML = "Not <Site>";
+            else
+               if(arr1[1]=="1")
+                  window.document.all["TD"+i+"1"].innerHTML = "<Site>ed";
+               else
+                  if(arr1[1]=="2")
+                     window.document.all["TD"+i+"1"].innerHTML = "Predefine";
+                  else
+                     window.document.all["TD"+i+"1"].innerHTML = "Unknow";
+         }
+      if(arr1[2]=="0")
+         window.document.all["TD"+i+"2"].innerHTML = "Idle";
+      else
+         if(arr1[2]=="1")
+            window.document.all["TD"+i+"2"].innerHTML = "Ring";
+         else
+            if(arr1[2]=="2")
+               window.document.all["TD"+i+"2"].innerHTML = "Talk";
+            else
+               if(arr1[2]=="9")
+                  window.document.all["TD"+i+"2"].innerHTML = "Not Connected";
+               else
+                  window.document.all["TD"+i+"2"].innerHTML = "Unknow";
+      }
+   }
+}
+
+
+

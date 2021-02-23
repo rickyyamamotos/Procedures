@@ -1,0 +1,22 @@
+https://stackoverflow.com/questions/51857814/php-version-switch-on-centos-7
+see which version are available
+	$ ls /usr/bin/ph*
+Change to a different php version
+	$ sudo update-alternatives --set php /usr/bin/php72
+
+
+Optionally
+	$ update-alternatives --config php
+		//* You can switch the default version using update-alternatives, just run the following command and pick the version you prefer:
+
+
+This worked for me:
+$ ls /usr/bin/ph*
+	it showed 3 versions of php: php (file) and php72 (link)
+$ mv /usr/bin/php /usr/bin/php.bak
+$ ls /usr/bin/php72
+	/<path>/php
+$ cp /<path>/php /usr/bin/php
+$ service httpd restart
+
+

@@ -1,0 +1,19 @@
+Web Server Cache
+	Advantage:
+		- Apache will respond to HTTP request even before php and mysql
+	Disadvantage:
+		- When content is changed, the cache needs to be flushed
+	For Apache
+		use mod_php
+		or
+		use varnish
+			https://www.techrepublic.com/article/how-to-speed-up-apache-with-varnish-http-cache/
+	For NGINX
+		use fastcgi cache
+
+Use HTTP2
+	https://developers.google.com/web/fundamentals/performance/http2/
+	Check is http2 is enable https://tools.keycdn.com/http2-test
+
+Implement Gzip compression
+	check if a site uses gzip. https://www.giftofspeed.com/gzip-test/

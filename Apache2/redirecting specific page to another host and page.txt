@@ -1,0 +1,8 @@
+nano /var/www/html/.htaccess
+//* Add the following after the <IfModule> of the last <IfModule mod_rewrite.c>
+Redirect 302 "/course-setup-form" "http://setup.<Site>/reviewers/AccountsReview/course_setup.aspx"
+	//* 302 is a temporary redirect
+	//* 301 is a permanent redirect
+	//* course-setup-form is a directory or file on the wbe root
+
+

@@ -1,0 +1,19 @@
+https://sjamso.blogspot.com/2018/08/solution-to-moodle-error-coding-error.html
+
+Coding error detected, it must be fixed by a programmer: Failed to unserialise data from file. Either failed to read, or failed to write.
+
+
+1. Go to Moodle root directory
+    #cd /var/www/html/moodle
+  
+2. Run the command  
+   #php <Username>/cli/purge_caches.php
+
+3. Go to moodledata/cache directory
+
+  #cd /var/moodledata/cache
+  
+4. Remove the cache store directory, DO NOT remove of change the core_component.php file
+   # rm -rf cachestore_file/
+
+5. Refresh the Moodle Page. Its should work.

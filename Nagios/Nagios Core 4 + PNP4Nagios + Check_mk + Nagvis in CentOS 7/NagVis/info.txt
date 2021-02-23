@@ -1,0 +1,17 @@
+XXX.XXX.XXX.58/nagvis
+	<Username> / <Password>
+
+Upload a Background
+Options -> Manage Backgrounds -> Name, Upload-> Create
+
+Create a Map
+Options -> Manage Maps -> Create Map -> Name, regular Map
+Open the map, it will be blank
+Edit Map -> Map Options -> Map Image -> Choose the uploaded background
+
+Adding  Icon (a nagios host)
+Open the map, it will show the background
+Edit Map -> Add Icon -> Host -> Select the position on the map and click -> Select the Host (from a list comming from nagios)
+
+
+

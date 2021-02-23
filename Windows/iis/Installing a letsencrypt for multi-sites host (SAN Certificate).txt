@@ -1,0 +1,35 @@
+https://miketabor.com/how-to-install-a-lets-encrypt-ssl-cert-on-microsoft-iis/
+OLD: https://weblog.west-wind.com/posts/2016/Feb<CIDR>/Using-Lets-Encrypt-with-IIS-on-Windows
+
+
+Download and unzip LetsEncrypt-Win-Simple onto the IIS server
+https://github.com/win-acme/win-acme/releases/download/v2.1.7/win-acme.v2.1.7.807.x64.pluggable.zip
+https://github.com/PKISharp/win-acme/releases/download/v2.0.7.315/win-acme.v2.0.7.315.zip
+OLD:	https://github.com/Lone-Coder/letsencrypt-win-simple/releases
+		//* https://github.com/PKISharp/win-acme
+	extract to c:\temp
+	C:> cd\temp
+	C:> wacs
+	Select N to "create a new certicate"
+	Select 3 to "SAN certificate for all bindingsof multiple IIS sites"
+	select the sites to include on the certificate
+	if one of the sites shows an error "no valid hosts found for default web site"
+		in IIS mamager, right click on the site, select edit bindings, edit the binding for port 80 and ensure it has a host.
+	
+
+
+
+
+OLD
+Run letscrypt:
+	C:> cd\temp
+	C:> letsencrypt
+	Select N to "create a new certicate"
+	Select 3 to "SAN certificate for all bindingsof multiple IIS sites"
+	select the sites to include on the certificate
+	if one of the sites shows an error "no valid hosts found for default web site"
+		in IIS mamager, right click on the site, select edit bindings, edit the binding for port 80 and ensure it has a host.
+	
+
+
+The Subject Alternative Name field lets you specify additional host names (sites, IP addresses, common names, etc.) to be protected by a single SSL Certificate, such as a Multi-Domain (SAN) or Extend Validation Multi-Domain Certificate.

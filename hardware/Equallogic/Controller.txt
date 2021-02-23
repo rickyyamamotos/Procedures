@@ -1,0 +1,17 @@
+
+EqualLogic <Model> <Model> Control Module 8 <Model> XXXXX
+Dell part: <Model>
+Model: <Model>
+
+Other names
+EqualLogic xxxxx Type 8 Controller <Model> Series SAS SATA
+Equallogic xxxxx Type 8 2GB Controller
+Equallogic xxx Type 8 2GB Controller
+
+
+Access the equallogic console
+RDP to XXX.XXX.XXX.93, XXX.XXX.XXX.240, or XXX.XXX.XXX.241
+open IExplorer for XXX.XXX.XXX.91 (old XXX.XXX.XXX.45)
+	username:	<Username>
+	password:	<Password>
+	Uncheck encrypt

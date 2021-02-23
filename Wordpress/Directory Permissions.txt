@@ -1,0 +1,170 @@
+Seurity recommendation for directories and files permissions are	(This will allow moodle update, plugins, and uploads)
+	WordPress
+		Directories
+			/var/www/html				<Username>:apache	750	All/ER/None
+			/var/www/html/*				<Username>:apache	750	All/ER/None		Doesn't allow new directories by apache
+===>			/var/www/html/wp-content/uploads	apache:apache	750	All/ER/None		Allows apache to modify content
+===>			/var/www/html/wp-content/updraft	apache:apache	750	All/ER/None		Allows apache to modify content
+			/var/www/html/wp-content/plugins/	<Username>:apache	750	All/ER/None		Doesn't allow new directories by apache
+				acme-demo-setup			<Username>:apache	750	All/ER/None
+				address				SAME
+				<Username>imize			SAME
+				akismet				SAME
+				aryo-activity-log		SAME
+				better-wp-security		SAME
+				custom-<Site>-builder-with-submission-manager	SAME
+				easy-wp-smtp			SAME
+				edwiser-bridge			SAME
+				edwiser-bridge-sso		SAME
+				export-user-data		SAME
+				groups				SAME
+				hide-<Username>-bar			SAME
+				html5-virtual-classroom		SAME
+				if-menu				SAME
+				insert-html-snippet		SAME
+				Interactive_US_Map		SAME
+				peters-login-redirect		SAME
+				php-code-widget			SAME
+				postman-smtp			SAME
+				pre-registration		SAME
+				slider-and-carousel-plus-widget-for-instagram	SAME
+				updraftplus			SAME
+===>					/var/www/html/archive/wp-content/updraft/	apache:apache 750
+===>					/var/www/html/wp-content/updraft/		apache:apache 750
+				user-role-editor		SAME
+				Wiziq				SAME
+				wonderplugin-slider		SAME
+				woocommerce			SAME
+				woocommerce-customer-order-csv-export	SAME
+				woocommerce-integration			SAME
+				woocommerce-paypal-pro-payment-gateway	SAME
+				woocommerce-services			SAME
+				woocommerce-smart-coupons		SAME
+				wordfence				SAME
+				wordpress-seo				SAME
+				wp-blog-and-widgets			SAME
+				wp-crontrol				SAME
+				wp-show-more				SAME
+				wp-users-exporter			SAME
+				yith-woocommerce-subscription-premium	SAME
+			/var/www/html/wp-content/themes/*	<Username>:apache	750	All/ER/None		Doesn't allow new directories by apache
+			*/*.bak					root:root	700	All/None/None		Doesn't allow new directories by apache
+		Files
+			/var/www/wp-config.php			<Username>:apache	740	All/R/None		
+			/var/www/html/.htaccess			root:root	744	All/R/None
+			/var/www/html/*				<Username>:apache	740	All/R/None		Doesn't allow files to be modified by apache
+====>			/var/www/html/wp-content/debug.log	apache:apache	740	All/R/None
+====>			/var/www/html/wp-content/wflogs/GeoLite2-Country.mmdb	apache:apache	740		allow to modify database
+			/var/www/html/wp-content/themes/*	<Username>:apache	740	All/R/None		Doesn't allow new directories by apache
+			/var/www/*/*.bak			root:<Username>	700	All/None/None
+			/var/www/*/*.tar.gz			root:<Username>	700	All/None/None
+			/var/www/*/*.tar			root:<Username>	700	All/None/None
+			/var/www/*/*.zip			root:<Username>	700	All/None/None
+			/var/www/html/wp-content/plugins/	
+				acme-demo-setup			<Username>:apache	740	All/ER/None
+				address				SAME
+				<Username>imize			SAME
+				akismet				SAME
+				aryo-activity-log		SAME
+				better-wp-security		SAME
+				custom-<Site>-builder-with-submission-manager	SAME
+				easy-wp-smtp			SAME
+				edwiser-bridge			SAME
+				edwiser-bridge-sso		SAME
+				export-user-data		SAME
+				groups				SAME
+				hide-<Username>-bar			SAME
+				html5-virtual-classroom		SAME
+				if-menu				SAME
+				insert-html-snippet		SAME
+				Interactive_US_Map		SAME
+				peters-login-redirect		SAME
+				php-code-widget			SAME
+				postman-smtp			SAME
+				pre-registration		SAME
+				slider-and-carousel-plus-widget-for-instagram	SAME
+				updraftplus			SAME
+===>					/var/www/html/archive/wp-content/updraft/*	apache:apache 740
+===>					/var/www/html/wp-content/updraft/*		apache:apache 740
+				user-role-editor		SAME
+				Wiziq				SAME
+				wonderplugin-slider		SAME
+				woocommerce			SAME
+				woocommerce-customer-order-csv-export	SAME
+				woocommerce-integration			SAME
+				woocommerce-paypal-pro-payment-gateway	SAME
+				woocommerce-services			SAME
+				woocommerce-smart-coupons		SAME
+				wordfence				SAME
+========>				/var/www/html/wp-content/wflogs/config.php	www-data:www-data 740
+				wordpress-seo				SAME
+				wp-blog-and-widgets			SAME
+				wp-crontrol				SAME
+				wp-show-more				SAME
+				wp-users-exporter			SAME
+				yith-woocommerce-subscription-premium	SAME
+
+		Commands
+			$ cd /var/www
+			$ chmod 750 html
+			$ chown <Username>:apache html
+			$ cd /var/www/html
+			$ find -type d -exec chmod 750  {} \;
+			$ find -type d -exec chown <Username>:apache  {} \;
+			$ usermod -a -G apache <Username>
+			$ cd /var/www/html/wp-content/uploads
+			$ find -type d -exec chown apache:apache  {} \;
+			$ find -type d -exec chmod 750  {} \;
+			$ find -type f -exec chown apache:apache {} \;
+			$ find -type f -exec chmod 740  {} \;
+			
+Performance recommendation for directories and files permissions are	(This will allow update, plugins, and uploads)
+	WordPress
+		Directories
+			/var/www/html		<Username>:apache	750	All/ER/None
+			/var/www/html/*		<Username>:apache	770	All/All/None		Allows new directories 	(can be hacked easily)
+		Files
+			/var/www/wp-config.php	<Username>:apache	740	All/R/None		
+			/var/www/html		<Username>:apache	770	All/All/None		allow files to be updated 	(can be hacked easily)
+
+
+==============================TOOLS=====================================
+//* Save directory permission
+	cd /var/www/
+	ls -l > dir.txt
+	sort dir.txt > dir1.txt
+//* show any files with extension other than php
+	find -type f ! -name "*.php"
+//* show any files with permission other than -rw-r--r--
+	find -type f ! -perm 0644 -exec ls -l {} \;
+//* show any files with permission other than -rw-r--r--
+	find -type d ! -perm 0750 -exec ls -l {} \;
+//* show any files owned by www-data
+	find -type f -user www-data -exec ls -l {} \;
+//* show any files owned by www-data
+	find -type d -user www-data -exec ls -l {} \;
+//* show directory with permission different thant 0755 (drwxr-xr-x)
+	find -type d ! -perm 0755
+//* show file with permission different thant 0644 (-rw-r--r--)
+	find -type f ! -perm 0644
+
+//* Change permission of directories and files
+	find -type d -exec chmod 750  {} \; && find -type d -exec chown <Username>:www-data  {} \; && find -type f -exec chown <Username>:www-data {} \; && find -type f -exec chmod 740  {} \;
+//* Change directory permission recursively
+	find -type f ! -perm 0644 -exec chmod 644  {} \;
+//* Change Files permissions recursively
+	find -type d ! -perm 0755 -exec chmod 755  {} \;
+
+
+
+==================================OLD============================================
+cd /var/www
+chown root:www-data html
+chmod 775 html
+cd html
+chmod -R g+rwx *
+chmod -R u+rwx *
+chown -R root:www-data *
+usermod -G www-data <Username>
+usermod -G www-data dev
+

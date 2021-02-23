@@ -1,0 +1,30 @@
+Option 1:
+//* Ensure """TO SUDO""" that the puppet master (server) signed the cert from the client
+//* On the puppet master
+	$ sudo /opt/puppetlabs/bin/puppet cert sign --all
+
+
+Option 2: (If error persist)
+https://puppet.com/docs/pe/2017.3/regenerate_puppet_agent_certificates.html
+//* In the puppet client
+//* In the Puppet Master
+	$ /opt/puppetlabs/bin/puppet cert list
+		//* this may show nothing
+	$  puppet cert clean <CERTNAME>
+		//* puppet cert clean <Site>
+//* In the puppet client
+	$ /opt/puppetlabs/bin/puppet resource service puppet ensure=stopped
+	$ /opt/puppetlabs/bin/puppet resource service mcollective ensure=stopped
+	$ /opt/puppetlabs/bin/puppet resource service pxp-agent ensure=stopped
+	$ /opt/puppetlabs/bin/puppet agent --configprint ssldir
+		//* /etc/puppetlabs/puppet/ssl
+	$ rm /etc/puppetlabs/puppet/ssl -rf
+
+
+Option3:
+on the master
+	$ nano /etc/puppet/puppet.conf
+		[main]
+		certificate_revocation = false
+	$ service puppet restart
+then follow Option 2

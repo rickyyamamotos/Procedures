@@ -1,0 +1,6 @@
+https://www.digitalocean.com/community/questions/cannot-log-in-to-the-mysql-server-without-code-using-phpmyadmin-on-centos7
+
+Reason:
+Some applications are having trouble with caching _sha2 _password method. Above sets the credentials to use the native one.
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '<Password>';

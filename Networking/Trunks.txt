@@ -1,0 +1,26 @@
+For Netgear and F5, trunks refers to the link aggregation of multiple links into a trunk link
+For Cisco and others, trunks refer to tagging and native vlans
+
+Creating a Trunk in F5
+-create a trunk (trunk1) that includes two interfaces, 1.1 and 1.2, -then assign trunk1 as a tagged interface to both VLAN external and VLAN internal.
+
+Since VLAN tag applies tagging to eggress packets, set tagging to any ports that is connecting to another port carring more than 1 vlan.
+If a port carry multiple vlans, all vlans need to be tagged for this port except the native vlan which should be untagged.
+
+
+
+Create a Trunk between a physical switch and a server with VMWare Host
+-Check if the following is needed ???????????????
+	-Click the NIC Teaming tab.
+	-From the Load Balancing dropdown, choose Route based on 		originating virtual port ID.
+-Create a vswitch with two nics
+-Create a PortGroup for each vlan with the respective VLAN ID, and connect the Portgroups to the vswitch. 
+-Connect the VM to the portgroup that have the same subnet
+-On the physical switch 
+	-set the ports as tagged (No trunk/LAG is needed and they are not supported by vmware)
+	-Set Spanning-tree to portfast trunk (for example, port forwarding, skips other modes)
+-Do not assign a VLAN to a port group that is same as the native VLAN ID of the physical switch. Native VLAN packets are not tagged with the VLAN ID on the outgoing traffic toward
+	
+
+
+

@@ -1,0 +1,87 @@
+ISCSI of SSDs for <Server>
+
+See also https://docs.moodle.org/31/en/Performance_recommendations#Scalability
+
+SHOW ENGINE INNODB STATUS;
+
+mysql 
+More memory can actually help here too. I frequently see people under spec memory on new database servers compared to what it actually costs these days. Simple advice: If SHOW ENGINE INNODB STATUS shows any reads/s under BUFFER POOL AND MEMORY and the number of Free buffers (also under BUFFER POOL AND MEMORY) is zero, you could benefit from more (assuming you have sized innodb_buffer_pool_size correctly on your server. 
+http://www.tocker.ca/2013/09/17/what-to-tune-in-mysql-56-after-installation.html
+
+v on <Site>
+1) all tables are InnoDb (this is good)
+2) innodb_buffer_pool_size (to be set to 50-80% of system memory)
+	$ cat /proc/meminfo
+		//* take note of free memory
+		41 Gb
+	check current setting:
+		mysql> SELECT @@innodb_buffer_pool_size;
+			134 Mb
+	set innodb_buffer_pool_size to 1.5 the size of the database v
+		mysql> SELECT CEILING(Total_InnoDB_Bytes*1.6/POWER(1024,3)) RIBPS FROM (SELECT SUM(data_length+index_length) Total_InnoDB_Bytes FROM information_schema.tables WHERE engine='InnoDB') A;
+			52
+			//* This will give you the RIBPS in Gbytes, Recommended InnoDB Buffer Pool Size based on all InnoDB Data and Indexes with an additional 60%.
+		$ nano /etc/my.cnf
+			[mysqld]
+			innodb_buffer_pool_size=XXXG
+				where XXX is hte RIBPS
+		$ service mysqld restart
+	 run mysql for a week or two. Then, run this query:
+		mysql> SELECT (PagesData*PageSize)/POWER(1024,3) Dat<Site> FROM (SELECT variable_value PagesData FROM information_schema.global_status WHERE variable_name='Innodb_buffer_pool_pages_data') A, (SELECT variable_value PageSize FROM information_schema.global_status WHERE variable_name='Innodb_page_size') B;
+			This will give you how many actual GB of memory is in use by InnoDB Data in the InnoDB Buffer Pool at this moment.
+			This value Dat<Site> more closely resembles how big the InnoDB Buffer Pool should be + (percentage specified in innodb_change_buffer_max_size). I am sure this will be far less than the 20000M you have reserved right now. The savings in RAM can be used for tuning other things like
+3) InnoDB from accessing multiple cores
+	$ nano /etc/my.cnf
+		These number will impede InnoDB from accessing multiple cores
+			| innodb_io_capacity                                | 200 |
+			| innodb_read_io_threads                            | 4   |
+			| innodb_thread_concurrency                         | 4   |
+			| innodb_write_io_threads                           | 4   |
+		change them to 
+			[mysqld]
+			innodb_io_capacity = 2000
+			innodb_read_io_threads = 64
+			innodb_thread_concurrency = 0
+				//* A value of 0 (the default) is interpreted as infinite concurrency (no concurrency checking). Disabling thread concurrency checking enables InnoDB to create as many threads as it needs
+			innodb_write_io_threads = 64
+4) max_allowed_packet must be the same on both servers
+	check on <Domain> and stor1
+		$ nano /etc/my.cnf
+			max_allowed_packet=500M
+5) max_connections
+	mysql> show status like '%onn%';
+		+--------------------------+----------+
+		| Variable_name            | Value    |
+		+--------------------------+----------+
+		| Aborted_connects         | 30009    |
+		| Connections              | 54794831 |				//* connections		total number throughout history
+		| Max_used_connections     | 152      |
+		| Ssl_client_connects      | 0        |
+		| Ssl_connect_renegotiates | 0        |
+		| Ssl_finished_connects    | 0        |
+		| Threads_connected        | 6        |
+		+--------------------------+----------+
+	mysql> SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE DB = "v";
+	//* Set value
+		$ nano /etc/my.cnf
+			max_connections = 500
+
+
+
+http://www.tocker.ca/2013/09/17/what-to-tune-in-mysql-56-after-installation.html
+# InnoDB settings
+innodb_buffer_pool_size=50G
+innodb_log_file_size=2G
+innodb_flush_method=O_DIRECT
+	 if you are using a hardware RAID controller, you may want to set this to O_DIRECT. This prevents the “double buffering” effect of when reading InnoDB buffer pool pages there is both a copy in InnoDB and in operating system’s filesystem cache.
+innodb_io_capacity=1024
+innodb_io_capacity_max=2048
+innodb_lru_scan_depth=2048
+
+# Other
+skip-name_resolve
+max-connect-errors=100000
+max-connections=500
+
+
+		

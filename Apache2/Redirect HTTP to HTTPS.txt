@@ -1,0 +1,50 @@
+The one we are using
+$ vi /etc/www/html/.htaccess
+AcceptPathInfo On
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301]
+RewriteCond %{HTTPS} off
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+
+
+In CentOS
+$ vi /etc/httpd/httpd.conf		//* this affect all webpages
+<VirtualHost *:80>
+   RewriteEngine On
+   RewriteCond %{HTTPS} !on
+   RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+In Ubuntu
+$ vi /etc/apache2/httpd.conf		//* this affect all webpages
+<VirtualHost *:80>
+   RewriteEngine On
+   RewriteCond %{HTTPS} !on
+   RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+or 
+
+$ vi /etc/www/html/.htaccess  //* this affect a specific directory
+   RewriteEngine On
+   RewriteCond %{HTTPS} !on
+   RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+
+or
+
+$ vi /etc/www/html/.htaccess  //* this affect a specific directory
+   RewriteEngine On
+   RewriteCond %{HTTPS} !on
+   RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+or
+
+$ vi /etc/www/html/.htaccess  //* this affect the whole domain
+   ReriteEngine On 	      //* replace example\.com with yourdomain\.com
+   RewriteCond %{HTTP_HOST} ^example\.com [NC]
+   RewriteCond %{SERVER_PORT} 80 
+   RewriteRule ^(.*)$ https://www.example.com/$1 [R,L]
+
+

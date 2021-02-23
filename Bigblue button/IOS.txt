@@ -1,0 +1,5 @@
+WebRTC is not supported in safari, but they can install java runtime and run bibgbluebutton
+
+iphone user can use the Puffin Browser App
+
+

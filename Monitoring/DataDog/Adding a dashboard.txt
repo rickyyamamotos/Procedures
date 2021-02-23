@@ -1,0 +1,4 @@
+Dashboard are used to present the metrics stats in graphical or text form
+You can select any combination of servers, metrics, and integration on a single dashboard to monitor certain aspects
+You can have multiple dashboard, each monitoring different metrics, servers, or integrations
+

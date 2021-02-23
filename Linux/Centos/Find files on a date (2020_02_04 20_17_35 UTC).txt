@@ -1,0 +1,29 @@
+show files in current directory and subdirectories that wer modified on Aug 26
+$ find . -type f -exec ls -l {} \; |  egrep "Aug 26";
+
+
+
+find . -maxdepth 1 -mtime -1 -type f -exec ls -l {} \;
+	how all the modified file within folder and all subfolders modified in the last 24 hours
+
+find . -maxdepth 1 -mtime -1 -type f -exec ls -l {} \;
+	how all the modified file within folder and 1 level subfolder modified in the last 24 hours
+
+find /var/www/html/dir/ -mtime -28 | grep '\.php' 
+	shows all *.php files modified during the last 28 days
+
+find /var/www/html/dir/ -type f -name "*.php" -newermt 2011-02-08 ! -newermt 2011-02-09
+	shows all *.php files modified on 2011-02-08
+
+
+
+modified in the last 24 hours
+find . -mtime 1 -ls
+
+
+modified in the last 5 minutes
+find . -mmin -5 -type f -exec ls -l {} +
+
+
+Show files created that are 30 days or older and the total space they occupy in Gb
+find . -type f -mtime +30 -printf '%s\n' | awk '{total=total+$1}END{print total/1024/1024/1024}'

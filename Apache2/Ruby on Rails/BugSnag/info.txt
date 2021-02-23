@@ -1,0 +1,20 @@
+https://app.bugsnag.com/accounts/pepe-2/projects/<Site>/integrate
+15 days trial
+<Email>	/ <Password>
+
+
+Installation
+Add the bugsnag gem to your bundle:
+	bundle add bugsnag
+
+Generate a rails initializer for Bugsnag:
+	rails generate bugsnag <Key>
+
+Test your integration
+To verify that your integration is working, call Bugsnag.notify in your application:
+	Bugsnag.notify("Test error")
+An error should appear in your dashboard after you click the continue button below.
+
+
+Documentation:
+https://docs.bugsnag.com/platforms/ruby/rails/

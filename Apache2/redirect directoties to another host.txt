@@ -1,0 +1,21 @@
+
+Redirect only the index of a directory:
+RedirectMatch 301 /<Site>-store-2/ https://<Site>/<Site>-store-2/
+
+Redirect the directory, subdirectories, and pages:
+RedirectMatch 301 (?i)^/product/(.*)$ https://<Site>/product/$1
+RedirectMatch 301 /product-category/(.*)$ https://<Site>/product-category/$1
+
+
+
+Redirect if domain is a specific domain (useful for a multidomain site)
+nano .htaccess
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.<Site>\.<Site>\.com [NC]
+RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+RewriteCond %{HTTP_HOST} ^<Site>\.<Site>\.com [NC]
+RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+
+
+
+<Site>

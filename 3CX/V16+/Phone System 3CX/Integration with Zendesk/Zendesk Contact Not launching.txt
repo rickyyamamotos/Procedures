@@ -1,0 +1,12 @@
+Zendesk contact not launching
+
+-Go to 3CX Web client\Option (gear icon)\Advanced Settings\Integration\General\
+-In the Maximum digit length to compare, enter 10 or 11
+-Check "Create new contact if not found" (optional)
+-Save
+-Go to 3CX Web client\Option (gear icon)\Advanced Settings\Integration\Zendesk\
+-Determine the end-user default web browser
+-Determine the end-user web-browser used with Zendesk
+-If both browser are not the same, you need to uncheck "Use default browser" and specify the executable of the browser used by zendesk
+-Save
+-Test

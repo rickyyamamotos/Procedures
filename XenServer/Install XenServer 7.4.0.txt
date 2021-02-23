@@ -1,0 +1,88 @@
+https://identity.citrix.com/Utility/STS/Sign-In?ReturnUrl=%2fUtility%2fSTS%2fsaml20%2fpost-binding-response
+	<Username> / <Password>
+
+Servername: 	XENSERVER-PE2850
+Location:	IT Closet
+IP:		XXX.XXX.XXX.65
+Password:	<Password>
+XenServer Ver:	7.4.0
+
+
+Requirements:
+XenServer Host:
+- A CPU with VT To support VMs running Windows (Intel VT and AMD-V) (Virtual Technology must be enabled on the BIOS)
+- 1+ x64 CPU
+- 2+ Gb RAM (4 Gb recommended)
+- 16+ Gb PATA, SATA, SCSI, or SAN via HBA (not via software) of Storage (60 Gb recommended)
+- 100+ Mb/s NIC
+XenCenter Management Console:
+- Windows Vista+, 2003SP2+
+- .NET Framework 4
+- 1+ CPU with 750+ Mhz
+- 1+ Gb RAM
+- 100+ Gb Storage
+- 100 Mb/s NIC
+- 1024x768 Display
+
+Download XenServer 7.4.0 Base Installation ISO - Free Edition:
+https://secureportal.citrix.com/Licensing/Downloads/UnrestrictedDL.aspx?DLID=13414&URL=https://downloads.citrix.com/13414/XenServer-7.4.0-install-cd.iso#void
+
+Download XenCenter 7.4.0 Management Console:
+https://secureportal.citrix.com/Licensing/Downloads/UnrestrictedDL.aspx?DLID=13419&URL=https://downloads.citrix.com/13419/XenServer-7.4.0-XenCenter.msi#void
+
+Download XenCenter 7.4.0 Locatlization Version:
+https://secureportal.citrix.com/Licensing/Downloads/UnrestrictedDL.aspx?DLID=13419&URL=https://downloads.citrix.com/13419/XenServer-7.4.0-XenCenter.l10n.msi#void
+
+Download vSwitch Controller Virtual Appliance 7.3.0 (compatible with 7.4.0)
+http://downloadns.citrix.com.edgesuite.net/13387/XenServer-7.3.0-dvsc.xva
+
+Download XenServer 7.3.0 Demo Linux Virtual Appliance (compatible with 7.4.0)
+http://downloadns.citrix.com.edgesuite.net/13376/XenServer-7.3.0-dlvm.xva
+
+Download Container Management Supplemental Pack 
+http://downloadns.citrix.com.edgesuite.net/13377/XenServer-7.3.0-xscontainer.iso
+
+
+Terms:
+- Xen: it is the hypervisor of XenServer
+
+
+
+Installing XenServer 7
+https://www.tecmint.com/installation-of-xenserver-7-upgrade-xenserver-6-5-to-7/
+
+Requirements:
+- Download XenServer 7.4
+- Hardware Compatibility list
+  http://hcl.xenserver.org/   (You can search by Sever model)
+- Minimum 2GB ram; 4GB or more recommended to run virtual machines
+- Mimimum 1 64-bit x86 1.5GHz cpu; 2GHz or more and multiple CPUs are suggested
+- Harddrive space of at least 46GB; more required if virtual machines will be saved locally
+- At least a 100mbps network card; multiple gigabit suggested
+
+Burn "Download XenServer 7.4.0 Base Installation ISO - Free Edition" into a dvd
+Shut down the server
+	PowerEdge 2850 in IT Closet. However, it does not have a CPU VT technology. XenServer cant be installed
+	
+Insert dvd and boot to install dvd:
+-Follow the On-Screen Instructions
+-On the "Virtual Machine Storage" Screen, select the HD, and check "Enable Thin Provisioning"
+	optimize the utilization of available storage, select Enable thin provisioning. 
+	XenDesktop users are strongly recommended to select this option in order for local caching
+	to work properly
+-Password:
+	<Site>!
+-Server name: XENSEVER-PE2850
+-In the "Networking" Screen, select
+	IP: XXX.XXX.XXX.65
+	Subnet: <Subnet>
+	Gateway: XXX.XXX.XXX.1
+-In the "Would you like to install supplemental packages", select yes
+-After installation and the server reboots, XenServer displays xsconsole, a system configuration console. 
+ To access a local shell from xsconsole, press Alt+F3; to return to xsconsole, press Alt+F1
+
+
+
+
+
+

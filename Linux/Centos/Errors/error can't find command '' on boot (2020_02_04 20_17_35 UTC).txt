@@ -1,0 +1,12 @@
+after booting, the os wait for used input and displays
+error can't find command ':'
+
+$ nano /boot/grub2/grub.cfg
+comment out anything that vmware commented
+	I.E.
+		from
+			: # (removed by Converter)
+		to
+			# : # (removed by Converter)
+Very Important
+	dont leave any if else fi empty.

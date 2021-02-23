@@ -1,0 +1,52 @@
+/etc/puppetlabs/code/environments/production/modules/
+mkdir addpuppetlock
+cd addpuppetlock
+mkdir files
+mkdir manifest
+mkdir templates
+mkdir test
+cd files
+nano /etc/puppetlabs/code/environments/production/modules/addpuppetlock/files/addlock.sh
+	vvar1=$(cat /etc/*-release | grep Ubuntu)
+	if [ ${#vvar1} -gt 0 ]; then
+	   sudo echo "puppet-agent hold" | dpkg --set-selections
+	   sudo echo "puppet5-release hold" | dpkg --set-selections
+	fi
+	vvar1=$(cat /etc/*-release | grep CentOS)
+	if [ ${#vvar1} -gt 0 ]; then
+	   yum -y install yum-plugin-versionlock
+	   yum versionlock add puppet-agent
+	   yum versionlock list
+	fi
+chmod 755 /etc/puppetlabs/code/environments/production/modules/addpuppetlock/files/addlock.sh
+nano /etc/puppetlabs/code/environments/production/modules/addpuppetlock/manifests/init.pp
+	class addpuppetlock {
+	   file { "/tmp/addlock.sh":
+	      mode => "0755",
+	      owner => 'root',
+	      group => 'root',
+	      source => 'puppet:///modules/addpuppetlock/files/addlock.sh',
+	      checksum => mtime,
+	      }
+	   exec { 'add update lock from puppet':
+	      command => "/bin/bash -c '/tmp/addlock.sh'",
+	      }
+	}
+
+/opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/modules/addpuppetlock/manifests/init.pp
+
+nano /etc/puppetlabs/code/environments/production/manifest/site.pp
+	node default {
+	   include user
+	   include auditssh
+	   include addpuppetlock
+	}
+	node <Site> {
+	}
+	node <Site>-windowsiis {
+	   include windowsuser
+	}
+
+
+/opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp
+

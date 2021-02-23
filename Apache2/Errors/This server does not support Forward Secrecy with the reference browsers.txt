@@ -1,0 +1,48 @@
+Requirements
+1) OpenSSL version 1.0.1c+
+	$ openssl version
+2) Apache 2.4x
+	Ububtu:
+		$ apache2 -v
+	CentOS
+		$ httpd -v
+
+COnfiguration
+1) Find the Virtual Hosts
+	Ubuntu
+		$ grep -i -r "SSLEngine" /etc/apache2
+	CentOS
+		$ grep -i -r "SSLEngine" /etc/httpd
+2) Open the files with Virtual Host and add/modify the following parameters
+	# the following 3 lines were added to remove the SSLabs error: This server does not support Forward Secrecy with the reference browsers
+		SSLProtocol all -SSLv2 -SSLv3
+			//* OR to disable TLS 1 and 1.1:
+				SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+		SSLHonorCipherOrder on
+		SSLCipher<Phone> "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4"
+3) Restart apache
+
+
+
+Optionally Adding a CAA record
+1) Adding the CAA record to the Public DNS
+	If  Godaddy 
+		Manage DNS for top domain -> add
+			Type: CAA
+			Name: @
+			Flags: 0
+			Tag: issue
+			Value: godaddy.com
+			TTL: 1/2 hour
+		Manage DNS for top domain -> add
+			Type: CAA
+			Name: @
+			Flags: 0
+			Tag: issue
+			Value: letsencrypt.org
+			TTL: 1/2 hour
+
+
+If openssl cant be upgraded to 1.0.1e+
+$ modify the files in step 2, and replace the following
+	SSLCipher<Phone> "ECDHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256"

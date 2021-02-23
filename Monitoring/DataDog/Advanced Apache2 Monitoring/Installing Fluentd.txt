@@ -1,0 +1,92 @@
+IT DOES NOT WORK.
+
+1) Setup NTP client
+	$ service ntpd status
+		//* check if ntp client is installed
+	$ yum -y install ntp
+		//* Install ntp client
+	$ ntpq -p
+		//* Verfies that ntp client is working
+2) Increase Max # of File Descriptors
+	$ ulimit -n
+		//* ulimit -n displays the set limits for services started at boot
+		//* If your console shows 1024, it is insufficient. Please add following lines to your 
+		//* /etc/security/limits.conf file and reboot your machine.
+		//* 	root soft nofile 65536
+		//*	root hard nofile 65536
+		//* 	* soft nofile 65536
+		//*	* hard nofile 65536
+3) Optimize Network Kernel Parameters
+	$ vi /etc/sysctl.conf
+		net.ipv4.tcp_tw_recycle = 1
+		net.ipv4.tcp_tw_reuse = 1
+		net.ipv4.ip_local_port_range = 10240    65535
+	$ reboot
+4) Get an account with Treasure Data to get an <Site> Key
+	https://console.treasuredata.com/users/sign_up
+5) Install Fluent
+	$ cd /tmp
+	//* for CentOS
+		$ curl -L https://toolbelt.treasuredata.com/sh/install-redhat-td-agent2.sh | sh
+	//* For Ubuntu Xenial
+		curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-xenial-td-agent2.sh | sh
+6) Launch Daemon
+	$ /etc/init.d/td-agent start
+	$ /etc/init.d/td-agent status
+		//* other commands
+		$ /etc/init.d/td-agent stop
+		$ /etc/init.d/td-agent restart
+7) Create an account with teasuredate
+	https://console.treasuredata.com/users/sign_up
+		username: <Email> / <Password>
+8) get the <Site> Key
+	https://console.treasuredata.com/users/current
+	//* and click on the “<Site> Keys” tab.
+		<Site> for <Email>
+			Master: 	<Key>
+			Write-Only:	<Key>
+9) Configure fluentd
+	$ vi /etc/td-agent/td-agent.conf
+		//* replace the following lines
+			<Site>key TD_<Site>_KEY 	with	<Site>key <Key>
+		//* add the following line after "buffer_path /var/log/td-agent/buffer/td"
+			id treasure_data
+		<source>
+		  type monitor_agent
+		  bind 0.0.0.0
+		  port 24220
+		</source>
+		<match test>
+		  id   plg1
+		  type forward
+		  <server>
+		    host localhost
+		  </server>
+		</match>
+		<match **>
+		  id   plg2
+		  type forward
+		  <server>
+		    host localhost
+		  </server>
+		</match>
+10) $ service td-agent restart
+11) $ cp /etc/dd-agent/conf.d/fluentd.yaml.example /etc/dd-agent/conf.d/fluentd.yaml
+12) $ vi /etc/dd-agent/conf.d/fluentd.yaml
+	init_config:instances:
+   	# For every instance, you have an `monitor_agent_url`
+	# and (optionally) a list of tags.
+	- monitor_agent_url: http://localhost:24220/<Site>/plugins.json
+        	plugin_ids:
+	          - treasure_data # same id as in td-agent.conf
+13) service datadog-agent restart
+14) Log into datadog and enable fluentd integration
+15) Verification that Datadog-Apache Integration is working
+	$ /etc/init.d/datadog-agent info
+		//* It should show  Fluentd, -instance #0 [OK], collected # metrics
+Visualize and monitor Fluentd
+
+
+
+
+

@@ -1,0 +1,10 @@
+ssh connect to host github.com port 22 Connection timed out
+when git push -u origin master
+
+https://stackoverflow.com/questions/15589682/ssh-connect-to-host-github-com-port-22-connection-timed-out
+sudo nano ~/.ssh/config
+	Host github.com
+	 Hostname ssh.github.com
+	 Port 443
+git push -u origin master
+

@@ -1,0 +1,35 @@
+
+Copying a InnoDB database
+Step 1. Shutdown Mysql server
+Step 2. Copy database in your database folder (in linux, the default location is /var/lib/mysql). 
+	Keep same name of the database, and same name of database in mysql mode.
+	sudo cp -rf   /mnt/ubuntu_426/var/lib/mysql/database1 /var/lib/mysql/
+Step 3: Change own and change mode the folder:
+	sudo chown -R mysql:mysql /var/lib/mysql/database1
+	sudo chmod -R 660 /var/lib/mysql/database1
+	sudo chown  mysql:mysql /var/lib/mysql/database1 
+	sudo chmod 700 /var/lib/mysql/database1
+Step 4: Copy ibdata1 in your database folder
+	sudo cp /mnt/ubuntu_426/var/lib/mysql/ibdata1 /var/lib/mysql/
+	sudo chown mysql:mysql /var/lib/mysql/ibdata1
+Step 5: copy ib_logfile0 and ib_logfile1 files in your database folder.
+	sudo cp /mnt/ubuntu_426/var/lib/mysql/ib_logfile0 /var/lib/mysql/
+	sudo cp /mnt/ubuntu_426/var/lib/mysql/ib_logfile1 /var/lib/mysql/
+Remember change own and change root of those files:
+	sudo chown -R mysql:mysql /var/lib/mysql/ib_logfile0
+	sudo chown -R mysql:mysql /var/lib/mysql/ib_logfile1
+or
+	sudo chown -R mysql:mysql /var/lib/mysql
+Step 6 (Optional): My site has configuration to store files in a specific location, then I copy 
+	those to corresponding location, exactly.
+Step 7: Start your Mysql server. Everything come back and enjoy it.
+
+Copying a MyISAM
+A MySQL MyISAM table is the combination of three files:
+	The FRM file is the table definition.
+	The MYD file is where the actual data is stored.
+	The MYI file is where the indexes created on the table are stored.
+Stop the mysqld service
+You should be able to restore by copying them in your database folder (In linux, 
+	the default location is /var/lib/mysql/)
+

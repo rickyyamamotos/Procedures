@@ -1,0 +1,11 @@
+$ netstat -atun
+	//* show tcp/udp listening ports
+$ netstat -l 
+	//* show listening streams and their programs
+$ netstat -tulnp
+	//* show tcp/udp listening ports and their programs
+$ netstat -vatn
+	//*
+
+$  sudo lsof -i -n -P 
+	//* Show ports and services

@@ -1,0 +1,19 @@
+download it:
+$ cd /tmp
+$ wget https://moodle.org/plugins/download.php/14577/mod_turnitintooltwo_moodle33_2017080901.zip
+$ unzip mod_turnitintooltwo_moodle33_2017080901.zip -d /var/www/html/moodle/mod
+	//* it will create a directory named /var/www/html/moodle/mod/turnitintooltwo
+$ nano /etc/php/apache2/php.ini
+	//* uncomment extension=php_curl.dll
+$ service apache2 restart
+
+
+On your web-navigator, Refresh the moodle website (moodle.<Site>)
+	Or go to Site <Site> -> Notifications -> Plugins check 
+Click on "Upgrade Database Now"
+You should have a notice of "success"
+
+The you will require an turnitin ID and key. You can leave it unset for now
+
+
+

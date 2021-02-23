@@ -1,0 +1,21 @@
+Enabling SSL 
+(https://linuxtogether.org/configuring-reverse-proxy-for-node-using-apache-mod-proxy/)
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_balancer
+sudo a2enmod lbmethod_byrequests
+sudo systemctl restart apache2
+nano /etc/apache2/sites-enabled/default-000.conf
+                ProxyPreserveHost On
+                ProxyPass / http://127.0.0.1:3000/
+                ProxyPassReverse / http://127.0.0.1:3000/
+sudo systemctl restart apache2
+
+
+forwarding port 80 to 3000
+nano /etc/apache2/sites-enabled/000-default.conf
+	<VirtualHost *:80>
+	        ProxyPreserveHost On
+	        ProxyPass / http://127.0.0.1:3000/
+	        ProxyPassReverse / http://127.0.0.1:3000/
+

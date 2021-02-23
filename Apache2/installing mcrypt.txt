@@ -1,0 +1,51 @@
+$ yum install php-mcrypt
+	//* get errors
+I.E. Error: Package: php-mcrypt-5.4.45-13.el6.remi.x86_64 (remi)
+	search for "php-mcrypt-5.4.45-13.el6.remi.x86_64" in the page https://pkgs.org/download/php-mcrypt, get the download link
+	$ wget http://rpms.famillecollet.com/enterprise/6/remi/x86_64/php-mcrypt-5.4.45-13.el6.remi.x86_64.rpm
+	$ rpm -Uvh php-mcrypt-5.4.45-13.el6.remi.x86_64.rpm
+		//* if more error repeat the steps for the error dependency
+		I.E. Requires: libmcrypt.so.4()(64bit)
+			search for "libmcrypt.so.4()(64bit)" in the page https://pkgs.org/download/php-mcrypt, get the download link
+			Select the binary epel version for your OS
+			$ wget http://dl.fedoraproject.org/pub/epel/6/x86_64/Packages/l/libmcrypt-2.5.8-9.el6.x86_64.rpm
+			$ rpm -Uvh libmcrypt-2.5.8-9.el6.x86_64.rpm
+		if no more error then reinstall the previous rpm
+			$ rpm -Uvh php-mcrypt-5.4.45-13.el6.remi.x86_64.rpm
+$ service http restart
+
+
+did not work
+yum install mcrypt.*
+yum install curl.*
+
+did not worked
+php v 5.4.45
+https://www.rpmfind.net/linux/remi/enterprise/6/remi/x86_64/php-mcrypt-5.4.45-13.el6.remi.x86_64.rpm
+	rpm -ivh php-mcrypt-5.4.45-13.el6.remi.x86_64.rpm -nodeps
+php-common(x86-64) = 5.4.45-13.el6.remi
+	https://www.rpmfind.net/linux/remi/enterprise/6/remi/x86_64/php-common-5.4.45-13.el6.remi.x86_64.rpm
+	https://www.rpmfind.net/linux/remi/enterprise/6/remi/x86_64/php-common-5.4.45-13.el6.remi.x86_64.rpm
+libmcrypt.so.4()(64bit)
+	https://centos.pkgs.org/6/epel-x86_64/libmcrypt-2.5.8-9.el6.x86_64.rpm.html
+	http://dl.fedoraproject.org/pub/epel/6/x86_64/Packages/l/libmcrypt-2.5.8-9.el6.x86_64.rpm
+
+
+Updading php version from 5.4.5 to 5.6
+	rpm -Uvh https://mirror.webtatic.com/yum/el6/latest.rpm
+	yum remove mcrypt
+	yum remove php-mcrypt
+	yum remove php-common
+	yum install -y php56w php56w-opcache php56w-xml php56w-mcrypt php56w-gd php56w-devel php56w-mysql php56w-intl php56w-mbstring
+	/etc/init.d/httpd restart
+https://www.mojowill.com/geek/howto-install-php-5-4-5-5-or-5-6-on-centos-6-and-centos-7/
+	wget http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+	wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+	rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+	nano /etc/yum.repos.d/remi.repo
+		[remi]
+			enable=1
+		[remi-php56]
+			enable=1
+	yum install php php-gd php-mysql php-mcrypt	
+	/etc/init.d/httpd restart

@@ -1,0 +1,66 @@
+Ananlyzing binlog files
+
+identify the file to <Site> according to the file's modified date
+	$ cd /var/log/mysql
+	$ ls mysl-bin.* -l
+dump the binlog contents into a txt file
+	$ mysqlbinlog /var/log/mysql/mysql-bin.000040 --database="v" --stop-datetime="2018-11-13 15:20:00" > /tmp/binlog_field.sql
+find inside /tmp/binlog_field.sql the required text, find their line numbers
+	$ grep -n "35507" binlog_field.sql > 1.txt
+		//* lines between 5945937 and 5966762
+Crop /tmp/binlog_field.sql by line numbers
+	$ awk 'NR >= 5945887 && NR <= 5966812' binlog_field.sql > 2.txt
+Inspect 2.txt
+
+Optionally you can dump the binlog using a start and stop points
+	$ mysqlbinlog /var/log/mysql/mysql-bin.000040 --database="v" --start-position=121 --stop-position=23213232 > /tmp/binlog_field.sql
+Optionally you can dump the binlog using a start and stop dates
+	$ mysqlbinlog /var/log/mysql/mysql-bin.000040 --database="v" --start-datetime="2005-04-20 9:55:00"  --stop-datetime="2005-04-20 10:05:00" > /tmp/binlog_field.sql
+
+
+
+
+
+
+
+
+
+
+around 3:15pm
+
+POS: # at 57571307
+15:16:16
+
+35507
+
+
+
+awk 'NR >= 909220 && NR <= 909250' binlog_field1.sql
+
+
+# at 83103991
+#181113 15:20:47 server id 1  end_log_pos 83104131      Query   thread_id=60947 exec_time=0     error_code=0
+SET TIMESTAMP=1542140447/*!*/;
+UPDATE mdl_local_users SET deleted = '1' WHERE userid = '35507'
+
+
+# at 83105271
+# at 83105360
+#181113 15:20:47 server id 1  end_log_pos 83105360      Table_map: `v`.`mdl_question_attempt_step_data` mapped to number 5578
+#181113 15:20:47 server id 1  end_log_pos 83105448      Write_rows: table id 5578 flags: STMT_END_F
+
+
+
+
+
+
+
+16:25 PM
+mysql-bin.000246
+# at 4
+#181207 16:21:29 server id 1  end_log_pos 107   Start: binlog v 4, server v 5.5.44-log created 181207 16:21:29
+# at 851811611
+#181207 16:59:59 server id 1  end_log_pos 851811638     Xid = 69119028
+
+
+

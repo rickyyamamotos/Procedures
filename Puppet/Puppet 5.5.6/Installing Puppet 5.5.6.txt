@@ -1,0 +1,447 @@
+<Site>
+VM hosted on XXX.XXX.XXX.77
+
+CentOS 7
+Puppet 5.5.6
+disk 40 Gb
+
+IP:	XXX.XXX.XXX.160
+
+SSH
+	XXX.XXX.XXX.160:<PortNumber>
+	rick / <Password>
+	<Username> / <Password>
+
+Change linux user's passwords on nodes: (DANGEROUS, IF DONE INCORRECTLY, IT CAN LOCK NODES)
+//* This will remove every existing users except system's users
+//* on purpose, in order to remove unwanted linux accounts
+$ passwd <Username>
+$ passwd <Username>
+$ cat /etc/shadow | grep <Username> | cut -d ":" -f 2
+	//* take note of the hash: <Hash>
+$ cat /etc/shadow | grep <Username> | cut -d ":" -f 2
+	//* take note of the hash: <Hash>
+$ nano /etc/puppetlabs/code/environments/production/modules/user/manifests/init.pp
+		class user {
+		   resources { 'user':
+		      purge => false,				//* make it trus if you want to delete all existing users
+		      unless_system_user => true,
+		   }
+		   user { '<Username>':
+		      ensure => present,
+		      password => '<Hash>',
+		   }
+		   user { '<Username>':
+		      ensure => present,
+		      password => '<Hash>',
+		   }
+		   user { 'rick':
+		      ensure => present,
+		      password => '<Hash>',
+		}
+//*Puppet can manage Windows passwords only as cleartext.
+/opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/modules/user/manifests/init.pp   (CentOS)
+//* give it 30 minutes for the nodes to change the paswords
+
+
+
+CONFIGURING THE PUPPET 5.5.6 MASTER/SERVER IN CENTOS 7
+======================================================
+Configuring Networking:
+	$ vi /etc/sysconfig/network-scripts/ifcfg-en132
+		DEVICE=ens132
+		TYPE=Ethernet
+		ONBOOT=yes
+		NM_CONTROLLED=no
+		BOOTPROTO=static
+		IPADDR=XXX.XXX.XXX.160
+		NETMASK=<Subnet>
+		DNS1=XXX.XXX.XXX.19
+		DNS2=XXX.XXX.XXX.3
+	$ vi /etc/sysconfig/network
+		NETWORKING=yes
+		HOSTNAME=<Site>
+		GATEWAY=XXX.XXX.XXX.1
+	$ vi /etc/hosts
+		127.0.0.1	<Site>
+	$ vi /etc/hostname
+		<Site>
+	$ service network restart
+	$ nano /etc/selinux/config
+		SELINUX=disabled
+	$ vi /etc/ssh/sshd_config
+		PORT=<PortNumber>
+	$ service sshd restart
+	$ firewall-cmd --zone=public --permanent --add-port=<PortNumber>/tcp
+	$ firewall-cmd --zone=pubic --remove-service=ssh
+	$ reboot now
+	$ useradd rick
+	$ passwd rick
+		//* <Password>
+	$ useradd <Username>
+	$ passwd <Username>
+		//* <Password>
+	$ useradd test
+	$ passwd test
+		//* <Password>
+	$ visudo
+		<Username> ALL=NOPASSWD:ALL
+		rick ALL=NOPASSWD:ALL
+		<Username> ALL=NOPASSWD:ALL
+	$ yum update -y
+	$ yum install nano net-tools -y
+Install NTP:
+	$ yum -y install ntpdate
+	$ ntpdate 0.centos.pool.ntp.org
+	$ systemctl start ntpdate
+	$ systemctl enable ntpdate
+Install Puppet:
+	$ rpm -Uvh https://yum.puppetlabs.com/puppet5/puppet5-release-el-7.noarch.rpm
+	$ yum update -y
+	$ yum list puppetserver --show-duplicates
+	$ yum install -y puppetserver-5.5.6
+	$ nano /etc/sysconfig/puppetserver
+		JAVA_ARGS="-Xms512m -Xmx512m"
+	$ nano /etc/puppetlabs/puppet/puppet.conf
+		[master]
+		dns_alt_names = <Site>,<Site>
+		[main]
+		certname = <Site>
+		server = <Site>
+		environment = production
+	$ systemctl start puppetserver
+		//* this may take some time (minutes)
+	$ systemctl enable puppetserver
+	$ firewall-cmd --permanent --zone=public --add-port=8140/tcp
+	$ firewall-cmd --permanent --zone=public --add-port=8140/udp
+	$ firewall-cmd --reload
+	$ ln -s /opt/puppetlabs/bin/puppet /usr/bin/puppet
+Locking the Puppet Version in the master
+	 //* to maintain a consistent Puppet version across your entire infrastructure	
+	$ /opt/puppetlabs/bin/puppet --version
+		//* 5.5.6
+	$ yum -y install yum-plugin-versionlock
+	$ yum versionlock add puppetserver
+	$ yum versionlock list
+Main Puppet Manifest:
+	$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+The Modules Directory:
+	$ ls /etc/puppetlabs/code/environments/production/modules/
+Configuring the user Module to modify linux passwords:
+	$ cd /etc/puppetlabs/code/environments/production/modules/
+	$ mkdir user
+	$ cd user
+	$ mkdir manifests
+	$ mkdir files
+	$ mkdir templates
+	$ mkdir tests
+	$ cd manifests
+	$ passwd <Username>
+		//* <Password>
+	$ cat /etc/shadow | grep <Username> | cut -d ":" -f 2
+		//* take note of the hash
+	$ passwd <Username>
+		//* <Password>
+	$ cat /etc/shadow | grep <Username> | cut -d ":" -f 2
+		//* take note of the hash
+	$ nano init.pp
+		class user {
+		   resources { 'user':
+		      purge => false,				//* make it true if you want to delete all existing users
+		      unless_system_user => true,
+		   }
+		   user { '<Username>':
+		      ensure => present,
+		      password => '<Hash>',
+		   }
+		   user { '<Username>':
+		      ensure => present,
+		      password => '<Hash>',
+		   }
+		}
+ 	$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp		//* enables the user module for the default nodes
+		node default {
+		   include user
+		}
+	$ cd /etc/puppetlabs/code/environments/production/modules/
+	$ mkdir auditssh
+	$ cd auditssh
+	$ mkdir manifests
+	$ mkdir files
+	$ mkdir templates
+	$ mkdir tests
+	$ cd manifests
+	$ nano init.pp
+		class auditssh {
+		    file { "/audit-ssh-access.sh":
+		        mode => "0711",
+		        owner => 'root',
+		        group => 'root',
+		        source => 'puppet:///modules/auditssh/audit-ssh-access.sh',
+		        checksum => mtime,
+		    }
+		    file { '/etc/pam.d/sshd':
+		        ensure => present,
+		    }->
+		    file_line { 'Append a line to /etc/pam.d/sshd':
+		        path => '/etc/pam.d/sshd',
+		        line => 'session optional pam_exec.so seteuid /audit-ssh-access.sh',
+		    }
+		    file { '/etc/ssh/sshd_config':
+		        ensure => present,
+		    }->
+		    file_line { 'Ensure that UsePam is yes in /etc/ssh/sshd_config':
+		        path => '/etc/ssh/sshd_config',
+		        line => 'UsePAM yes',
+		        match   => "^UsePAM.*$",
+		    }
+		    package { 'sshpass':
+		        ensure => installed,
+		    }
+		    $sshpackagename = $osfamily ? {
+		        'Debian'  => 'openssh-client',
+		        'RedHat'  => 'openssh-clients',
+		        default   => warning('This distribution is not supported by the Accounts module'),
+		    }
+		    package { "$sshpackagename":
+		        ensure => installed,
+		    }
+		}
+	$ cd /etc/puppetlabs/code/environments/production/modules/auditssh/files
+	$ nano audit-ssh-access.sh
+		#!/bin/bash
+		PATH=$PATH:/usr/local/bin:/usr/bin
+		#EXTRACTING DATA FROM HOST
+		vip1=`hostname -I`
+		vip1=`echo $vip1 | sed 's/\ /-/g'`
+		wwwroot1=`hostname`
+		if [ "$PAM_TYPE" != "close_session" ]; then
+		   venv1=$(echo `env` | tr '\n' ' , ')
+		   vvar1=$(sshpass -p '<Password>' ssh -oStrictHostKeyChecking=no -p <PortNumber> <Username>@XXX.XXX.XXX.243 "grep $PAM_RHOST /mnt/shares/drobo/ssh-access-iplist.log")
+		   vdateip1=${vvar1:0:`expr index "$vvar1" " "`}
+		   if [ ${#vdateip1} -lt 8 ]; then
+		      vdateip1=$(date '+%Y-%m-%d')
+		   fi
+		   sshpass -p '<Password>' ssh -oStrictHostKeyChecking=no -p <PortNumber> <Username>@XXX.XXX.XXX.243 "/bin/echo $(date '+%Y-%m-%d') $(TZ=US/Eastern date '+%H:%M:%S') EDT $wwwroot1 $vip1 $PAM_RHOST $PAM_USER $vdateip1 @$venv1@ >> /mnt/shares/drobo/ssh-access-audit.log"
+		fi
+Configuring the windowsuser Module to modify windows passwords:
+//* passwords needs to be in plaintext
+//* password must following the windows node password policy requirements
+	$ cd /etc/puppetlabs/code/environments/production/modules/
+	$ mkdir windowsuser
+	$ cd user
+	$ mkdir manifests
+	$ mkdir files
+	$ mkdir templates
+	$ mkdir tests
+	$ cd manifests
+	$ nano init.pp
+		class windowsuser {
+		   resources { 'user':
+		      purge => false,				//* make it trus if you want to delete all existing users
+		      unless_system_user => true,
+		   }
+		   user { '<Username>':
+		      ensure => present,
+		      password => '<Password>',
+		   }
+		}
+ 	$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp		//* enables the user module for the default nodes
+		node <Site>windowsiis {
+		   include windowsuser
+		}
+$ /opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/modules/user/manifests/init.pp
+$ /opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp
+
+CONFIGURING A PUPPET 5.5.6 CLIENT IN CENTOS 7 OR 6
+==================================================
+See "Install a specific version of puppet.txt" because wee need puppet-agent 5.5.6
+	$ yum update -y
+	$ yum install nano net-tools -y
+	$ nano /etc/hosts
+		XXX.XXX.XXX.160	<Site>
+	$ service network restart
+	$ nano /etc/selinux/config
+		SELINUX=disabled
+	$ reboot now
+	$ useradd rick
+	$ passwd rick
+		//* <Password>
+	$ visudo
+		<Username> ALL=NOPASSWD:ALL
+		rick ALL=NOPASSWD:ALL
+if cloned from a server with pupper-agent
+	$ rm /opt/puppetlabs/puppet/cache/client_data/catalog/<CERTNAME>.json
+Install NTP:
+	$ yum -y install ntpdate
+	$ ntpdate 0.centos.pool.ntp.org
+	//* Do one of the following
+		//* CentOS 7:
+			$ systemctl start ntpdate
+			$ systemctl enable ntpdate
+		//* CentOS 6:
+			$ chkconfig ntpdate on
+			$ service ntpdate start
+Install Puppet:
+	//* Do one of the following
+		//* CentOS 7:
+			$ rpm -Uvh https://yum.puppetlabs.com/puppet5/puppet5-release-el-7.noarch.rpm
+		//* CentOS 6:
+			$ rpm -Uvh https://yum.puppetlabs.com/puppet5/puppet5-release-el-6.noarch.rpm
+	$ yum update -y
+	$ yum list puppet-agent --showduplicates
+		//* puppet-agent.x86_64                                                     5.5.6-1.el6                                                                                                     if no 5.5.6-1.el6 is shown
+		$ rpm -Uvh https://yum.puppet.com/puppet5/el/6/x86_64/puppet-agent-5.5.6-1.el6.x86_64.rpm
+	$ sudo yum install -y puppet-agent-5.5.6-1.el6
+	$ nano /etc/puppetlabs/puppet/puppet.conf
+		[main]
+		certname = HOSTNAME
+			//* Replace HOSTNAME witht the puppet client hostname ($ hostname)
+		server =  <Site>
+		environment = production
+	$ /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true
+	$ ln -s /opt/puppetlabs/bin/puppet /usr/bin/puppet
+Locking the Puppet Version in the client:
+	 //* to maintain a consistent Puppet version across your entire infrastructure	
+	$ /opt/puppetlabs/bin/puppet --version
+		//* 5.5.6
+	$ yum -y install yum-plugin-versionlock
+	$ yum versionlock add puppet-agent
+	$ yum versionlock list
+Sign the client certificate on the master
+	$ /opt/puppetlabs/bin/puppet cert list -all
+		//* this should show the <Site>-puppet-client1 hash
+	//* DO one of the following
+		$ sudo /opt/puppetlabs/bin/puppet cert sign <Site>-puppet-client1
+	OR
+		$ sudo /opt/puppetlabs/bin/puppet cert sign --all
+Forcing Sync of client, in <Site>-puppet-client1
+	$ /opt/puppetlabs/bin/puppet agent --test
+	//* Verify that <Username> was created, and the password for <Username> was changed
+
+
+CONFIGURING A PUPPET 5.5.6 CLIENT IN UBUNTU 15.04 OR 16.04 OR 18.04
+===================================================================
+See "Install a specific version of puppet.txt" because wee need puppet-agent 5.5.6
+	$ apt-get update -y
+	$ apt-get install nano net-tools -y
+	$ nano /etc/hosts
+		XXX.XXX.XXX.160	<Site>
+	$ service networking restart
+	$ nano /etc/selinux/config
+		SELINUX=disabled
+	$ reboot now
+	$ useradd rick
+	$ passwd rick
+		//* <Password>
+	$ visudo
+		<Username> ALL=NOPASSWD:ALL
+		rick ALL=NOPASSWD:ALL
+if cloned from a server with pupper-agent
+	$ rm /opt/puppetlabs/puppet/cache/client_data/catalog/<CERTNAME>.json
+Ensure timectl is property configured:
+	$ timedatectl
+		//* NTP synchronized: yes
+		//* Otherwise:
+				$ apt-get install ntp -y
+				$ sudo update-rc.d ntp defaults
+				$ sudo update-rc.d ntp enable
+				$ sudo service ntp stop
+				$ sudo ntpd -gq
+				$ sudo service ntp start
+				$ sudo timedatectl set-ntp true
+Install Puppet:
+	$ cd /tmp
+	$ cat /etc/*-release
+	//* Do one of the following:
+		//* For Debian 9
+			$ wget https://apt.puppetlabs.com/puppet5-release-stretch.deb
+			$ sudo dpkg -i puppet5-release-stretch.deb
+		//* For Ubuntu 18.04
+			$ wget https://apt.puppetlabs.com/puppet5-release-bionic.deb
+			$ sudo dpkg -i puppet5-release-bionic.deb
+		//* For Ubuntu 16.04
+			$ wget https://apt.puppetlabs.com/puppet5-release-xenial.deb
+			$ sudo dpkg -i puppet5-release-xenial.deb
+		//* For Ubuntu 15.04
+			$ wget https://apt.puppetlabs.com/puppet5-release-trusty.deb
+			$ sudo dpkg -i puppet5-release-trusty.deb
+		//* For Ubuntu 14.04
+			$ wget https://apt.puppetlabs.com/puppet5-release-trusty.deb
+			$ sudo dpkg -i puppet5-release-trusty.deb
+		//* For Ubuntu 13.10
+			$ wget https://apt.puppetlabs.com/puppet5-release-wheezy.deb
+			$ sudo dpkg -i puppet5-release-wheezy.deb
+		//* Other Ubuntu versions
+			//* see https://apt.puppetlabs.com/
+	$ sudo apt-get update
+	$ apt-cache showpkg puppet-agent
+		//* or $ apt list -a puppet-agent
+		//* if the repository is already installed
+		//* The output should give something like 
+		//* 	5.5.7-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.6-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.4-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+	$ apt-get install -y puppet-agent=5.5.6-1xenial
+	$ nano /etc/puppetlabs/puppet/puppet.conf
+		[main]
+		certname = HOSTNAME
+			//* Repalce HOSTANAME with the puppet cient hostname ($ hostname)
+		server = <Site>
+		environment = production
+	$ sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true
+	$ ln -s /opt/puppetlabs/bin/puppet /usr/bin/puppet
+Locking the Puppet Version in the client: (Put a package on hold)
+	 //* to maintain a consistent Puppet version across your entire infrastructure	
+	$ dpkg --get-selections | grep puppet
+		//* it should show: puppet-agent and puppet5-release
+	$ echo "puppet-agent hold" | dpkg --set-selections
+	$ echo "puppet5-release hold" | dpkg --set-selections
+Sign the client certificate on the master
+	$ /opt/puppetlabs/bin/puppet cert list -all
+		//* this should show the <Site>-puppet-client1 hash
+	//* DO one of the following
+		$ /opt/puppetlabs/bin/puppet cert sign <Site>-puppet-client1
+	OR
+		$ /opt/puppetlabs/bin/puppet cert sign --all
+Forcing Sync of client, in <Site>-puppet-client1
+	$ /opt/puppetlabs/bin/puppet agent --test
+	//* Verify that <Username> was created, and the password for <Username> was changed
+
+INSTALL PUPPET-AGENT 5.5.6 IN WINDOWS 2012
+==========================================
+See https://puppet.com/docs/puppet/5.5/install_windows.html
+In the puppet masters
+	in site.app, add a node for the windows node we will install. This is to avoid running the default manifests in the windows node
+log into the windows node
+download and install 
+	notepad c:\windows\system32\driver\etc\hosts
+		//* add the ip of the puppet master
+		XXX.XXX.XXX.160 <Site>
+	https://downloads.puppetlabs.com/windows/puppet5/puppet-agent-5.5.6-x64.msi	(for Windows x64 )
+	OR
+	https://downloads.puppetlabs.com/windows/puppet5/puppet-agent-5.5.6-x86.msi	(for Windows x86)
+During installation enter the puppet master FQDN: <Site>
+After the installation is finished, log into the puppet master and accept the certificate of the windows node
+	$ /opt/puppetlabs/bin/puppet cert sign --all
+Go back to the window node and run
+	C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Puppet\Run Puppet Agent
+	OR
+	C:\Program Files\Puppet Labs\Puppet\bin\run_puppet_interactive.bat
+
+
+REVOKE A CLIENT CERT IN THE MASTER
+==================================
+	$ /opt/puppetlabs/bin/puppet cert clean <hostname>
+
+LIST ALL CLIENTS CERTS IN THE MASTER
+====================================
+	$ /opt/puppetlabs/bin/puppet cert list --all
+
+SHOW PUPPET VERSION
+===================
+	$ /opt/puppetlabs/bin/puppet --version
+
+MANUALLY RUN PUPPET AGENT IN THE NODE
+=====================================
+$ /opt/puppetlabs/bin/puppet agent --test

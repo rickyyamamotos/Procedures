@@ -1,0 +1,54 @@
+Site already in github.com
+	<Site>/<Site> Private  		(unclear which site this git refers to)
+	<Site>/<Site>.<Domain> Private
+	<Site> Private		(unclear which site this git refers to)
+	<Site> Private
+	<Site>/<Site> Private
+	ListeningGuide Private			(unclear which site this git refers to)
+	<Site> Private			(unclear which site this git refers to)
+	<Site> Private			(unclear which site this git refers to)
+	<Site> Private
+	OMFv3 Private				(unclear which site this git refers to)
+	<Site> (Production)
+	<Site> Private		(unclear which site this git refers to)
+	<Site>/s<Site> Private
+	<Site>/<Site> Private	(unclear which site this git refers to)
+	<Site>/<Site> Private
+	<Site>/<Site>.<Domain> Private
+	<Site>/<Site> Private
+
+WordPress sites in the <Datacenter>
+ALL WP sites
+	XXX.XXX.XXX.154	<Site> (old <Site>)
+	XXX.XXX.XXX.157	<Site>  "<Site>"
+	XXX.XXX.XXX.186	<Site>
+	XXX.XXX.XXX.195	<Site> "<Site>"
+	XXX.XXX.XXX.200	<Site>/
+	XXX.XXX.XXX.205	<Site>
+	XXX.XXX.XXX.207	<Site>
+	XXX.XXX.XXX.211	<Site>
+	XXX.XXX.XXX.215   <Site>/
+	XXX.XXX.XXX.216   <Site> (cloned from <Site>)
+	XXX.XXX.XXX.219	<Site>
+	XXX.XXX.XXX.234	<Site>/
+	XXX.XXX.XXX.240	<Site>/ (WP)
+	XXX.XXX.XXX.243	<Site>/
+The following Production WP sites in the CRC are now in the githib.com
+OK	XXX.XXX.XXX.157	<Site>	(Done on 11/29/2018, some issue because of the first one,it includes uploads)
+OK	XXX.XXX.XXX.186	<Site>		(Done on 11/29/2018)
+OK	XXX.XXX.XXX.195	<Site>	(Done on 11/29/2018)
+OK	XXX.XXX.XXX.200	<Site>			(Done on 11/29/2018)
+OK	XXX.XXX.XXX.207	<Site>	(Done on 11/29/2018)
+OK	XXX.XXX.XXX.211	<Site>		(Done on 11/29/2018)
+OK	XXX.XXX.XXX.215   <Site>		(ALREADY IN GITHUB)
+OK	XXX.XXX.XXX.216   <Site>	(Done on 11/29/2018)
+OK	XXX.XXX.XXX.234	<Site>			(Done on 11/29/2018)
+OK	XXX.XXX.XXX.240	<Site>		(Done on 11/29/2018)
+OK	XXX.XXX.XXX.243	<Site>	(Done on 11/29/2018)
+
+
+
+
+
+
+

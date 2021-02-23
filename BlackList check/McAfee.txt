@@ -1,0 +1,6 @@
+nslookup www.<Site>
+	XXX.XXX.XXX.89
+nslookup 89.XXX.XXX.XXX.cidr.bl.mcafee.com
+If the reply is NXDOMAIN, the host is not listed in the McAfee RBL. 
+If the reply is in the format 127.0.0.XXX, the host is listed in the McAfee RBL.
+

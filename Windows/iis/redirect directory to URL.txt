@@ -1,0 +1,10 @@
+IIS -> Sites -> www.setup.<Site> -> URL Rewrite -> Add Blank Rule
+request URL:	Match the pattern
+Using:		Regular expresion
+Ignore case:	checked
+Action type:	Redirect
+Redirect URL:	https://setup.<Site>/Reviewers/AccountsReview{R:3}
+
+Apply
+Restart the site
+

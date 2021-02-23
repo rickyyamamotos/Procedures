@@ -1,0 +1,159 @@
+$ yum install yum-utils
+$ yum-config-manager
+	//* list all repositories
+$ yum repolist
+	//* list all repositories
+$ yum-config-manager --disable remi
+$ yum-config-manager --disable remi-safe
+$ yum-config-manager --disable epel
+$ yum clean all
+$ yum update
+
+INSTALLING REPOS
+$ yum install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+	//* the above is for cent 6. for centos 7: yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+	//* Error: Package: remi-release-6.9-2.el6.remi.noarch (@remi)   requires Requires: epel-release = 6
+	$ yum remove epel-release-6-8.noarch
+	$ yum install https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+$ yum install http://rpms.remirepo.net/enterprise/remi-release-6.rpm
+	//* the above is for cent 6. for centos 7: yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+$ yum-config-manager --enable epel
+$ yum-config-manager --enable remi-php72
+	//* for other uodate replace remi-php72 with php71 with /php70/php71/php72
+$ yum install yum-utils
+REMOVING OBSOLETE MODULES
+$ yum check-update
+	Obsoleting Packages
+		php-mysqlnd.x86_64                   7.1.14-1.el6.remi                remi-php71
+		    php-mysql.x86_64                 5.4.45-13.el6.remi               @remi
+		php-opcache.x86_64                   7.1.14-1.el6.remi                remi-php71
+		    php-pecl-zendopcache.x86_64      7.0.5-1.el6.remi                 @remi
+		php-pdo-dblib.x86_64                 7.1.14-1.el6.remi                remi-php71
+		    php-mssql.x86_64                 5.4.45-13.el6.remi               @remi
+		php-pdo-dblib.x86_64		     7.1.14-1.el6.remi		      remi-php71
+		    php-mssql.x86_64		     5.4.45-13.el6.remi		      @remi
+//* indentifyin obsolete php modules
+		    php-mysql.x86_64                 5.4.45-13.el6.remi               @remi
+		    php-pecl-zendopcache.x86_64      7.0.5-1.el6.remi                 @remi
+		    php-mssql.x86_64                 5.4.45-13.el6.remi               @remi
+		    php-mssql.x86_64		     5.4.45-13.el6.remi		      @remi
+		    php-mcrypt
+//* removing osolete php modules
+
+
+Managing repos (enabling/disabling) to install a specific version of an app
+$ yum repolist 
+	repo id                                                                       repo name                       
+	base/7/x86_64                                                                 CentOS-7 - Base                                                                                           10,019
+	*epel/x86_64                                                                  Extra Packages for Enterprise Linux 7 - x86_64                                                            13,051
+	extras/7/x86_64                                                               CentOS-7 - Extras                                                                                            386
+	mysql-connectors-community/x86_64                                             MySQL Connectors Community                                                                                    95
+	mysql-tools-community/x86_64                                                  MySQL Tools Community                                                                                         84
+	mysql55-community/x86_64                                                      MySQL 5.5 Community Server                                                                                   427
+	remi-php56                                                                    Remi's PHP 5.6 RPM repository for Enterprise Linux 7 - x86_64                                                439
+	remi-safe                                                                     Safe Remi's RPM repository for Enterprise Linux 7 - x86_64                                                 3,188
+	updates/7/x86_64                                                              CentOS-7 - Updates                                                                                         1,513
+$ yum repolist | grep mysql
+	mysql-connectors-community/x86_64 MySQL Connectors Community     enabled:     95
+	mysql-connectors-community-source MySQL Connectors Community - S disabled
+	mysql-tools-community/x86_64      MySQL Tools Community          enabled:     84
+	mysql-tools-community-source      MySQL Tools Community - Source disabled
+	mysql55-community/x86_64          MySQL 5.5 Community Server     enabled:    427
+	mysql55-community-source          MySQL 5.5 Community Server - S disabled
+	mysql56-community/x86_64          MySQL 5.6 Community Server     disabled
+	mysql56-community-source          MySQL 5.6 Community Server - S disabled
+	mysql57-community-dmr/x86_64      MySQL 5.7 Community Server Dev disabled
+	mysql57-community-dmr-source      MySQL 5.7 Community Server Dev disabled
+$ yum-config-manager --disable mysql55-community
+$ yum-config-manager --enable mysql56-community
+$ yum repolist | grep mysql
+	mysql-connectors-community/x86_64 MySQL Connectors Community     enabled:     95
+	mysql-connectors-community-source MySQL Connectors Community - S disabled
+	mysql-tools-community/x86_64      MySQL Tools Community          enabled:     84
+	mysql-tools-community-source      MySQL Tools Community - Source disabled
+	mysql55-community/x86_64          MySQL 5.5 Community Server     disabled
+	mysql55-community-source          MySQL 5.5 Community Server - S disabled
+	mysql56-community/x86_64          MySQL 5.6 Community Server     enabled:    427
+	mysql56-community-source          MySQL 5.6 Community Server - S disabled
+	mysql57-community-dmr/x86_64      MySQL 5.7 Community Server Dev disabled
+	mysql57-community-dmr-source      MySQL 5.7 Community Server Dev disabled
+
+
+
+Restoring default repositories (for centos 5)
+nano /etc/yum.repos.d/CentOS-Base.repo
+	[base]
+	name=CentOS-$releasever - Base
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+	#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=1
+
+	#released updates 
+	[updates]
+	name=CentOS-$releasever - Updates
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
+	#baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=1
+
+	#packages used/produced in the build but not released
+	[addons]
+	name=CentOS-$releasever - Addons
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=addons
+	#baseurl=http://mirror.centos.org/centos/$releasever/addons/$basearch/
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=1
+	
+	#additional packages that may be useful
+	[extras]
+	name=CentOS-$releasever - Extras
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
+	#baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=1
+	
+	#additional packages that extend functionality of existing packages
+	[centosplus]
+	name=CentOS-$releasever - Plus
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus
+	#baseurl=http://mirror.centos.org/centos/$releasever/centosplus/$basearch/
+	enabled=1
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=2
+	
+	#contrib - packages by Centos Users
+	[contrib]
+	name=CentOS-$releasever - Contrib
+	mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=
+	$basearch&repo=contrib
+	#baseurl=http://mirror.centos.org/centos/$releasever/contrib/$basearch/
+	enabled=0
+	gpgcheck=1
+	gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+	priority=2
+yum clean all 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

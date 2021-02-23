@@ -1,0 +1,1 @@
+echo %date%,%time%,%computername%,%username%,Logon,%sessionname%,%logonserver% >> \\<Site>\Apps\temp\logon.log

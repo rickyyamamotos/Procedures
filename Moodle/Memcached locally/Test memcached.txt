@@ -1,0 +1,18 @@
+https://wincent.com/wiki/Testing_memcached_with_telnet
+$ telnet localhost 11211
+	get greeting
+		//* END
+	set greeting 1 0 11
+	Hello world
+		//* STORED
+	get greeting
+		//* VALUE greeting 1 11
+		//* Hello world
+		//* END
+Other commands
+	stats
+	stats items
+	stats slabs
+	delete
+	replace
+	add

@@ -1,0 +1,24 @@
+invoke-command -ComputerName @((Get-ADComputer -Filter 'Name -like "GBST*"').Name) -ScriptBlock {gwmi win32_service | Select-object Name, PathName | where-object {$_.PathName -notlike 'C:\Windows\system32\*' -and $_.PathName -like 'C:\Program Files\*'}}
+
+
+
+(Get-ADComputer -Filter 'Name -like "GBSU*"').Name | % {
+    Get-WMIObject Win32_Service |
+    Select-Object Name, PathName |
+    Where-Object { $_.PathName -notlike '"*' -and $_.PathName -like "** **" }
+}
+
+Enable-WindowsOptionalFeature -FeatureName ActiveDirectory-Powershell -Online -All
+	Add-WindowsFeature RSAT-AD-PowerShell
+	Install-windowsfeature -name AD-Domain-Services –IncludeManagementTools
+	import-module activedirectory
+
+En tu domain controller:
+1) Abre "Windows Powershell" como administrator
+2) Typea lo siguiente
+(Get-ADComputer -Filter 'Name -like "*"').Name | % {
+$HomeURL = “http://www.google.com”
+set-ItemProperty -Path ‘HKCU:\Software\Microsoft\Internet Explorer\main’ -Name “Start Page” -Value $HomeURL
+}
+
+\\prueba2.com\scripts\FileAssociations.xml

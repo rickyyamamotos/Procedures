@@ -1,0 +1,29 @@
+AD Sync for Office 365 is done using Windows AzureActive Directory Connector ver 1.0.7020.0
+
+In this version to troubleshoot the Sync we will need:
+1) Open powershell as <Username>
+2) Set the execution policy of powershell as unrestricted
+	PS> Get-ExecutionPolicy
+	PS> Set-ExecutionPolicy Unrestricted
+3) Load the module for AXXXXAD Connector
+	PS> Import-Module "C:\Program Files\Windows AXXXXActive Directory Sync\DirSync\ImportModules.ps1"
+
+Commands for the AXXXXAD Connector module
+PS> Start-OnlineCoexistenceSync
+	//* trigger a synchronization with WAAD
+PS> Start-ADSyncSyncCycle -PolicyType Delta
+	//* initiate a Delta Sync
+PS> Start-ADSyncSyncCycle -PolicyType Initial
+	//* initiate a Full Sync
+
+
+FIM (Forefront Identity Manager 2010 R2) client
+It is the Synchronization Service Manager.
+It can be used to see errors
+1) Run C:\Program Files\Windows AXXXXXActive Directory Sync\SYNCBUS\Synchronization Service\UIShell\miisclient  as <Username>
+2) See the history for errors
+
+
+
+
+

@@ -1,0 +1,112 @@
+Backing up a mysql database accounting for the binlog's filename and position will allow a restoration
+   to be done to a point in time.
+This can be done by analyzing the binlog files.
+
+Recovery if the <Server> mysql database gets corrupted and inrrecoverable.
+We will restore the database on <Site>.<Domain>, however it can be done on stor1 if we delete
+   the database, or in a new server
+For our deployment of <Domain>. MySQL dumps are being done on <Site>.<Domain> and store in
+   the office's drobo
+
+The restoration will be done on the <Site>. This server binlogs files, and the dump backups have
+   binlog's filename and position stored.
+In order to allow the restoration of a "Point in time" from a backup, the dump must be done with 
+   "Read Lock" and the binlog's name and position must be saved along with the dump.
+Therefore, to avoid interruptuptions on a production mysql server, we need to implement a replication. 
+This will allow us to lock the slave without affecting the production server
+The production server will be the replication master, and a new server with the same mysql version will
+   be the replication's slave.
+We will lock and make the dump on the slave. The slave will automatically resync with the master once
+   unlocked.
+
+
+Procedure
+1) Lock the specific database with "Read Lock" on the slave
+	slave's IP: XXX.XXX.XXX.242
+	specific database's name: v
+	lock command: mysql> FLUSH TABLES WITH READ LOCK;
+	vdbpass1=<Password>
+	<Username>=root
+	vdbname1=v
+	sshpass -p $vdbpass1 mysql --silent --disable-column-names -u$<Username> -p --database="$vdbname1" --execute="FLUSH TABLES WITH READ LOCK"
+2) get the binlog's filename and position from the slave. Store this info in a txt file
+	vdbpass1=<Password>
+	<Username>=root
+	vdbname1=v
+	vdate1=$(date "+%Y-%m-%d")
+	vvar1=$(sshpass -p $vdbpass1 mysql --silent --disable-column-names -u$<Username> -p --database="$vdbname1" --execute="SHOW MASTER STATUS")
+		mysql --silent --disable-column-names -uroot -p --database="v" --execute="SHOW MASTER STATUS"
+	Not needed, but just in case:
+		vbinname1=`echo $vvar1|cut -d' ' -f1`
+		vbinpos1=`echo $vvar1|cut -d' ' -f2`
+	echo $vvar1 > /tmp/binlog_$vdate.txt
+		//* replace DATE with dump's creation date
+3) dump the databases with mysqldump in the slave
+	vdbhost1=localhost
+	vdbpass1=<Password>
+	<Username>=root
+	vdbname1=v
+	mysqldump --single-transaction=TRUE --quick -h $vdbhost1 -u $<Username> -p$vdbpass1 -C -Q -e --create-options $vdbname1 > /tmp/$vdbname1-backup.sql
+4) unlock the specific database on the slave
+	sshpass -p $vdbpass1 mysql --silent --disable-column-names -u$<Username> -p --database="$vdbname1" --execute="UNLOCK TABLES;"
+5) compress the dump and txt file using tar
+	vdate1=$(date "+%Y-%m-%d")
+	vfilename1=$vdate1-mysql-$vdbname1-backup.tar.gz
+	tar -cpzf /tmp/$vfilename1 /tmp/$vdbname1-backup.sql /tmp/binlog_$vdate.txt
+6) transmit the tar file to the drobo
+	vwwwroot1="<Domain>"
+		//* this is normally found on the moodle config.php file. However, the slave server is not a moodle server. To maintain portability (cloning) of the slave, i prefer to 
+		//* set this value manually. I encountered situation where a server is clonned and the script must be able to adapt automatically to changes to avoid issues
+        chmod 777 /tmp/$vfilename1
+        vtime1=$(TZ=US/Eastern date '+%H:%M:%S') 
+        sshpass -p '<Password>' scp -oStrictHostKeyChecking=no -P <PortNumber> -p /tmp/$vfilename1 <Username>@XXX.XXX.XXX.243:/mnt/shares/drobo/$vwwwroot1/
+
+
+Note-we dont really need to backup the binlog files, since at the time of the backup, the info they
+     provide is redundant with the dump itself
+     
+
+
+PROCEDURE TO RESTORE A POINT IN TIME.
+https://dev.mysql.com/doc/refman/5.5/en/point-in-time-recovery-times.html
+Note-this procedure is designed to be performed in the production server (<Server>).
+     However, it is better to performed it in a fresh server, and save the production one for a
+     forensic investigation
+In <Server>, drop the v database.
+In <Server>, delete all binlog (/var/log/mysql/)
+In stor.1<Domain>, create a new v database.
+restore the last backed up dump to v.
+Unlock the database, because the dump was done with the database locked
+	mysql> UNLOCK TABLES
+Verify that the user used by php has grants to the restored database
+Copy all binlog files from the slave (<Site>.<Domain>) to the master (<Server>)
+apply the binlogs in sequence until the spefic time
+	-Get the binlog's filename(Y) and position (X) backup tar file. Inside the file yu will find a text
+         file. These values will be define begining points.
+	-Determine the time and date when the database get corrupted. This will be the end point
+		//* you can export the binlog into text to <Site> if the point in time selected is correct
+			mysqlbinlog binlog-0005 > /tmp/binlog_field.sql
+			//* examine binlog_field.sql
+	-Sequently restore the binlog into the database
+		-If Y is the same as the last binlog copied from the slave, then
+			mysqlbinlog --start-position=X --stop-datetime="2005-04-20 9:59:59" Y | mysql -uroot -p
+				//* replace X and Y with the values found on previous steps
+		-Else, the Y should be previous to the last binlog copied from the slave, then 
+			mysqlbinlog --start-position=X Y | mysql -uroot -p
+				//* I.E. Y=binlog-00002
+			mysqlbinlog Y1 | mysql -uroot -p
+				//* replace Y1 with the next binlog filename in th sequenece. 
+				//* I.E. Y1=binlog-00003
+			mysqlbinlog Y2 | mysql -uroot -p
+				//* replace Y2 with the next binlog filename in th sequenece. 
+				//* I.E. Y2=binlog-00004
+			//* Keep doing it with all other binlogs and stop before you do it with the one that contains the point (date/time) that you previously defined as end point
+			mysqlbinlog Yn   --stop-datetime="2005-04-20 9:59:59" Y | mysql -uroot -p
+				//* replace Yn with the next binlog filename in th sequenece. 
+				//* replace 2005-04-20 9:59:59 witht the previously defined end point
+				//* I.E. Yn=binlog-00005
+
+rebuild the replication.
+
+   
+

@@ -1,0 +1,10 @@
+AzureAD Sync Dir uses "debug tracing for Microsoft Online Services Sign-In Assistant" to provide troubleshooting. This tracing creates huge logs which are never cleaned up.
+
+If Sync works correctly, tracing can be disable. Howerver it is better to keep the log history to 7 days instead of disable tracing, this way avoiding troubleshooting capabilitities
+
+
+Create a Schedule Task as <Username> to run every week
+notepad c:\cleansynclogs.bat
+	C:\Windows\System32\forfiles.exe /p "C:\Users\AAD_82a4d7455220\AppData\Local\Microsoft\MSOIdentityCRL\Tracing" /s /m *.* /c "cmd /c del @path" /d -7 
+
+

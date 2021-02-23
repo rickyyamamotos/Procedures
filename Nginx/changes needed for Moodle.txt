@@ -1,0 +1,92 @@
+On the moodle server
+$ nano /var/www/html/config.php
+	$CFG->wwwroot   = 'https://<Site>.<Domain>';
+	$CFG->sslproxy  = 1;
+#	$CFG->reverseproxy = true;
+
+Also install the ssl certificates
+
+
+On Nginx
+$ nano /etc/nginx/sites-enable/<Site>.<Domain>
+server {
+        listen 80;
+        listen [::]:80;
+        server_name <Site>.<Domain>;
+        location ^~ /.well-known {
+		   # to allow letsencrypt to authorize site
+                   allow all;
+                   auth_basic off;
+                   alias /var/www/html/.well-known;
+                   }
+        location ~ {
+                   proxy_pass  http://XXX.XXX.XXX.33;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_redirect          off;
+                  }
+}
+
+server {
+        listen 443;
+        ssl on;
+        ssl_certificate         /etc/ssl/<Site>.<Domain>/<Site>.<Domain>_all.crt;
+        ssl_certificate_key     /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.key;
+        server_name <Site>.<Domain>;
+        location ~ {
+                   proxy_pass  http://XXX.XXX.XXX.33;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_redirect          off;
+                  }
+}
+
+
+
+
+
+
+
+
+
+
+
+On centos
+you need to enable https on the apache server and install the cert there
+$ cd /etc/httpd/conf.d
+$ ls ssl.conf
+	//* if not found it more probable is caused because mod_ssl is not installed
+//* install mod_ssl
+$ yum install mod_ssl openssl 
+$ cp /tmp/intesivets.<Domain>.key /etc/ssl/conf.d/<Site>.<Domain>/.
+$ cp /tmp/intesivets.<Domain>.crt /etc/ssl/conf.d/<Site>.<Domain>/.
+$ cp /tmp/intesivets.<Domain>.csr /etc/ssl/conf.d/<Site>.<Domain>/.
+$ cp /tmp/intesivets.<Domain>_ca.crt /etc/ssl/conf.d/<Site>.<Domain>/.
+	copy the certs
+$ cd /etc/httpd/conf
+$ nano ssl.conf
+	SSLProtocol all -SSLv2 -SSLv3
+	SSLCipher<Phone> DEFAULT:!EXP:!SSLv2:!DES:!IDEA:!SEED:!3DES:!RC4
+	SSLCertificateFile /etc/httpd/conf.d/<Site>.<Domain>/<Site>.<Domain>.crt
+	SSLCertificateKeyFile /etc/httpd/conf.d/<Site>.<Domain>/<Site>.<Domain>.key
+	SSLCACertificateFile /etc/httpd/conf.d/<Site>.<Domain>/<Site>.<Domain>_ca.crt
+$ nano /var/www/html/config.php
+	$CFG->wwwroot   = 'https://<Site>.<Domain>';
+
+adiitonally you need to install the cert on the nginx server
+$ cd /etc/nginx/sites-enabled
+$ nano <Site>
+        ssl_certificate         /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.crt;
+        ssl_certificate_key     /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.key;
+	server_name <Site>.<Domain>;
+        location ~ {
+                   proxy_pass  https://XXX.XXX.XXX.33;
+                   proxy_http_version 1.1;
+                   proxy_set_header Upgrade $http_upgrade;
+                   proxy_set_header Connection 'upgrade';
+                   proxy_cache_bypass $http_upgrade;
+                  }
+
+

@@ -1,0 +1,31 @@
+#!/bin/bash
+# Script Name: create-symlinks.sh
+# This script will look for new files or directories in /mnt/s3 and create symilinks to those inside /var/www/html/wp-content/uploads/courses
+# The Purpose of the script is to join the mounted s3 bucket (/mnt/s3) and the directory /var/www/html/wp-content/uploads/courses
+# avoiding the upload of content to the s3 bucket
+# This is necessary because i dont have access to the aws console to create a read-only user.
+# REQUISITES:
+#    Add this script to the crontab to be run every minute
+#
+#    sudo crontab -e
+#      */2 *   *   *   *    /bin/bash /create-symlinks.sh
+#      Mn  Hr  DoM Mon DoW
+
+vfilename1=""
+search_dir="/mnt/s3"
+target_dir="/var/www/html/wp-content/uploads/courses"
+
+cd $search_dir
+for entry in *
+do
+   vfilename1="$entry"
+#   echo $vfilename1
+   if [[ -L "$target_dir/$vfilename1" ||  -f "$target_dir/$vfilename1" || -d "$target_dir/$vfilename1" ]]; then
+       echo ""
+#      echo "   symlink/file/directory for $vfilename1 already exist"
+   else
+#      echo "   Creating symlink for $vfilename1"
+      /bin/ln -s $search_dir/$vfilename1 $target_dir/
+      chown www-data:www-data  $target_dir/$vfilename1
+   fi
+done

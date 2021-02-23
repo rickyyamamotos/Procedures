@@ -1,0 +1,17 @@
+It is a docker container with a full moodle installation.
+The docker container ID is 22a440300ba8. It was created from an docker image called moodle-empty-ready
+
+To log into the moodle
+	go to http:XXX.XXX.XXX.48:8081\moodle
+	username: <Username>
+	password: <Password>
+
+To log into the docker which host the moodle container
+	putty: XXX.XXX.XXX.48
+	username: <Username>
+	password: <Password>
+
+
+
+	
+

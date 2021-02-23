@@ -1,0 +1,68 @@
+Login
+https://app.datadoghq.com
+username: <Email>
+password: 
+username: <Email>
+password: 
+	URL: https://datadog.com, U: P: 
+
+
+
+My <Site> key is
+<Key>
+To see, change or revoke my <Site> key use
+https://app.datadoghq.com/account/settings#<Site>
+
+
+Installing the agent
+In Ubuntu (https://app.datadoghq.com/account/settings#agent/ubuntu)
+$ DD_<Site>_KEY= bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+
+Installing the agent
+InCentOS (https://app.datadoghq.com/account/settings#agent/centos)
+DD_<Site>_KEY= bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
+nano /etc/httpd/conf/httpd.conf
+	ExtendedStatus On
+	<Location /server-status>
+	    SetHandler server-status
+	    Order Deny,Allow
+	    Deny from all
+	    Allow from localhost XXX.XXX.XXX.172 XXX.XXX.XXX.228 XXX.XXX.XXX.186
+	</Location>
+service httpd restart
+
+In Windows
+Download and run the following: 
+https://s3.amazonaws.com/ddagent-windows-stable/ddagent-cli-latest.msi
+The <Site> key is 
+
+
+<Username>
+username: <Email>
+password: 
+<Site> key for <Email>/
+
+
+
+
+remove the agent
+Mac OS:
+	Stop and Close the Datadog Agent: via the bone icon in the Tray. 
+	Drag the Datadog Application from the application folder to the Trash Bin. 
+		$ sudo rm -rf /opt/datadog-agent
+	$ sudo rm -rf /usr/local/bin/datadog-agent
+	$ sudo rm -rf ~/.datadog-agent/ #to remove broken symlinks
+	If you ran the optional install commands to have the Agent run at boot time, you will also need to run the following to finish uninstalling:
+		$ sudo launchctl unload -w /Library/LaunchDaemons/com.datadoghq.agent.plist
+	$ sudo  rm /Library/LaunchDaemons/com.datadoghq.agent.plist
+Debian/Ubuntu
+	$ sudo apt-get --purge remove datadog-agent -y
+CentOS/RHEL/Amazon Linux
+CentOS 5:
+	$ sudo yum remove datadog-agent-base
+CentOS 6:
+	$ sudo yum remove datadog-agent
+Windows
+	For Windows, it's important that the original account used to install the agent is also used to remove it, otherwise it’s possible remnants will be left behind and it will not be cleanly removed.
+	You can uninstall the agent using Add/Remove Programs, alternatively, it's possible to to use Powershell as well. Here is a one liner:
+		(Get-WmiObject -Class Win32_Product -Filter "Name='Datadog Agent'" -ComputerName . ).Uninstall()

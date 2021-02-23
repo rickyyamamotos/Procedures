@@ -1,0 +1,69 @@
+ADDC Time is controlled by the PDC server (<ServerName>)
+	It has to be configure to sync its time to an external source
+		w32tm.exe /config /manualpeerlist:”0.us.pool.ntp.org 1.us.pool.ntp.org 2.us.pool.ntp.org 3.us.pool.ntp.org” /syncfromflags:manual /reliable:YES /update
+
+Show the AD PDC, on any AD	
+	C:> NetDOM /query FSMO (from any DC)
+		OR
+	C:> nltest /DCNAME: (from any workstation)
+Show the time source
+	w32tm /query /source
+		//* this must show the PDC DC
+W32tm /resync
+	//* Updates workstation time from current source
+
+
+Set <Site> as the source
+	w32tm /query /source
+		//* shows local
+	w32tm /un<Site>
+	net stop w32time
+	w32tm /<Site>
+	net start w32time
+	w32tm /config /manualpeerlist:<Site> /syncfromflags:manual /reliable:yes /update
+	net stop w32time
+	net start w32time
+	w32tm /query /source
+		//* shows <Site>
+
+
+OTHERS:
+======
+Net time /Domain:<Site>
+	//* shows domain time
+
+w32tm /query /source
+	//* shows the DC used for time sync
+
+net time /SET /Y
+	//* force sync with the dc
+
+
+W32tm /query /source
+	//* Shows where the workstation is syncing its time from
+
+W32tm /config /update
+	//* Updates workstation time from current source
+W32tm /resync
+	//* Updates workstation time from current source
+
+Net time //salesd630
+	//* shows the time of a remote workstation
+
+W32tm /query /configuration
+	//* Shows additional info
+
+
+Firewall:
+Allow port 123 for NTP in windows firewall
+
+
+Registry:
+HKLM\Software\Microsoft\Windows\CurrentVersion\DateTime\Servers
+	//* Time Sources. Normally time.windows.com, time.nist.gov
+HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/W32Time/Parameters
+	//* Sync Source
+	set Type to NT5DS instead of AllSync
+
+
+

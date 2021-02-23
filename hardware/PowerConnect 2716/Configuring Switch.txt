@@ -1,0 +1,6 @@
+Set the switch to Managed Mode
+	press the Managed Mode button. The switch reboots and the Managed Mode LED blinks for approximately 90 seconds 
+	and stays lit. When the Managed Mode LED stays lit, the switch is ready to be configured.
+go to http://XXX.XXX.XXX.1
+	username: <Username>
+	password:           

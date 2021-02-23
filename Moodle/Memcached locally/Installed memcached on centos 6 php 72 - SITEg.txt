@@ -1,0 +1,166 @@
+same as Installed memcached on centos 6 -php 5  <Domain> .txt
+
+but ensure that
+	php-pecl-memcached-3.1.3-1.el6.remi.7.2.x86_64 
+		memcached version 3.1.3
+is already installed
+
+
+
+$ yum history list all
+$ yum history list all > /home/<Username>/yumlist.txt
+
+$ sudo yum-config-manager --enable remi-php72
+$ sudo yum-config-manager --disable remi
+$ sudo yum-config-manager --disable remi-safe
+$ yum repolist
+$ yum update -y
+	Error: Package: php-mbstring-7.2.18-1.el6.remi.x86_64 (remi-php72)
+	           Requires: libonig.so.5()(64bit)
+	$ cd /tmp
+	$ wget https://rpms.remirepo.net/enterprise/6/remi/x86_64/oniguruma5-6.9.1-1.el6.remi.x86_64.rpm
+	$ rpm -Uvh oniguruma5-6.9.1-1.el6.remi.x86_64.rpm
+	$ yum update -y
+$ yum install memcached
+$ yum install php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64
+	Error: Package: php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64 (remi-php72)
+           Requires: libmemcached-opt-libs(x86-64)
+	$ cd /tmp
+	$ wget https://rpms.remirepo.net/enterprise/6/remi/x86_64/libmemcached-opt-libs-1.0.18-2.el6.remi.x86_64.rpm
+	$ rpm -Uvh libmemcached-opt-libs-1.0.18-2.el6.remi.x86_64.rpm
+	$ yum install php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64
+		      php72-php-pecl-memcached.x86_64
+$ yum update -y
+$ nano /etc/sysconfig/memcached
+	PORT="11211"
+	USER="memcached"
+	MAXCONN="1024"
+	CACHESIZE="256"
+	#OPTIONS="-l 127.0.0.1"
+	OPTIONS="--listen=127.0.0.1 --port=11211 -v >> /var/log/memcached.log 2>&1"
+		//* change -v to -vvv to log less
+$ nano /etc/sysconfig/memcached_muc
+	PORT="11212"
+	USER="memcached"
+	MAXCONN="1024"
+	CACHESIZE="256"
+	#OPTIONS="-l 127.0.0.1"
+	OPTIONS="--listen=127.0.0.1 --port=11212 -v >> /var/log/memcached_muc.log 2>&1"
+		//* change -v to -v to log less
+$ nano /etc/php.ini
+	;session.save_handler = memcached
+	;session.save_path = "127.0.0.1:11211"
+$ cp /etc/init.d/memcached /etc/init.d/memcached_muc
+$ nano /etc/init.d/memcached_muc
+	replace		PORT=11211 with PORT=11212
+	replace 	/etc/sysconfig/memcached to /etc/sysconfig/memcached_muc
+	replace		/var/run/memcached/memcached.pid to /var/run/memcached/memcached_muc.pid
+	replace 	/var/lock/subsys/memcached to /var/lock/subsys/memcached_muc
+$ nano /etc/opt/remi/php72/php.d/50-memcached.ini
+	//* or nano /etc/php72/php.d/50-memcached.ini
+	extension=memcached.so
+$  nano /etc/init.d/memcached_muc
+	#OPTIONS=""
+$  nano /etc/init.d/memcached
+	#OPTIONS=""
+$ chkconfig memcached on
+$ chkconfig memcached_muc on
+on moodle web console, enable memcached_muc for a couple of cache definitions:
+	- Accumulated information about modules and sections for each course
+	- Activity completion status
+	//* see "Cache <Site>.pdf"
+$ tail -f /var/log/memcached_muc.log
+	//* check for errors
+
+In Moodle go to
+1) moodle\login\Site <Site>\Plugins\Caching\Configuration
+2) Under Installed cache stores look for Memcached and click the Add instance action.
+3) Give the store a name, i like 'Memcached_muc'
+4) In server, assuming the basic config above, type '127.0.0.1:11212". Save Changes.
+5) Scroll to the bottom of the Cache <Site> page.
+6) Under Stores used when no mapping is present click Edit Mappings.
+7) In the Application drop down select the caches name. Save Changes.
+
+
+//* This will disconnect users
+$ nano /var/www/html/config.php
+	$CFG->session_handler_class = '\core\session\memcached';
+	$CFG->session_memcached_save_path = '127.0.0.1:11211';
+	$CFG->session_memcached_prefix = 'memc.sess.key.';
+	$CFG->session_memcached_acquire_lock_timeout = 120;
+	$CFG->session_memcached_lock_expire = 7200;
+$ service httpd restart
+$ tail -f /var/log/memcached.log
+	//* check for errors
+
+<Site>@dmin1$
+
+
+when finished testing memcached,
+$ nano /etc/sysconfig/memcached
+	OPTIONS="--listen=127.0.0.1 --port=11211 -v >> /var/log/memcached.log 2>&1"
+$ nano /etc/sysconfig/memcached_muc
+	OPTIONS="--listen=127.0.0.1 --port=11212 -v >> /var/log/memcached_muc.log 2>&1"
+
+
+
+
+
+
+
+
+
+
+
+==============OTHERS===========================
+$ yum install yum-utils
+$ sudo yum-config-manager --enable remi-php72
+$ yum repolist
+$ yum update -y
+	Error: Package: php-mbstring-7.2.18-1.el6.remi.x86_64 (remi-php72)
+	           Requires: libonig.so.5()(64bit)
+	$ cd /tmp
+	$ wget https://rpms.remirepo.net/enterprise/6/remi/x86_64/oniguruma5-6.9.1-1.el6.remi.x86_64.rpm
+	$ rpm -Uvh oniguruma5-6.9.1-1.el6.remi.x86_64.rpm
+	$ yum update -y
+$ yum install php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64
+	Error: Package: php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64 (remi-php72)
+           Requires: libmemcached-opt-libs(x86-64)
+	$ cd /tmp
+	$ wget https://rpms.remirepo.net/enterprise/6/remi/x86_64/libmemcached-opt-libs-1.0.18-2.el6.remi.x86_64.rpm
+	$ rpm -Uvh libmemcached-opt-libs-1.0.18-2.el6.remi.x86_64.rpm
+	$ yum install php-pecl-memcached-3.1.2-1.el6.remi.7.2.x86_64
+		      php72-php-pecl-memcached.x86_64
+$ reboot now
+$ sudo yum search php72 | egrep 'memcache'
+$ yum php-pecl-memcached
+	//* from the installation prompt ensure that it is being installed from php72
+
+$ wget http://rpms.remirepo.net/enterprise/remi-release-6.rpm
+$ rpm -Uvh remi-release-6.rpm
+$ yum-config-manager --enable remi-php72
+$ yum-config-manager --enable remi
+$ yum update -y
+$ yum install memcached memcached-devel
+
+
+
+$ php -i | grep php.ini
+$ nano /etc/php.ini
+	extension=memcached.so
+	session.save_handler = memcached
+	session.save_path = "127.0.0.1:11211"
+$ nano  /etc/php.d/50-memcached.ini
+	extension=memcached.so
+	session.save_handler=memcached
+	session.save_path="localhost:11211"
+
+
+
+
+
+====================YUM HISTORY=======================
+$ yum history list all
+$ yum history info 3
+$ yum history undo 3
+

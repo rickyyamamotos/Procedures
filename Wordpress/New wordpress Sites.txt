@@ -1,0 +1,7 @@
+permission to www-data:<Username>  or <Username>:www-date but with 77x
+
+nano wp-config.php	
+	define('FS_METHOD','direct');
+
+chmod 775 /var/www/hmtl/wp-content/plugins
+chmod 775 /var/www/hmtl/wp-content/uploads

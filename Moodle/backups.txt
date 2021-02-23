@@ -1,0 +1,7 @@
+log onto moodle 
+Dashboard -> Site <Site> -> Courses -> Backups -> General backup defaults
+	review setttings
+Dashboard -> Site <Site> -> Courses -> Backups -> Automated backup setup
+	configure and enable
+
+the backup file has extension: .mbz

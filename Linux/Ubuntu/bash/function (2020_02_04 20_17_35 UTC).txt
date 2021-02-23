@@ -1,0 +1,21 @@
+
+$ nano test.sh
+#!/bin/bash
+LANG=C
+
+# function declaration
+# you dont need to specify explicit parameters
+function testfunction()
+{
+echo "this is the function name: $0"
+# to get the value of the variable notation is "$var1"
+echo "this is the 1st parameter: $1"
+echo "this is the 2nd parameter: $2"
+# to get the value of the variable notation is "$var1"
+echo "this is a global variable var1: $var1"
+}
+
+var1 = "variable1"
+# calling the function
+testfunction para1 para2
+

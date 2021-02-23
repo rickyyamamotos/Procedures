@@ -1,0 +1,22 @@
+Applications-->Utilities-->Terminal-->/Applications/Firefox.app/Contents/MacOS/firefox-bin -p--> Return. 
+
+This issue is caused by a problem with the profiles.ini file or with permissions/ownership of involved folders/files.
+
+You can use one of these to make Firefox create a new default profile or recover an existing profile:
+
+delete the profiles.ini file to make Firefox create a new (default) profile
+use the Profile Manager to create a new profile
+If you still have an existing profile then click "Choose Folder" in the Profile Manager and browse to the location of a lost profile to recover this profile
+https://support.mozilla.org/kb/Managing+profiles
+You should find the profiles.ini file in this hidden location:
+
+Mac: *~/Library/Application Support/Firefox/
+Linux: *~/.mozilla/firefox/
+Windows: %AppData%\Mozilla\Firefox\
+*C:\Users\<user>\AppData\Roaming\Mozilla\Firefox\
+If clearing the profiles.ini file isn't working then also check the location of the cache files.
+
+Mac: *~/Library/Caches/Firefox/Profiles/
+Linux:*~/.cache/mozilla/firefox/
+Windows: *C:\Users\<user>\AppData\Local\Mozilla\Firefox\Profiles\<profile>\
+You can also try to rename/delete the Mozilla\Firefox\ folder in both above mentioned locations (main, cache).

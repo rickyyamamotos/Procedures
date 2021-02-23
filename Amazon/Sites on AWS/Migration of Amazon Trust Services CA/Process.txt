@@ -1,0 +1,16 @@
+1) Get hostname's addresses from nagios
+	see address.txt
+2) Get the IP addreses of the hostname's addresses
+	see ip-address.txt
+3) Create a list of fqdn which IPs are XXX.XXX.XXX.248,  XXX.XXX.XXX.229,  XXX.XXX.XXX.229
+    XXX.XXX.XXX.248,  XXX.XXX.XXX.229,  XXX.XXX.XXX.229 are reverse proxies
+    for XXX.XXX.XXX.229, we need to manually change the proxy ip to the real ip
+    for XXX.XXX.XXX.248,  XXX.XXX.XXX.229, we need to find out what are the ssh ports
+	create proxied-fqdn.txt and load it into nagios:/tmp/
+3) Get list of SSH ports of the ip-addresses
+	see port-address.txt
+
+4) connect to each host via ssh, run "curl https://s3-ats-migration-test.s3.eu-west-3.amazonaws.com/test.jpg"
+   and get the result in a table
+	see ca-address.txt
+

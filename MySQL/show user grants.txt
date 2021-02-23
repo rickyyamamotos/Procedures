@@ -1,0 +1,2 @@
+show grants for username;
+show grants;

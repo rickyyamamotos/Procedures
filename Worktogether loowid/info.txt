@@ -1,0 +1,15 @@
+Loowid
+Create your p2p videoconference room where you will be able to invite whoever you want without sharing any email address, id, etc. Nothing is recorded in our server, all the media transmitted is sent directly from browser to browser.
+it is a sharing and video conferencing application
+
+it work on loowid (a java web server)
+
+it was installed on XXX.XXX.XXX.197:22 rick/<Password>
+
+
+
+How to use loowid
+https://github.com/loowid/loowid/wiki/How-to-use-it
+
+How to install
+https://github.com/loowid/loowid/wiki/Run-your-own-server

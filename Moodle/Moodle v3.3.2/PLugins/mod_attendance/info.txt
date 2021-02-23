@@ -1,0 +1,10 @@
+$ cd /tmp
+$ wget https://moodle.org/plugins/download.php/14931/mod_attendance_moodle33_2017050217.zip
+$ unzip mod_attendance_moodle33_2017050217.zip -d /var/www/html/moodle/mods/
+$ service apache2 restart
+
+
+On your web-navigator, Refresh the moodle website (moodle.<Site>)
+	Or go to Site <Site> -> Notifications -> Plugins check 
+Click on "Upgrade Database Now"
+You should have a notice of "success"

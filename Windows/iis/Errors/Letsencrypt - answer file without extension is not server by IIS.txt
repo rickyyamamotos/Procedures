@@ -1,0 +1,17 @@
+when tryint to install a letsencrypt certificate,
+the answer file (which does not have an extension) is blocked by IIS
+also, any file like http://www.example.com/lasdlkalk123lklkadlkwq  (without extension) will be bocked
+So, letsencrypt is unable to 
+
+In the webserver
+Open IIS
+Select the site
+Open Mime type
+Add
+*.
+text/plain
+
+restart IIS
+
+
+

@@ -1,0 +1,4 @@
+$ ip addr
+$ ip link
+$ ip -s link
+$ nmcli d

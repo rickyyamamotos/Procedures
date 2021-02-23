@@ -1,0 +1,16 @@
+I can be alerted when anyone of the host has a problem.
+1) Go to Manage Monitors
+2) Create a new monitor
+3) Integration
+4) Apache
+5) Scope: all hosts
+6) Integration Metric
+7) get: Apache.performace.cpu.load 
+8) alert condition: above, on average, 5 minutes
+9) Say what's happening: 
+	CPU load is very high {{host.name}}
+	{{host.name}} is {{/is_alert}}
+10) Save
+
+
+

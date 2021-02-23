@@ -1,0 +1,4 @@
+filename too long error
+
+$ git config --system core.longpaths true
+

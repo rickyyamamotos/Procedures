@@ -1,0 +1,21 @@
+You need to have a browser to sign into gmail at least for 1 time
+to allow sendEmail to use gmail from inside a EC2 instance
+Need to open the following page and click on "Allow"
+https://accounts.google.com/DisplayUnlockCaptcha
+
+Solution is to create a pipe with a socket:
+==========================================
+https://serverfault.com/questions/541314/unlocking-server-ip-via-googles-displayunlockcaptcha-over-ssh
+Just use an SSH dynamic proxy to schlep your local browser session through your server.
+Run this locally:
+	$ ssh ubuntu@<Site>.us-west-2.compute.amazonaws.com -D8888
+Or using putty and a private key from windows
+	C:\> plink.exe ubuntu@<Site>.us-west-2.compute.amazonaws.com -i "C:\Users\rick.yamamoto\Desktop\IT Change Log\Websites\<Site>.<Domain>\BB-10192020-new.ppk" -D 8888
+Then go into your browser's configuration and set it to use a socks proxy at 127.0.0.1:8888.
+	In Internet Explorer -> Optins -> Connections -> Lan Settings -> Check "Use a proxy server for your LAN" -> Advanced -> All blanks except Socks 127.0.0.1 8888
+Verify
+	Open Internet Explorer and google for "My IP address"
+Allow GMAIL
+	Open Internet explorer, go to https://accounts.google.com/DisplayUnlockCaptcha
+	Username: <Email>
+	Password: <Password>

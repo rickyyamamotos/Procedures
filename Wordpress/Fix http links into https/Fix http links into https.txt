@@ -1,0 +1,5 @@
+You should use a search/replace plugin like Better Search and Replace or similar to replace all 
+   http://www.yourdomain.com references with https://www.yourdomain.com references.
+If you have a massive site, you should probably use the Interconnectit script instead to search/replace
+   in your DB and use sed to search/replace in your theme files.
+https://interconnectit.com/products/search-and-replace-for-wordpress-databases/

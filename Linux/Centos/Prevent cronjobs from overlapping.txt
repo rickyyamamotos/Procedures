@@ -1,0 +1,16 @@
+Prevent cronjobs from overlapping
+https://ma.ttias.be/prevent-cronjobs-from-overlapping-in-linux/
+https://gist.github.com/coderofsalvation/1102e56d3d4dcbb1e36f
+
+$ yum install util-linux or apt-get install floc
+$ which flock
+	//* /usr/bin/flock
+
+$ crontab -e
+	replace  (this task sometimes takes 40 minutes to finish)
+		*/15 * * * * /usr/bin/php /var/www/html/local/ltiprovider/sendgrades1.php >> /dev/null
+	with (this willl prevent a new job to run if the previous is not finished
+		*/15 * * * * /usr/bin/flock -w 0 /tmp/sendgrades1.lock /usr/bin/php /var/www/html/local/ltiprovider/sendgrades1.php
+
+
+

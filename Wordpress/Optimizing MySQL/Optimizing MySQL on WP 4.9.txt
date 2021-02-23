@@ -1,0 +1,26 @@
+https://www.wpintense.com/2018/10/20/installing-the-fastest-wordpress-stack-ubuntu-18-mysql-8/
+
+Optimising your initial MySQL configuration
+$ nano /etc/mysql/mysql.conf.d/mysqld.cnf
+	//* Append the following lines in the [mysql] block
+		innodb_buffer_pool_size = 200M
+		innodb_log_file_size = 100M
+		innodb_buffer_pool_instances = 8
+		innodb_io_capacity = 5000
+		max_binlog_size = 100M
+		expire_logs_days = 3
+		tmp_table_size = 128M
+		max_heap_table_size = 128M
+$ service mysql restart
+
+
+Optimising your MySQL configuration after you’ve run traffic for a while
+$ cd ~
+$ git clone https://github.com/BMDan/tuning-primer.sh
+$ cd tuning-primer.sh
+$ ./tuning-primer.sh
+
+innodb_buffer_pool_size=16G
+
+Current max_heap_table_size = 1024 M
+Current tmp_table_size = 1024 M

@@ -1,0 +1,107 @@
+Note on new CentOS 7+ certbot-auto will not install
+	yum install certbot python-certbot-apache 
+	sudo certbot --apache -d example.com -d www.example.com	
+	
+
+
+Install certbot
+$ sudo yum install epel-release
+$ sudo yum install httpd mod_ssl python-certbot-apache
+	Error: No package python-certbot-apache available
+		$ yum -y install yum-utils
+		$ yum repolit
+			//* epel is not showed
+		$ yum-config-manager --enable epel
+		$ yum clean all
+		$ yum update
+	
+$ yum update
+
+Setup the ssl cert
+$ sudo certbot --apache -d example.com -d www.example.com
+
+Force renew
+$ sudo certbot renew
+
+autorenew
+$ n
+$ sudo su
+$ crontab -e
+	0 0 * * 1 cd /usr/bin/ && ./certbot-auto renew && /etc/init.d/httpd restart
+
+delete certificate
+$ certbot-auto delete
+	//* chose domain
+
+
+If certbot cant be installed
+$ wget https://dl.eff.org/certbot-auto
+$ chmod a+x certbot-auto
+$ mv ./certbot-auto /usr/bin
+$ sudo certbot-auto --apache -d example.com -d www.example.com
+	Error: Unable to find a virtual host listening on port 80 which is currently needed for Certbot to prove to the CA that you control your domain. Please add a virtual host for port 80.
+		$ nano /etc/httpd/conf/httpd.conf
+			//* ensure that <Virtualhost: 80  is not commented
+			<VirtualHost *:80>
+			DocumentRoot "/var/www/html"
+			</VirtualHost>
+		$ service httpd restart
+$ ls /etc/letsencrypt/live/content.<Site>/
+	cert.pem  chain.pem  fullchain.pem  privkey.pem 
+$ nano /etc/htpd/conf.d/ssl.conf
+/etc/letsencrypt/live/content.<Site>/fullchain.pem
+	SSLCertificateFile /etc/letsencrypt/live/content.<Site>/cert.pem
+	SSLCertificateKeyFile /etc/letsencrypt/live/content.<Site>/privkey.pem
+	SSLCertificateChainFile /etc/letsencrypt/live/content.<Site>/chain.pem
+$ service httpd restart
+
+
+Renew a single domain
+$ certbot certificates
+	//* get the name of the domain you want to renew
+		Found the following certs:
+		  Certificate Name: myfundomains.com
+		    Domains: myfundomains.com
+$ certbot renew --cert-name myfundomains.com --dry-run
+	//* myfundomains.com is a certificate name (not a domain name)
+
+
+
+certbot error 	The requested apache plugin does not appear to be installed
+	yum install python-certbot-apache 
+
+
+=======================OLD===============================
+
+$ cd /tmp/
+$ sudo yum update
+$ git clone https://github.com/letsencrypt/letsencrypt
+$ mv letsencrypt /usr/bin
+$ cd /usr/bin/letsencrypt
+
+$ ./letsencrypt-auto --apache -d worktogether.<Domain>
+	//* email: <Email>
+	//* require HTTPS
+	//* the certificate is saved in /etc/letsencrypt/live/worktogether.<Domain>/fullchain.pem
+	//*                             /etc/letsencrypt/live/worktogether.<Domain>/privkey.pem
+https://www.ssllabs.com/ssltest/<Site>.html?d=myweb-<Site>&latest
+	//* verifies status of the SSL certificate
+
+
+
+Step 4 — Set Up Auto Renewal
+//* Let’s Encrypt certificates are valid for 90 days, but it’s recommended that you renew the certificates every 60
+//*  days to allow a margin of error.
+$ sudo letsencrypt renew   //* use this only to manually renew the certificate
+
+//* Creating a Crontab to automatically renew the certificate
+$ cd /tmp
+$ mv letsencrypt /usr/bin/
+$ sudo crontab -e
+	//* Enter the following line
+	//*will execute the letsencrypt-auto renew command every Monday at 2:30 am.
+	30 2 * * 1 /usr/bin/letsencrypt/letsencrypt-auto renew >> /var/log/le-renew.log
+
+Manually Renew a domain
+$ ./letsencrypt-auto certonly --renew --email <Email> -a manual -d my-domain.example.org
+

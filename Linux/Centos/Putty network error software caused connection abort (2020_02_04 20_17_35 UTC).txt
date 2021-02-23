@@ -1,0 +1,4 @@
+Start Putty
+Load your connection settings if you have them saved
+Click on “Connection”
+On the section that says "Sending of null packets to keep session active", Changed it to 5 seconds. 300 seconds may be better if network outages are your problem, read below for details.

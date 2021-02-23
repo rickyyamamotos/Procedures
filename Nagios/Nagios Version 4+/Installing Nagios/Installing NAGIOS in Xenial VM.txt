@@ -1,0 +1,179 @@
+NAGIOS 4
+
+Create VM
+	Linux
+	Ubuntu 64 bits
+	1 CPU
+	2048 Gb
+	64 Gb HD
+	SCSI LSI Logic Parallel
+	CDROM -> ISO
+Shutdown
+	VM->Setting->CDROM to CDROM
+reduce session timeout
+	settings/privacy/screen lock = 0ff
+Install VMaware tools
+	$ sudo apt-get install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms
+	$ nano $HOME/.profile
+		Append the following line: 
+			vmware-user
+
+Configure static IP XXX.XXX.XXX.47
+//* Permanent change
+$ sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet static
+	address XXX.XXX.XXX.47
+	netmask <Subnet>
+	network	XXX.XXX.XXX.0
+	broadcast	XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.1
+	dns-nameservers XXX.XXX.XXX.19 XXX.XXX.XXX.3
+$ sudo /etc/init.d/networking restart
+$ reboot
+
+Create user <Username>\<Password>
+$ useradd -m -s /bin/bash <Username>
+$ passwd <Username>
+	//* password: <Password>
+$ useradd -m -s /bin/bash <Username>
+$ passwd <Username>
+	//* password: <Password>
+$ groupadd nagcmd
+$ usermod -a -G nagcmd nagios
+$ usermod -a -G nagcmd www-data
+$ usermod -a -G nagcmd <Username>
+$ adduser <Username> sudo
+
+Sync time/date with NTP server (automatically)
+$ apt-get update
+$ apt-get install ntp
+$ apt-get install sysv-rc-conf
+$ sysv-rc-conf ntpd on
+$ apt-get ntpdate
+$ service ntp stop
+$ ntpdate pool.ntp.org
+$ service ntp start
+$ systemd-sysv-install enable ntp
+$ sudo nano /etc/xinetd.d/nrpe
+	//* change only_from = 127.0.0.1 to
+	//*        only_from = 127.0.0.1 XXX.XXX.XXX.47
+$ sudo service xinetd restart
+
+
+Install SSH
+$ sudo apt-get install ssh
+$ sudo service ssh start
+$ sudo systemctl enable ssh
+$ sudo nano /etc/ssh/sshd_config
+	add the following line
+		AllowGroups sudo
+$ sudo service sshd restart
+//* From a Windows client connect using PUTTY XXX.XXX.XXX.47:22
+
+
+Install Php Apache
+$ apt-get install build-essential libgd2-xpm-dev openssl libssl-dev xinetd apache2-utils unzip
+
+Installing NAGIOS
+$ cd /tmp/downloads
+$ curl -L -O https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.3.1.tar.gz
+$ tar xvf nagios-*.tar.gz
+$ cd nagios-4.3.1
+$ ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-mail=/usr/local/bin/sendEmail
+$ make all
+$ sudo make install
+$ sudo make install-commandmode
+$ sudo make install-init
+$ sudo make install-config
+$ sudo /usr/bin/install -c -m 644 sample-config/httpd.conf /etc/apache2/sites-available/nagios.conf
+$ sudo usermod -G nagcmd www-data
+$ cd /tmp/downloads
+$ curl -L -O http://nagios-plugins.org/download/nagios-plugins-2.2.0.tar.gz
+$ tar xvf nagios-plugins-*.tar.gz
+$ cd nagios-plugins-2.2.0
+$ ./configure --with-nagios-user=<Username> --with-nagios-group=<Username> --with-openssl
+$ make
+$ sudo make install
+
+
+Install NRPE
+$ cd /tmp/downloads
+$ curl -L -O https://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz
+$ tar xvf nrpe-*.tar.gz
+$ cd nrpe-2.15
+$ ./configure --enable-command-args --with-nagios-user=nagios --with-nagios-group=nagios --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+$ make all
+$ sudo make install
+$ sudo make install-xinetd
+$ sudo make install-daemon-config
+
+
+Configure Nagios
+$ nano /usr/local/nagios/etc/nagios.cfg
+	//* Uncomment this line #cfg_dir=/usr/local/nagios/etc/servers
+$ mkdir /usr/local/nagios/etc/servers
+$ nano /usr/local/nagios/etc/objects/contacts.cfg
+	//* replace email                           <Username>@localhost with
+	//*                                         <Email>
+$ nano /usr/local/nagios/etc/objects/commands.cfg
+	define command{
+	        command_name check_nrpe
+	        command_line $<Username>$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
+	}
+
+
+Configure Apache
+$ a2enmod rewrite
+$ a2enmod cgi
+$ htpasswd -c /usr/local/nagios/etc/htpasswd.users <Username>
+	//* <Password>
+$ ln -s /etc/apache2/sites-available/nagios.conf /etc/apache2/sites-enabled/
+$ nano /etc/systemd/system/nagios.service
+	//* if blank
+		[Unit]
+		Description=Nagios
+		BindTo=network.target
+		[Install]
+		WantedBy=multi-user.target
+		[Service]
+		User=<Username>
+		Group=<Username>
+		Type=simple
+		ExecStart=/usr/local/nagios/bin/nagios /usr/local/nagios/etc/nagios.cfg
+$ systemctl enable /etc/systemd/system/nagios.service
+$ systemctl  start nagios
+$ systemctl  restart nagios
+$ service nagios start
+$ ln -s /etc/init.d/nagios /etc/rcS.d/S99nagios
+
+Installing sendMail
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ apt-get install libnet-ssleay-perl libcrypt-ssleay-perl libio-socket-ssl-perl
+
+
+$ nano /usr/local/nagios/etc/objects/commands.cfg 
+	//* Add the following commands
+	define command{  
+		command_name notify-host-by-email
+		command_line  /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress:$HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" -t $CONTACTEMAIL$ -xu <Email> -xp <Password>
+		}
+	define command{  
+		command_name notify-service-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" -t $CONTACTEMAIL$  -xu <Email> -xp <Password>
+		}
+
+To allow only local to the web console
+$ nano /etc/httpd/conf.d/nagios.conf
+	//* Comment Lines 15 & 16 ##
+		#   Order allow,deny
+		#   Allow from all
+	//* Uncomment and Change lines 17,18 & 19 as shown below ##
+		Order deny,allow
+		Deny from all
+		Allow from 127.0.0.1 XXX.XXX.XXX.0<CIDR>
+$ service apache2 restart
+
+

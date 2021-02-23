@@ -1,0 +1,1 @@
+grep wp_version /var/www/html/wp-includes/version.php

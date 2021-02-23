@@ -1,0 +1,119 @@
+https://tec<Username>.net/how-to-set-up-mysql-master-slave-replication/
+
+replication 
+master: sparedev2.<Domain>		XXX.XXX.XXX.87	mysql version 5.5.60 (ver 14.14 Distrib 5.5.60 for linux (x86_64) using readline 5.1
+slave:	sparedev2-slave.<Domain>	XXX.XXX.XXX.151	mysql version 5.6.41 
+Database:
+		$CFG->dbname    = 'v';
+		$CFG->dbuser    = '<DBName>';
+		$CFG->dbpass    = '<Password>';
+	
+
+Setup MySQL Master Server
+$ mysql -uroot -p
+	//* <Password>
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl_user'@'XXX.XXX.XXX.151' IDENTIFIED BY '<Password>';
+mysql> FLUSH PRIVILEGES;
+mysql> use v;
+mysql> FLUSH TABLES WITH READ LOCK;
+mysql> exit;
+$ nano /etc/my.cnf
+	[mysqld]
+	log-bin=mysql-bin
+	binlog-do-db=v
+	server-id=1
+	innodb_flush_log_at_trx_commit=1
+	sync_binlog=1
+$ service mysqld restart
+$ mysql -uroot -p
+	//* <Password>
+mysql> SHOW MASTER STATUS;
+	//* Take note of the File name and Position
+	+------------------+----------+-------------------+------------------+
+	| File             | Position | Binlog_Do_DB 	  | Binlog_Ignore_DB |
+	+------------------+----------+-------------------+------------------+
+	| mysql-bin.000001 |      107 | v|                  |
+	+------------------+----------+-------------------+------------------+
+$ mysqldump -u root -p v > /tmp/v.sql
+	//* from 10:15 am to 
+$ mysql -uroot -p
+	//* <Password>
+mysql> UNLOCK TABLES;
+$ scp /tmp/v.sql rick@XXX.XXX.XXX.151:/tmp/
+
+Setup MySQL Slave Server
+In centos 6 install pv
+	$ wget http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/x86_64/rpmforge/RPMS/pv-1.1.4-1.el6.rf.x86_64.rpm
+	$ rpm -Uvh pv-1.1.4-1.el6.rf.x86_64.rpm
+In centos 6 instal mysql 5.5
+	$ wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+		//* for CentOS 7: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+	$ rpm -ivh mysql-community-release-el6-5.noarch.rpm
+	$ yum update
+	$ yum install mysql-server
+	$ systemctl enable mysqld
+	$ systemctl start mysqld
+	$ mysql
+	mysql> SET PASSWORD FOR 'root'@'localhost' = PASSWORD('<Password>'); 
+	mysql> CREATE DATABASE v;
+
+	mysql> CREATE repl_user@localhost IDENTIFIED BY '<Password>';
+	mysql> GRANT ALL PRIVILEGES ON *.* TO "repl_user"@"localhost";
+	mysql> FLUSH PRIVILEGES;
+
+$ nano /etc/my.cnf
+	[mysqld]
+	server-id=2
+	replicate-do-db=v
+$ cd /tmp
+$ pv /tmp/v.sql | mysql -uroot -p v
+	//* 4 hours
+$ mysql -uroot -p
+mysql>  CHANGE MASTER TO MASTER_HOST='XXX.XXX.XXX.87', MASTER_USER='repl_user', MASTER_PASSWORD='<Password>', MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=107;
+mysql> SLAVE START;
+mysql> show slave status G
+
+*************************** 1. row ***************************
+               Slave_IO_State:
+                  Master_Host: XXX.XXX.XXX.15
+                  Master_User: repl_user
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000001
+          Read_Master_Log_Pos: 107
+               Relay_Log_File: mysqld-relay-bin.000001
+                Relay_Log_Pos: 4
+        Relay_Master_Log_File: mysql-bin.000001
+             Slave_IO_Running: No
+            Slave_SQL_Running: No
+              Replicate_Do_DB: mydb
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 107
+              Relay_Log_Space: 107
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File:
+           Master_SSL_CA_Path:
+              Master_SSL_Cert:
+            Master_SSL_Cipher:
+               Master_SSL_Key:
+        Seconds_Behind_Master: NULL
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Master_Server_Id: 1
+1 row in set (0.00 sec)
+
+

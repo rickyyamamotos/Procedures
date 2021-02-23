@@ -1,0 +1,18 @@
+A new VM was installed on XXX.XXX.XXX.48
+called <Site>-DOCKER
+Ubuntu Xenail 16.04 with GNOME was installed on it
+username: <Username>
+password: <Password>
+with a reservation on the AD DHCP for XXX.XXX.XXX.48 with MAC XXXXXXXXXXXXX
+
+Configured VM IP to XXX.XXX.XXX.48/XX
+repaired plymouth crash
+	sudo apt-get install plymouth-x11 
+
+
+Performed a apt-get update && upgrade-dist
+Installed VMware Tools
+Intalled SSH (client to connect using PUTTY to XXX.XXX.XXX.48:22) <Username>/<Password>
+
+Installed Docker
+

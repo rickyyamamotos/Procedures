@@ -1,0 +1,24 @@
+Device required by cryptographic provider is not ready
+when trying to log into a microsoft app
+
+(https://ugetfix.com/ask/how-to-fix-device-required-by-cryptographic-provider-is-not-ready/)
+
+
+
+Method 2. Delete the content of NGC folder
+FIX IT NOW! 
+To repair damaged system, you have to purchase the licensed version of Reimage.
+If you cannot log into Windows using your PIN, sign in with your password and then remove the content of the NGC folder. However, first of all, you’ll have to take the ownership of this folder.
+
+Log in to Windows 10 using your password.
+Press Windows key + X and open File Explorer.
+Navigate to the C:\\Windows\\ServiceProfiles\\LocalService\\AppData\\Local\\Microsoft path.
+Right-click on the NGC folder and select Properties.
+Open Security tab, click the Advanced button and find the Owner section.
+Click the Change link and in the Enter the object name, enter the <Username>’s or Username (depending on which you are using).
+Click Check Names and OK.
+Mark the Replace owner on sub-containers and objects and click Apply -> OK to save the changes.
+Now check if you can access the NGC folder. If yes, mark all files stored in it and remove all of them.
+Once done, press Windows key + I to open Settings.
+Open Account settings and select Sign-in Options.
+Click Add a PIN and follow the rest of instructions

@@ -1,0 +1,12 @@
+
+"sendEmail" SSL routines:state_machine:internal error
+invalid SSL_version specified at /usr/share/perl5/IO/Socket/SSL.pm line 728.
+
+Solution
+https://unix.stackexchange.com/questions/53065/invalid-ssl-version-specified-at-usr-share-perl5-io-socket-ssl-pm-line-332
+
+nano /usr/bin/sendEmail
+	replace
+		if (! IO::Socket::SSL->start_SSL($SERVER, SSL_version => 'SSLv3 TLSv1')) {
+	with
+		if (! IO::Socket::SSL->start_SSL($SERVER)) {

@@ -1,0 +1,113 @@
+Install the Bitnami version of DreamFactory on your server. To backup your DSP, just backup the
+   whole bitnami installed directory. If you use Bitnami everything installed will be in that
+   directory.
+
+
+dreamfactory server of <Organization>:
+	1) <Site>.<Domain>	XXX.XXX.XXX.161:<PortNumber>
+	2) <Site>	XXX.XXX.XXX.180:<PortNumber>
+	3) 			XXX.XXX.XXX.236:		dreamfactory Companion <Site> Server
+	4) <Site>	
+
+
+Get Installation directory
+Option 1:
+	$ find -name "ctlscript.sh"
+	$ dreamdir=$(echo $(find / -name "ctlscript.sh"))
+	$ dreamdir=${dreamdir%'ctlscript.sh'*}
+	dirname "$dreamdir"
+
+Option 2:
+	$ ls /opt | grep "^dreamfactory" 
+	$ dreamdir=$(echo $(ls /opt | grep "^dreamfactory"))
+	$ dreamdir="/opt/$dreamdir"
+
+Getting Mysql databasename and credentials
+
+$ cd $dreamdir/apps/dreamfactory/htdocs/config
+$ nano database.php
+	//* defines which engine is being used
+		'default' => env('DB_DRIVER', 'mysql'),
+	//* defines the credentials and databases names	
+        	 Default Database Connection Name
+		        'default' => env('DB_DRIVER', 'mysql'),
+	        'connections' => [
+	                'sqlite' => [
+	                        'driver'   => 'sqlite',
+	                        'database' => storage_path().'/databases/database.sqlite',
+	                        'prefix'   => '',
+	                ],
+		                'mysql' => [
+        	                'driver'    => 'mysql',
+	                        'host'      => env('DB_HOST', 'localhost'),
+	                        'port'  => env('DB_PORT', '3306'),
+	                        'database'  => env('DB_DATABASE', '<DBName>'),
+	                        'username'  => env('DB_USERNAME', '<Username>'),
+	                        'password'  => env('DB_<Password>', '<Password>'),
+	                        'port'          => env('DB_PORT', '3306'),
+	                        'charset'   => 'utf8',
+	                        'collation' => 'utf8_unicode_ci',
+	                        'prefix'    => '',
+	                        'strict'    => false,
+	                ],
+	                'pgsql' => [
+	                        'driver'   => 'pgsql',
+	                        'host'     => env('DB_HOST', 'localhost'),
+	                        'database' => env('DB_DATABASE', '<DBName>'),
+	                        'username' => env('DB_USERNAME', '<Username>'),
+	                        'password' => env('DB_<Password>', '<Password>'),
+	                        'port'          => env('DB_PORT', '5432'),
+	                        'charset'  => 'utf8',
+	                        'prefix'   => '',
+	                        'schema'   => 'public',
+	                ],
+	                // SQL Server is not supported as a system database
+        	        'sqlsrv' => [
+	                        'driver'   => 'sqlsrv',
+	                        'host'     => env('DB_HOST', 'localhost'),
+	                        'database' => env('DB_DATABASE', '<DBName>'),
+	                        'username' => env('DB_USERNAME', '<Username>'),
+	                        'password' => env('DB_<Password>', '<Password>'),
+	                        'port'          => env('DB_PORT', '1433'),
+	                        'prefix'   => '',
+	                ],
+	        ],
+	//* defines the table that keep track of migrations
+        	'migrations' => 'migrations',
+
+
+
+
+Create Application Backups
+$ cd /tmp
+$ sudo $dreamdir/ctlscript.sh stop
+$ sudo tar -pczvf application-backup.tar.gz $dreamdir
+	3:08pm 
+$ sudo $dreamdir/ctlscript.sh start
+
+Restore Application Backups
+$ cd /tmp
+$ sudo $dreamdir/ctlscript.sh stop
+$ sudo mv $dreamdir /tmp/$dreamdir
+$ sudo tar -pxzvf application-backup.tar.gz -C /
+$ sudo $dreamdir/ctlscript.sh start
+
+Create MySQL/MariaDB Backups
+$ cd /tmp
+$ $dreamdir/mysql/bin/mysqldump -A -u root -p > backup.sql
+
+Restore MySQL/MariaDB Backups
+$ cd /tmp
+$ $dreamdir/mysql/bin/mysql-u root -p < backup.sql
+
+Create MongoDB Backups
+$ cd /tmp
+$ $dreamdir/mongodb/bin/mongodump --authenticationDatabase <Username> --username root --password <Password> -d DATABASE_NAME
+
+Restore MongoDB Backups
+$ cd /tmp
+$ $dreamdir/mongo/bin/mongorestore --authenticationDatabase <Username> --username root --password <Password> PATH_TO_BACKUP_FILE
+
+
+
+

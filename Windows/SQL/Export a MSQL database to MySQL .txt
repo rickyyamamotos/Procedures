@@ -1,0 +1,44 @@
+https://www.percona.com/blog/2016/06/23/migrate-from-ms-sql-server-to-mysql/
+https://www.thegeekstuff.com/2014/03/mssql-to-mysql/
+
+install MySQL workbrench in a computer, preferable on the source SQL server
+ensure that this computer has access to port 3306 of the target server
+ensure that this computer has access to port 1433 of the source server
+ensure that target server is listening to 0.0.0.0:3306
+ensure mysql user has @"%" access to mysql in the target server
+
+open MySQL workbrench
+click on "Open ODBC <Site>"
+	click on the "User DSN"
+	click on "Add"
+	Select "ODBC (native)
+		//* The following did not work: Select "OBDC Driver 13 for SQL Server"
+	in server type the source server IP. I.E. XXX.XXX.XXX.152
+	in "SPN(optional)" enter the hostname of the targer. I.E. secureserver2
+		//* this is to use windows authentication for SQL
+	Click on OK
+Back on the main screen
+Click on Test connection
+
+Click on "Start Migration"
+You will see the "Source RBBMS Connection Parameters"
+In "Database Syste", select Microsoft SQL Server
+In "Connection Method", select ODBC Data Source (Free TDS)
+In "DSN", select the DSN you create in the previous paragraph
+In "Username", left it blank
+In "Protocol version", select Microsoft SQL Server 2000(7.1)
+Click on Next
+
+You will be in the "Target RDBMS Connection Parameters"
+In "connection method", select Standard (TCP/IP)
+In "Hostname", enter the IP of the target server. I.E. XXX.XXX.XXX.161
+In "Port", enter 3306
+In "Username", enter the MySQL username of the targer server
+	//* this user must have @"%" and <Username> privileges
+
+
+
+
+
+
+U: root P: <Password>

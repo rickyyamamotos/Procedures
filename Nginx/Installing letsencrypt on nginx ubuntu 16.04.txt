@@ -1,0 +1,143 @@
+https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04
+
+Installing cerbot:
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository ppa:certbot/certbot
+$ sudo apt-get update
+$ sudo apt-get install python-certbot-nginx
+
+Setting up Nginx
+$ cd /etc/nginx/nginx.conf
+	http {
+	        ssl_protocols TLSv1.1 TLSv1.2;
+	        ssl_ciphers     EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
+	        ssl_prefer_server_ciphers on;
+	        ssl_dhparam /etc/ssl/certs/dhparam.pem;
+	        client_max_body_size 4096M;
+$ service networking restart
+
+$ sudo nano /etc/nginx/sites-available/default
+	replace server_name _;
+        with    server_name nginx.<Site>
+$ sudo nginx -t
+	//* verify that there are no errors
+$ service nginx restart
+
+Create a public A record for nginx.connect4eudcation.org
+rpd to <ServerName>\dns\<Site>\A
+	nginx	XXX.XXX.XXX.248
+
+Updating the Firewall:
+$ sudo ufw status
+Verify that "Nginx Full" is allowed
+	otherwise:
+		sudo ufw allow 'Nginx Full'
+		sudo ufw delete allow 'Nginx HTTP'
+
+Obtaining an SSL Certificate
+$ sudo certbot --nginx -d nginx.<Site>
+	<Email>
+	A
+	n
+	1
+
+Updating Diffie-Hellman Parameters:
+$ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+$ sudo nano /etc/nginx/sites-available/default
+	//* paste the following within the server {} block
+		ssl_dhparam /etc/ssl/certs/dhparam.pem;
+$ sudo nginx -t
+$ sudo systemctl reload nginx
+
+Test:
+$ curl https://nginx.<Site>
+
+Setting Up Auto Renewal:
+$ sudo crontab -e
+	15 3 * * * /usr/bin/certbot renew --quiet
+	//* "run /usr/bin/certbot renew at 3:15 am, every day
+
+
+
+Setting UP other websites hosted locally
+$ cd /etc/nginx/sites-enabled
+Intalling certificates for other websites hosted locally
+$ sudo certbot --nginx -d test1.<Site>
+$ sudo certbot --nginx -d test2.<Site>
+$ ls -s
+	//* all configuration files which contain websites are shown
+Go through-out each of the configuration files and add the following inside the each server {} block
+$ nano /etc/nginx/sites-enabled/test1.<Site>
+	//* add the following lines inside the server P{} block
+		listen 443 ssl; # managed by Certbot
+		ssl_certificate /etc/letsencrypt/live/test1.<Site>/fullchain.pem; # managed by Certbot
+		ssl_certificate_key /etc/letsencrypt/live/test1.<Site>/privkey.pem; # managed by Certbot
+		include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+$ nano /etc/nginx/sites-enabled/test2.<Site>
+	//* add the following lines inside the server P{} block
+		listen 443 ssl; # managed by Certbot
+		ssl_certificate /etc/letsencrypt/live/test2.<Site>/fullchain.pem; # managed by Certbot
+		ssl_certificate_key /etc/letsencrypt/live/test2.<Site>/privkey.pem; # managed by Certbot
+		include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+
+
+Setting Up other websites hosted in other servers
+You dont need to copy the certificate to the webserver (XXX.XXX.XXX.55), just install it on the nginx
+create the server block
+For example for <Site> hosted on XXX.XXX.XXX.55
+	ensure that /etc/letsencrypt/live/<Site>/ does not exist
+$ nano /etc/nginx/sites-available/<Site>
+	server {
+        	listen 80;
+	        listen [::]:80;
+	        server_name <Site>;
+	        location ^~ /.well-known {
+	                   allow all;
+	                   auth_basic off;
+	                   alias /var/www/html/.well-known;
+	                   }
+	        location ~ {
+	                   proxy_pass  http://XXX.XXX.XXX.55;
+	                   proxy_http_version 1.1;
+	                   proxy_set_header        Host $host;
+	                   proxy_set_header        X-Real-IP $remote_addr;
+	                   proxy_redirect          off;
+	                  }
+	}
+	server {
+	        listen 443;
+	        ssl on;
+	        ssl_certificate         /etc/letsencrypt/live/<Site>/fullchain.pem;
+	        ssl_certificate_key     /etc/letsencrypt/live/<Site>/privkey.pem;
+		# if the above files does not exit, restarting nginx may throw an error. You can temporaty point them to any existing certs
+	        server_name <Site>;
+	        location ~ {
+	                   proxy_pass  https://XXX.XXX.XXX.55;
+	                   proxy_http_version 1.1;
+	                   proxy_set_header        Host $host;
+	                   proxy_set_header        X-Real-IP $remote_addr;
+	                   proxy_redirect          off;
+	                  }
+	}
+$ service nginx restart
+$ certbot certonly --webroot -w /var/www/html/ -d <Site>
+
+Issues
+The server must use reference URL, not absoulte to allow https to https to work
+
+
+Renew certificates
+$ certbot renew
+
+
+
+
+
+
+
+
+
+
+
+
+

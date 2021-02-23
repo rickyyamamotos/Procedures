@@ -1,0 +1,18 @@
+Allowing only local connections
+
+$ nano /etc/ssh/sshd_config
+	AllowUsers *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* 
+$ service sshd restart
+$ cat /etc/firewalld/zones/public.xml
+$ firewall-cmd --zone=public --remove-service=dhcpv6-client --permanent
+$ firewall-cmd --zone=public --remove-service=ssh --permanent
+$ firewall-cmd --permanent --zone=public --remove-port=80/tcp
+$ firewall-cmd --permanent --zone=public --remove-port=443/tcp
+$ cat /etc/firewalld/zones/public.xml
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="80" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="443" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="22" accept'
+$ cat /etc/firewalld/zones/public.xml
+$ firewall-cmd --reload
+
+Check that there is not NATs on the router

@@ -1,0 +1,23 @@
+Connect to the ssh server
+$ nano /etc/ssh/ssh_config
+	//* replace the following line
+	ForwardX11 yes
+
+Start Xming
+
+start putty
+Check "Enable X11 forwarding" in putty/Connection/SSH/X11
+Connect to the ssh server
+
+Run any GUI app
+$ gedit
+$ firefox
+
+
+Troubleshoot
+1) PuTTY X11 proxy: Unsupported authorisation protocol
+	iF you are logged as root, then you need to be logged as a user or copy
+	the .Xauthority to the root profile folder
+		cp ./home/<Username>/.Xauthority ./home/root/.Xauthority
+	If the root does not have a profile folder, then u need to be logged as a regular user
+

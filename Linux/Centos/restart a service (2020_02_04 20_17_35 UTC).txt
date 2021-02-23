@@ -1,0 +1,2 @@
+$ systemctl restart sshd.service
+$ systemctl status sshd.service

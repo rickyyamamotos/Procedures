@@ -1,0 +1,36 @@
+#!/bin/bash
+#Purpose = Backup of nagios3 logs because they are important as proof of uptime in historicals
+#Created on 02/28/2018
+#Author = Rick Yamamoto
+#Version 1.0
+#START
+#Script Name: nagios3-remote-backup-logs.sh
+#Autostart:
+#	sudo crontab -e
+#	30 03 * * 1 /bin/bash /nagios-remote-backup-logs.sh
+TIME=$(date "+%b-%d-%y")        # This Command will add the date to the Backup File's Name.
+FILENAME=nagios3-log-backup-$TIME.tar.gz     # Here i define Backup file name format.
+SRCDIR=/tmp                     # Location of Important Data Directory (Source of backup).
+DESDIR=/tmp
+echo "Started compressing the wwwroot directory"
+tar -cpzf $DESDIR/$FILENAME /var/log/nagios3
+EXITCODE=$?
+if [ $EXITCODE -ne 0 ] ; then
+   echo "tar failed with exit code $EXITCODE"
+    /usr/local/bin/sendEmail -vv -o tls=no -o -m "Error on $TIME when compressing nagios3 logs(XXX.XXX.XXX.47):$DESDIR/$FILENAME-> tar failed with exit code $EXITCODE" -f <Email> -t <Email> -cc <Email> -s smtp.gmail.com:587 -xu <Email> -xp <Password> -u "nagios3(XXX.XXX.XXX.47):nagios3-remote-backup-logs.sh tar Error: $EXITCODE" >> /var/log/sendEmail.log
+   rm -f $DESDIR/$FILENAME
+   exit 1
+fi
+chmod 777 $DESDIR/$FILENAME
+echo "Stated transmitting the files to the <Location>'s Office Drobo"
+/usr/bin/sshpass -p '<Password>' scp -P <PortNumber> -p $DESDIR/$FILENAME <Username>@XXX.XXX.XXX.51:/mnt/shares/drobo/nagios3/
+EXITCODE=$?
+rm -f $DESDIR/$FILENAME
+if [ $EXITCODE -ne 0 ] ; then
+   echo "sshpass failed with exit code $EXITCODE"
+    /usr/local/bin/sendEmail -vv -o tls=yes -o -m "Error on $TIME when transmitting the logs backup from nagios3(XXX.XXX.XXX.47) to <Location>/XXX.XXX.XXX.87/backup/nagios3/$FILENAME.\n -> sshpass failed with exit code $EXITCODE" -f <Email> -t <Email> -cc <Email> -s smtp.gmail.com:587 -xu <Email> -xp <Password> -u "nagios3(XXX.XXX.XXX.47):/nagios3-remote-backup-logs.sh sshpass Error: $EXITCODE" >> /var/log/sendEmail.log
+   exit 1
+fi
+ /usr/local/bin/sendEmail -vv -o tls=yes -o -m "Successfully weekly backed up nagios3 logs to:\n   <Location>/XXX.XXX.XXX.87/backup/nagios3/$FILENAME.\n Date: $TIME\n See <Location>Office/XXX.XXX.XXX.87/backup/restore-procedure.txt for instructions on restore the backup" -f <Email> -t <Email> -cc <Email> -s smtp.gmail.com:587 -xu <Email> -xp <Password> -u "nagios3(XXX.XXX.XXX.47):Successful backup of nagios3's log directory made on $TIME" >> /var/log/sendEmail.log
+echo "Backup finished without errors"
+#END

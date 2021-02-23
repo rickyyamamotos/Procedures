@@ -1,0 +1,6 @@
+$ apt-get install openssl
+$ dpkg -S mod_ssl.so
+	//* checks that mod_ssl.so is already installed
+$ a2emodssl
+
+

@@ -1,0 +1,128 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil Consolas;}{\f1\fnil\fcharset0 Consolas;}{\f2\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red0\green128\blue0;\red0\green0\blue255;\red0\green128\blue128;\red128\green128\blue128;\red255\green0\blue0;\red255\green0\blue255;}
+{\*\generator Riched20 6.2.9200}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\cf1\f0\fs19\lang9 --Copyright \f1\'a9 Microsoft Corporation.  All Rights Reserved.\cf0\par
+\cf1 --This code released under the terms of the\cf0\par
+\cf1 -- Microsoft Public License (MS-PL, {\cf0{\field{\*\fldinst{HYPERLINK http://opensource.org/licenses/ms-pl.html }}{\fldrslt{http://opensource.org/licenses/ms-pl.html\ul0\cf0}}}}\f1\fs19 .)\cf0\par
+\cf2 USE\cf0  \cf3 [master]\cf0  \par
+\cf2 GO\cf0  \par
+\cf1 /****** Object:  StoredProcedure [dbo].[sp_BackupDatabases] ******/\cf0  \par
+\cf2 SET\cf0  \cf2 ANSI_NULLS\cf0  \cf2 ON\cf0  \par
+\cf2 GO\cf0  \par
+\cf2 SET\cf0  \cf2 QUOTED_IDENTIFIER\cf0  \cf2 ON\cf0  \par
+\cf2 GO\cf0  \par
+ \par
+\cf1 -- ============================================= \cf0\par
+\cf1 -- Author: Microsoft \cf0\par
+\cf1 -- Create date: 2010-02-06\cf0\par
+\cf1 -- Description: Backup Databases for SQLExpress\cf0\par
+\cf1 -- Parameter1: databaseName \cf0\par
+\cf1 -- Parameter2: backupType F=full, D=differential, L=log\cf0\par
+\cf1 -- Parameter3: backup file location\cf0\par
+\cf1 -- =============================================\cf0\par
+ \par
+\cf2 CREATE\cf0  \cf2 PROCEDURE\cf0  \cf3 [dbo]\cf4 .\cf3 [sp_BackupDatabases]\cf0   \par
+            \cf3 @databaseName\cf0  \cf2 sysname\cf0  \cf4 =\cf0  \cf4 null,\cf0\par
+            \cf3 @backupType\cf0  \cf2 CHAR\cf4 (\cf0 1\cf4 ),\cf0\par
+            \cf3 @backupLocation\cf0  \cf2 nvarchar\cf4 (\cf0 200\cf4 )\cf0  \par
+\cf2 AS\cf0  \par
+ \par
+       \cf2 SET\cf0  \cf2 NOCOUNT\cf0  \cf2 ON\cf4 ;\cf0  \par
+           \par
+            \cf2 DECLARE\cf0  \cf3 @DBs\cf0  \cf2 TABLE\cf0\par
+\cf2             \cf4 (\cf0\par
+                  \cf3 ID\cf0  \cf2 int\cf0  \cf2 IDENTITY\cf0  \cf2 PRIMARY\cf0  \cf2 KEY\cf4 ,\cf0\par
+                  \cf3 DBNAME\cf0  \cf2 nvarchar\cf4 (\cf0 500\cf4 )\cf0\par
+            \cf4 )\cf0\par
+           \par
+             \cf1 -- Pick out only databases which are online in case ALL databases are chosen to be backed up\cf0\par
+             \cf1 -- If specific database is chosen to be backed up only pick that out from @DBs\cf0\par
+            \cf2 INSERT\cf0  \cf2 INTO\cf0  \cf3 @DBs\cf2  \cf4 (\cf3 DBNAME\cf4 )\cf0\par
+            \cf2 SELECT\cf0  \cf3 Name\cf0  \cf2 FROM\cf0  \cf2 master\cf4 .\cf1 sys\cf4 .\cf1 databases\cf0\par
+            \cf2 where\cf0  \cf2 state\cf4 =\cf0 0\par
+            \cf4 AND\cf0  \cf3 name\cf4 =\cf3 @DatabaseName\cf0\par
+            \cf4 OR\cf0  \cf3 @DatabaseName\cf0  \cf4 IS\cf0  \cf4 NULL\cf0\par
+            \cf2 ORDER\cf0  \cf2 BY\cf0  \cf3 Name\cf0\par
+           \par
+            \cf1 -- Filter out databases which do not need to backed up\cf0\par
+            \cf2 IF\cf0  \cf3 @backupType\cf4 =\cf5 'F'\cf0\par
+                  \cf2 BEGIN\cf0\par
+                  \cf2 DELETE\cf0  \cf3 @DBs\cf0  \cf2 where\cf0  \cf3 DBNAME\cf0  \cf4 IN\cf2  \par
+\cf4 (\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 '' \cf4 )\cf0\par
+                  \cf2 END\cf0\par
+            \cf2 ELSE\cf0  \cf2 IF\cf0  \cf3 @backupType\cf4 =\cf5 'D'\cf0\par
+                  \cf2 BEGIN\cf0\par
+                  \cf2 DELETE\cf0  \cf3 @DBs\cf0  \cf2 where\cf0  \cf3 DBNAME\cf0  \cf4 IN\cf2  \par
+\cf4 (\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 '' \cf4 )\cf0\par
+                  \cf2 END\cf0\par
+            \cf2 ELSE\cf0  \cf2 IF\cf0  \cf3 @backupType\cf4 =\cf5 'L'\cf0\par
+                  \cf2 BEGIN\cf0\par
+                  \cf2 DELETE\cf0  \cf3 @DBs\cf0  \cf2 where\cf0  \cf3 DBNAME\cf0  \cf4 IN\cf2  \par
+\cf4 (\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 ''\cf4 ,\cf5 '' \cf4 )\cf0\par
+                  \cf2 END\cf0\par
+            \cf2 ELSE\cf0\par
+                  \cf2 BEGIN\cf0\par
+                  \cf2 RETURN\cf0\par
+                  \cf2 END\cf0\par
+           \par
+            \cf1 -- Declare variables\cf0\par
+            \cf2 DECLARE\cf0  \cf3 @BackupName\cf0  \cf2 varchar\cf4 (\cf0 100\cf4 )\cf0\par
+            \cf2 DECLARE\cf0  \cf3 @BackupFile\cf0  \cf2 varchar\cf4 (\cf0 100\cf4 )\cf0\par
+            \cf2 DECLARE\cf0  \cf3 @DBNAME\cf0  \cf2 varchar\cf4 (\cf0 300\cf4 )\cf0\par
+            \cf2 DECLARE\cf0  \cf3 @sqlCommand\cf0  \cf2 NVARCHAR\cf4 (\cf0 1000\cf4 )\cf0  \par
+        \cf2 DECLARE\cf0  \cf3 @dateTime\cf0  \cf2 NVARCHAR\cf4 (\cf0 20\cf4 )\cf0\par
+            \cf2 DECLARE\cf0  \cf3 @Loop\cf0  \cf2 int\cf0                   \par
+                       \par
+            \cf1 -- Loop through the databases one by one\cf0\par
+            \cf2 SELECT\cf0  \cf3 @Loop\cf0  \cf4 =\cf0  \cf6 min\cf4 (\cf3 ID\cf4 )\cf0  \cf2 FROM\cf0  \cf3 @DBs\cf0\par
+ \par
+      \cf2 WHILE\cf0  \cf3 @Loop\cf0  \cf4 IS\cf0  \cf4 NOT\cf0  \cf4 NULL\cf0\par
+      \cf2 BEGIN\cf0\par
+ \par
+\cf1 -- Database Names have to be in [dbname] format since some have - or _ in their name\cf0\par
+      \cf2 SET\cf0  \cf3 @DBNAME\cf0  \cf4 =\cf0  \cf5 '['\cf4 +(\cf2 SELECT\cf0  \cf3 DBNAME\cf0  \cf2 FROM\cf0  \cf3 @DBs\cf0  \cf2 WHERE\cf0  \cf3 ID\cf0  \cf4 =\cf0  \cf3 @Loop\cf4 )+\cf5 ']'\cf0\par
+ \par
+\cf1 -- Set the current date and time n yyyyhhmmss format\cf0\par
+      \cf2 SET\cf0  \cf3 @dateTime\cf0  \cf4 =\cf0  \cf6 REPLACE\cf4 (\cf6 CONVERT\cf4 (\cf2 VARCHAR\cf4 ,\cf0  \cf6 GETDATE\cf4 (),\cf0 101\cf4 ),\cf5 '/'\cf4 ,\cf5 ''\cf4 )\cf0  \cf4 +\cf0  \cf5 '_'\cf0  \cf4 +\cf0   \cf6 REPLACE\cf4 (\cf6 CONVERT\cf4 (\cf2 VARCHAR\cf4 ,\cf0  \cf6 GETDATE\cf4 (),\cf0 108\cf4 ),\cf5 ':'\cf4 ,\cf5 ''\cf4 )\cf0   \par
+ \par
+\cf1 -- Create backup filename in path\\filename.extension format for full,diff and log backups\cf0\par
+      \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'F'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupFile\cf0  \cf4 =\cf0  \cf3 @backupLocation\cf4 +\cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf0  \cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )+\cf0  \cf5 '_FULL_'\cf4 +\cf0  \cf3 @dateTime\cf4 +\cf0  \cf5 '.BAK'\cf0\par
+      \cf2 ELSE\cf0  \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'D'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupFile\cf0  \cf4 =\cf0  \cf3 @backupLocation\cf4 +\cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf0  \cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )+\cf0  \cf5 '_DIFF_'\cf4 +\cf0  \cf3 @dateTime\cf4 +\cf0  \cf5 '.BAK'\cf0\par
+      \cf2 ELSE\cf0  \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'L'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupFile\cf0  \cf4 =\cf0  \cf3 @backupLocation\cf4 +\cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf0  \cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )+\cf0  \cf5 '_LOG_'\cf4 +\cf0  \cf3 @dateTime\cf4 +\cf0  \cf5 '.TRN'\cf0\par
+ \par
+\cf1 -- Provide the backup a name for storing in the media\cf0\par
+      \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'F'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupName\cf0  \cf4 =\cf0  \cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )\cf0  \cf4 +\cf5 ' full backup for '\cf4 +\cf0  \cf3 @dateTime\cf0\par
+      \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'D'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupName\cf0  \cf4 =\cf0  \cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )\cf0  \cf4 +\cf5 ' differential backup for '\cf4 +\cf0  \cf3 @dateTime\cf0\par
+      \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'L'\cf0\par
+            \cf2 SET\cf0  \cf3 @BackupName\cf0  \cf4 =\cf0  \cf6 REPLACE\cf4 (\cf6 REPLACE\cf4 (\cf3 @DBNAME\cf4 ,\cf5 '['\cf4 ,\cf5 ''\cf4 ),\cf5 ']'\cf4 ,\cf5 ''\cf4 )\cf0  \cf4 +\cf5 ' log backup for '\cf4 +\cf0  \cf3 @dateTime\cf0\par
+ \par
+\cf1 -- Generate the dynamic SQL command to be executed\cf0\par
+ \par
+       \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'F'\cf0  \par
+                  \cf2 BEGIN\cf0\par
+               \cf2 SET\cf0  \cf3 @sqlCommand\cf0  \cf4 =\cf0  \cf5 'BACKUP DATABASE '\cf0  \cf4 +\cf3 @DBNAME\cf4 +\cf0   \cf5 ' TO DISK = '''\cf4 +\cf3 @BackupFile\cf4 +\cf0  \cf5 ''' WITH INIT, NAME= '''\cf0  \cf4 +\cf3 @BackupName\cf4 +\cf5 ''', NOSKIP, NOFORMAT'\cf0\par
+                  \cf2 END\cf0\par
+       \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'D'\cf0\par
+                  \cf2 BEGIN\cf0\par
+               \cf2 SET\cf0  \cf3 @sqlCommand\cf0  \cf4 =\cf0  \cf5 'BACKUP DATABASE '\cf0  \cf4 +\cf3 @DBNAME\cf4 +\cf0   \cf5 ' TO DISK = '''\cf4 +\cf3 @BackupFile\cf4 +\cf0  \cf5 ''' WITH DIFFERENTIAL, INIT, NAME= '''\cf0  \cf4 +\cf3 @BackupName\cf4 +\cf5 ''', NOSKIP, NOFORMAT'\cf0         \par
+                  \cf2 END\cf0\par
+       \cf2 IF\cf0  \cf3 @backupType\cf0  \cf4 =\cf0  \cf5 'L'\cf0  \par
+                  \cf2 BEGIN\cf0\par
+               \cf2 SET\cf0  \cf3 @sqlCommand\cf0  \cf4 =\cf0  \cf5 'BACKUP LOG '\cf0  \cf4 +\cf3 @DBNAME\cf4 +\cf0   \cf5 ' TO DISK = '''\cf4 +\cf3 @BackupFile\cf4 +\cf0  \cf5 ''' WITH INIT, NAME= '''\cf0  \cf4 +\cf3 @BackupName\cf4 +\cf5 ''', NOSKIP, NOFORMAT'\cf0         \par
+                  \cf2 END\cf0\par
+ \par
+\cf1 -- Execute the generated SQL command\cf0\par
+       \cf2 EXEC\cf4 (\cf3 @sqlCommand\cf4 )\cf0\par
+ \par
+\cf1 -- Goto the next database\cf0\par
+\cf2 SELECT\cf0  \cf3 @Loop\cf0  \cf4 =\cf0  \cf6 min\cf4 (\cf3 ID\cf4 )\cf0  \cf2 FROM\cf0  \cf3 @DBs\cf0  \cf2 where\cf0  \cf3 ID\cf4 >\cf3 @Loop\cf0\par
+ \par
+\cf2 END\par
+\cf0\f2\fs22\par
+}
+ 

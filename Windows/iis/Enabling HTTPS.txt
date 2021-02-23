@@ -1,0 +1,33 @@
+On the IIS server
+	Open IIS Manager
+	On the Connection Pane, click on the Server to select it
+	On the Icon Pane, double click on "Server Certificates"
+	On the Action pane, click on "Create Certificate Request"
+		Fill Common Name: (domain name)
+		Fill all the blamks
+		Click Next
+		Select a location to save the request
+		Save
+	Copy the content of the Certificate request and paste it on godaddy certifacate configuration
+	Submit the request
+	Once godaddy verified the request, download the certifcate to the IIS server
+On the IIS server
+	On the Connection Pane, click on the Server to select it
+	On the Icon Pane, double click on "Server Certificates"
+	On the Action pane, click on "Complete Certificate Request"
+		Select the .crt file downloaded from godaddy
+		fill the friendly name: (domain name)
+		Click Ok
+On the IIS server
+	Expand the server, expand Sites,
+	Right click on default Web site
+	Click on "Edit Binding"
+	Add HTTPS
+	In the SSL Certicate, select the firnedly name set on the previous step
+	Click ok
+Test
+
+	
+	
+
+	

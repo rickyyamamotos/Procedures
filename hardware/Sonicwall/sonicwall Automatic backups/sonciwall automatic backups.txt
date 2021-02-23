@@ -1,0 +1,46 @@
+Storage server Info
+	FTP server	XXX.XXX.XXX.243		(backup-server WAN IP for SSH)
+			XXX.XXX.XXX.51		(backup-server LAN IP)
+		username	sonciwall
+		password	<Password>
+		directory	/			this is chroot of /home/sonicwall
+
+Create a user on all sonciwall with SSH access
+	username	<Username>
+	password	<Password>
+	local group	Sonicwall <Username>	required to allow ssh access
+
+
+Schedules
+	<Datacenter>		Monday		5:45 AM
+		add firewall rule VPN -> LAN
+			Any All X10 Management IP SSH Management Allow All 
+	<Datacenter>		Tuesday		5:45 AM
+		Set firewall rule WAN -> WAN
+			<Site>-Locations All X1 Management IP SSH Management Allow All 
+	Office Main	Wedbesday	5:45 AM
+		Address
+			<Site>room-<Site>-WAN 	XXX.XXX.XXX.243
+		NAT
+			Any Original <Site>room-<Site>-WAN backup-server FTP 
+		Set firewall rule WAN -> LAN
+			<Site>-Locations <Site>room-<Site>-WAN FTP (All) Allow All 
+	Office Backup	Thurdsay	5:45 AM
+
+Command to create the backup on the sonicwall console (SSH)
+	<Datacenter> (NSA 3600 SonicOS Enhanced 6.1.1.9-30n)		XXX.XXX.XXX.1
+		export current-config sonicos ftp ftp://sonicwall:<Password>@XXX.XXX.XXX.243/filename1.exp
+	<Datacenter> (NSA 4600 SonicOS Enhanced 6.2.7.1-23n)		XXX.XXX.XXX.4
+		export current-config exp ftp ftp://sonicwall:<Password>@XXX.XXX.XXX.243/filename2.exp
+	Office Main (NSA 3500 SonicOS Enhanced 5.9.1.13-5o)	XXX.XXX.XXX.1
+		export current-config sonicos ftp ftp://sonicwall:<Password>@XXX.XXX.XXX.51/filename3.exp
+	Office Backup (TZ 210 SonicOS Enhanced 5.8.0.2-37o)	XXX.XXX.XXX.2
+		export preferences ftp XXX.XXX.XXX.51 sonicwall <Password> filename4.exp
+
+create a backup-server script to daily move files from /home/sonicwall/files/ to /mnt/share/drobo/sonicwall/
+On the backupserver run the backupallsonicwall.sh
+
+
+
+
+

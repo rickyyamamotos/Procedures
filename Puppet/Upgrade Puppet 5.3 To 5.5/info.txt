@@ -1,0 +1,106 @@
+Upgrading the puppetserver package effectively upgrades Puppet Server. 
+your node’s package manager automatically upgrades puppet-agent if the new version of puppetserver requires it.
+
+Locked puppet yum 
+	For yum packages locked with the versionlock plugin, 
+		nano /etc/yum/pluginconf.d/versionlock.list 
+			//* delete 0:puppetserver-5.3.5-1.el7
+	or 
+		$ yum versionlock delete puppetserver
+
+MANUALLY UPGRADE
+================================================================================================
+Upgrade the puppet master
+On the puppet master
+$ yum update puppetserver
+
+
+Upgrade the puppet agents
+//* upgrade the puppet master first
+CentOS 6 or 7
+	$ yum versionlock delete puppet-agent
+	$ yum update puppet-agent
+	$ yum versionlock add puppet-agent
+Ubuntu 15.05-18.04
+	$ echo "puppet-agent install" | dpkg --set-selections
+	$ echo "puppet5-release install" | dpkg --set-selections
+	$ apt-get update puppet-agent
+	$ apt-get install --only-upgrade puppet-agent
+
+
+AUTOMATICALLY UPGRADE
+==================================================================================================
+On the puppet master
+$ cd /etc/puppetlabs/code/environments/production/modules/
+$ mkdir removepuppetlock
+$ cd removepuppetlock
+$ mkdir manifests
+$ mkdir files
+$ mkdir templates
+$ mkdir tests
+$ cd  files
+$ nano removelock.sh
+	vvar1=$(cat /etc/*-release | grep Ubuntu)
+	if [ ${#vvar1} -gt 0 ]; then
+		sudo echo "puppet-agent install" | dpkg --set-selections
+		sudo echo "puppet5-release install" | dpkg --set-selections
+		dpkg --get-selections | grep puppet
+	fi
+	vvar1=$(cat /etc/*-release | grep CentOS)
+	if [ ${#vvar1} -gt 0 ]; then
+		vvar2=$(yum versionlock list puppet-agent | grep puppet-agent)
+		sudo yum versionlock delete $vvar2
+		yum versionlock list
+	fi
+$ cd manifests
+$ nano init.pp
+class removepuppetlock {
+	   file { "/tmp/removelock.sh":
+	      mode => "0711",
+	      owner => 'root',
+	      group => 'root',
+	      source => 'puppet:///modules/removepuppetlock/removelock.sh',
+	      checksum => mtime,
+	      }
+	   exec { 'remove update lock from puppet':
+	      command  => file('removepuppetlock/removelock.sh'),
+	      provider => shell,
+	      }
+	}
+$ /opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/modules/removepuppetlock/manifests/init.pp
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node default {
+	   include user
+	   include auditssh
+	   include removepuppetlock
+	}
+$ /opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/manifests/site.pp
+$ service puppetserver restart
+
+=====>>>> GIVE SOME TIME (2 HOURS) FOR ALL AGENTS TO UPDATE <<<======
+On the puppet master
+$ yum versionlock delete 0:puppetserver-5.3.5-1.el7.*
+$ yum update puppetserver
+	//* this will update puppet 5.3.5 to 5.3.9
+$ puppetserver --version
+The puppetserver package depends on the puppet-agent package, and your node’s package manager automatically upgrades puppet-agent if the new version of puppetserver requires it.
+On the puppet nodes
+$ /opt/puppetlabs/bin/puppet --version
+$ /opt/puppetlabs/bin/puppet agent --test
+
+For Puppet agent in windows. You need to manually install the new puppet-agent version.
+	You don't need to uninstall the agent before reinstalling unless you’re upgrading from 32-bit Puppet to the 64-bit version
+
+Upgrading to Puppet 6
+$ cat /etc/*-release
+	CentOS 7
+$ cd /tmp
+$ wget https://yum.puppet.com/puppet6-release-el-7.noarch.rpm
+$ rpm -i /tmp/puppet6-release-el-7.noarch.rpm
+
+
+
+
+
+XXX.XXX.XXX.156	<Site>										puppet	Ubuntu 16.04	hosted on XXX.XXX.XXX.54
+XXX.XXX.XXX.78	<Site>										puppet	CentOS 6.1	hosted on XXX.XXX.XXX.77

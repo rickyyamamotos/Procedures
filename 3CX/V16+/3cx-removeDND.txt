@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using TCX.Configuration;
+using TCX.PBX<Site>;
+using System.Threading;
+
+namespace OMSamples.Samples
+	{
+	[SampleCode("fix_dn_to_queues")]
+	[SampleParam("arg1", "Specifies extension number")]
+	[SampleDescription("Shows how to drop calls on specific extension using Call Control <Site>")]
+	class fix_dn_to_queues : ISample
+		{
+		public void Run(params string[] args)
+			{
+			PhoneSystem ps = PhoneSystem.Root;
+			string[] extensions = new string[] { "" };
+			string queue = args[2];
+			int arg_number = 0;
+			foreach (string arg in args)
+				{
+				arg_number = arg_number + 1;
+				if (arg_number == 2)
+					{
+					extensions = arg.Split(',');
+					}
+				if (arg_number == 3)
+					{
+					queue = arg;
+					}
+				}
+				while (true)
+					{
+					foreach (string extension in extensions)
+						{
+						foreach (DN dn in PhoneSystem.Root.GetDN())
+							{
+							if (extension.Equals(dn.Number))
+								{
+								string logged_in_queues = dn.GetPropertyValue("LOGGED_IN_QUEUES");
+								Console.WriteLine("Loggedindd " + dn.Number + " " + logged_in_queues);
+								dn.SetProperty("LOGGED_IN_QUEUES", queue);
+								Extension ext = ps.GetDNByNumber(extension) as Extension;
+								ext.QueueStatus = QueueStatusType.LoggedIn;
+								ext.Save();
+								dn.Save();
+							}
+						}
+					}
+					Thread.Sleep(5000);
+				}
+			}
+		}
+	}

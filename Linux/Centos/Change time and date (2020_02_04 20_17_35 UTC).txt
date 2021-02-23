@@ -1,0 +1,13 @@
+
+For Centos 6 or before:
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/GMT /etc/localtime
+date 061222172017
+	//* 06/12/2017 at 10:17 PM GMT
+hwclock --systohc
+
+
+
+If date timezone is frozen:
+$ rm /etc/localtime
+$ yum reinstall tzdata -y

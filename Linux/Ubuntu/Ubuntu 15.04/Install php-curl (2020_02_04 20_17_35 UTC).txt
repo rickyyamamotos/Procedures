@@ -1,0 +1,2 @@
+Installing php-curl 5.6 in ununtu 15.01
+$ apt-get install php-curl5

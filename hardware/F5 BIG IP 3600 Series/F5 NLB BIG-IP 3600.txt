@@ -1,0 +1,276 @@
+https://www.linkedin.com/pulse/every-thing-you-need-know-f5-ltm-mohit-bhardwaj
+
+Specifications (get them putty://XXX.XXX.XXX.245, then type: bigpipe platform)
+version:	BIG-IP 9.4.6 Build 401.0 Final
+Chassis #	<SerialNumber>
+Host Name	bigip.<Site>
+Licensed Date	Jan 7, 2009
+Active Modules	Add LTM Module
+		ADD LTM MODULE
+		50 MBPS COMPRESSION
+		ADD IPV6 GATEWAY
+		ADD RAMCACHE
+		ADD RATE 
+		ADD SSL CMP
+		SSL 500 TPS
+		ADD WebAccelerator
+Active cards
+	pic  Model: F5 cpld ver 0x10
+	crypto  Model: Cavium NITROX-PX version: CNPx-MC-SSL-MAIN-MC1-0001
+2 CPUs Intel(R) Core(TM)2 Duo CPU     E6400  @ 2.13GHz
+4 cores
+4 Gb of Ram
+8 eth ports with 1 Gbits
+Dual power is optional
+It supports up to 10,000 TPS or SSL encryption
+AF IP SSL accelerator card, stores private keys
+BIOS Rev: AMIBIOS(C)2006
+base MAC: 
+System Type: C103
+Memory: 3.216GB
+
+
+The 3600 is capable of running one product module:
+	GTM,
+	LC, 
+	WebAccelerator, (WebAccelerator bundle includes the WA module, maximum SSL, and maximum compression)
+	ASM.
+Note that this is not able to run multiple modules at the same time.
+
+Limitations:
+Best Case Throughput 1.5 Gbps
+
+Management Sorftware
+The 1600 and 3600 will only run 9.4.5 or greater (with the exception of 9.6.x, which is VIPRION only).
+
+Purpose
+It receives incoming traffic then balances the load by sending traffic to different servers. and most cases sents outgoing taffic.
+If a server is unavailable LTM stops sending traffic to it. 
+Unlike traditional load balancers that are reserved for web-only applications BIG-IP LTM can manages traffic for all ip based applications and web servers.
+The LTM Examines values in the header or pay load of incoming packet and based on its value it intercepts transforms and directs application and web services requests.
+One of the best feature of LTM is handling of SSL Traffic. Offloading this process from the servers.
+
+
+Modes of Operation (depending on the add-on Modules)
+1) BIG-IP Local Traffic Management or LTM
+	Manages yours network by monitoring status of each server and load balancing the traffic.
+2) BIG-IP Global Traffic Management or GTM
+	provides wide area traffic management and high availability of IP application and services running across multiple data centers
+3) Linkcontroller 
+	monitors availability and performance of multiple WAN connections (or Links) and then intelligently manages traffics flows through those links, provide fault torrent, Optimized internet access.
+4) BIG-IP Application security manager or ASM :
+	protects IP-Based application and services against known and unknown external threats at the network and application layer
+5) BIG-IP Web accelerator
+	assists web applications for<Site>le workers by coaching content and working with the client browser session to improve performance
+6) BIG-IP Enterprise manager
+	provides a single, centralized management & operational interface for the other F5 devices.
+
+Other Modules
+BIG-IP AAM
+BIG-IP AFM
+BIG-IP Analytics
+BIG-IP APM
+BIG-IP ASM
+BIG-IP DNS
+BIG-IP Edge Gateway
+BIG-IP GTM
+BIG-IP Link Controller
+BIG-IP LTM
+BIG-IP PEM
+BIG-IP PSM
+BIG-IP WebAccelerator
+BIG-IP WOM
+
+Identifiying F5 ports
+Management Ports (MGMT) : This is the BIG-IP management port.It has default IP address 192 ,168,1,245 although you can change its address. This port is also known as Eth0. Use SSSH (Putty)
+Serial Port: N-8-1 at 19,000 bps using an emulator type of Vt 100.
+Ethernet ports : Use these Ethernet ports to connect the BIG-IP to the network as well as to connect both clients and servers to the BIG-IP. The Ethernet ports are numbered top to bottom and left to right . for example the top left port is 1.1 while the port below it is 1.2
+
+Connecting to the console
+1) set the IP address, net mask and optionally the default route for the management port. The default is XXX.XXX.XXX.245/24
+	You can use a serial console
+		connect a null modem cable between the BIG-IP console port and the serial port on the BIG-IP console port 
+		Use the terminal app (N-8-1, 19,000 bps, Vt 100).
+			username: root
+			password: default
+		Type in: config and press <Enter>
+	You can use the LCD Panel of the F5	
+2) license the system, you need a valid license to active the software. this enables the features you purchased.
+3) configure the <Username> access to BIG-IP
+
+Licensing:
+	Automatic 
+		It needs internet access
+		Log into the web configuration utility (http//F5IPAddressOfMgmtPort) use credential from the "Connecting to the Console" step. Default is <Username>/<Username>
+		Select Automatic Licensing
+	Manual
+		Log into the web configuration utility (http//F5IPAddressOfMgmtPort) use credential from the "Connecting to the Console" step. Default is <Username>/<Username>
+		Select Manual Licensing
+		Copy or download the dossier(configuration image)
+		Send the dossier to the licensing server and receive a lincense file.
+		copy the license file to the F5		
+		Click the activate button
+
+
+Configuring network information
+Initial setup
+	Basic network configuration allows you to create two V-lans internal and external then IP address and interfaces to both V-Lans.
+	1) Configure internal V-Lan.
+		Configure Port lockdown (to limit listening ports), interface and V-Lan tags, and a floating IP and Fail-over peer.
+	2) Configure external V-Lan
+Functionality Setup
+	Configure virtual servers, pods, monitors and SNATs 
+Configuring provisioning (of resources like memory, cpu, etc)
+	1) Dedicated :- If only one module is functional on that CPU or on the whole system.
+	2) Nominal :- Nominal gives the module enough resources for most typical configuration if they are available.
+	3) Minimum :- it gives the module its minimum functional resources to other modules. Use the minimum setting to coexist system.
+	4) None :- Use none of you do not want any resources provisioned for the module.
+Configuring Light Out Mgmt System
+	if the Traffic Management Micro Kernel (TMM) goes down, you will need to connect to remotely to "Always On Mgmt (AOM)" to troubleshoot TMM
+	Configure IP for AOM
+	Best if this is done during first F5 setup.
+	Connect to the F5 via serial
+	To access the menu, press and release the escape key and then press the left parenthesis “{ “ Key
+	Enter an IP address for AOM
+Configure LTM (Local Traffic Mgmt)
+	It provides LB
+	Web Configuration Utility\Local Traffic\
+Backup Configuration
+	Web Configuration Utility\Backup
+	It stores the current configuration plus licensing
+
+Processing Traffic
+	Definitions:
+		Node: is a supplied IP address
+		Pool Member: combination of IP address and port. It represents the service to which BIG-IP will direct traffic. Typically, al servers run the service on the same port
+		Pool: A group of pool members that host the same content. They can be on the same IP but different ports. Generally, clients dont connect to pool members
+		Virtual Server: Aka Listener. It listen on an IP/Port combination
+			When the packet arrives, BIG-IP translates the destination IP address from the virtual server to that of the actual server. The client sees the pool of the servers as a single server hence the teem virtual server.
+	Tipically, you associate a virtual server with a pool, then BIG-IP distributes the traffic across the pool. Whe
+	Network FLow
+		Client tries to connect to the service from the Internet.
+		NAT port (service) points and forward client's packets to the Virtual Server. 
+		BIG-IP process the packet based on the Virtual Server configuration
+		BIG-IP uses a combination of monitor results, persistence load balancing method and setting to choose a pool member.
+		Typically, BIG-IP leaves the source (client's) IP is not changed. But sometimes when you may need BIG-IP to changed it (Assymetric Routing), the pool member must send its responses to BIG-DATA (for NAT), not to the client
+	fully proxy architecture
+		BIG-IP can have separate TCP connection for the client and for the server. This allows for tremendous flexibility and robust functionality within the product
+
+Configuring a Pool
+	Web Configuration\Utility\Local Traffic\Pools\Create
+		Name
+		Monitoring On/Off
+		LB method/mode
+Configuring a Virtual Server
+	Web Configuration\Utility\Local Traffic\Virtual Servers\Create
+		Name
+		IP Address
+		Port
+		Select Profiles (Optionally)
+		Choose Pool
+
+Load Balancing modes
+	1) statistic load balancing method / mode.
+		1.1) Round Robin
+			evenly distributes client request across all available pool members.
+		1.2) Ratio
+			 Useful if same pool members are more powerful than others. In this example, the ratio is set as 3:2:1:1.
+	2) dynamic load balancing mode (takes server's performance into account)
+		2.1) Least connections
+			uses the current connection to decide where to send the next client request. Assuming the current connection counts are listed.
+			Useful when the client connection length varies significantly and round robin could result in uneven loads.
+		2.2) fastest
+			uses the outstanding layer7 (application layer) request to decide where to send the next client request
+		2.3) observed
+			is basically Ratio load balancing but with a ratio assigned by BIG-IP. The ratio assigned to each member is based on the current connection count
+		2.4) predictive
+			similar to observed, but assigns more aggressive ratio values.
+		2.5) dynamic ratio
+
+Difference between Member and Node
+	a typical pool member contains both an IP address and a port where as node contains only an IP address.	
+	For servers running multiple services (ports), It is better for BIG-IP to use node statistics for LB dynamic distribution should be better than pool member statistics, to avoid overloading a server.
+Priority Group Activation
+	allows the BIG-IP <Username> to designate and backup sets of pool members with in a pool. 
+	A Priority Group set to 2 means that there will always be 2 pool members being used by the pool. If one gets offline, it is replace by BIG-DATA with a lower priority pool member
+Fall back Host (http only)
+	The fall back host feature, which is designed for the http protocol only comes into play if all members in a pool are unavailable, then client can be sent an http redirect.
+	BIG-IP sends an HTTP redirect to the client rather then sending no response at all.
+Configuring Load balancing
+	Web Configuration\Utility\Local Traffic\Pools\Create
+	Configure
+		- Pool Members or Node statistics for Dynamic Pools
+		- Priority Group activation
+Monitoring
+	A monitor is a test that BIG-IP performs on a node or member. The test can be as simple as a response from a node to highly interactive with multiple requests and corresponding responses.
+	Creating a Monitor
+		- Web Configuration\Utility\Local Traffic\Create New Monitor
+		- Name it
+		- Select a template from the list
+		- Customize setting
+		- Assign monitor to a pool, pool member, or a node
+	Types:
+		1) Address check :- IP address – Node
+			ping
+		2) Service check :- IP- Port
+			Checks if the server is listening on a port
+			For a TCP service check, a TCP connection is opened. If there is a positive response from the server, then the TCP connection is closed. 
+		3) Content check :- IP:Port & Check data retuned
+			After the TCP connection is established a command is sent. In the example, an HTTPGET/ command is issued. Each servers response is checked against the receiver string.
+		4) Interactive check :- Interactive with servers and multiple commands and multiple responses.
+			Services like FTP require interactive checks because information like user name, password, directory and file name are typically required.
+Profiles
+	contains settings that instruct BIG-IP to process traffic through that virtual server.
+	Includes a persistence profile. They take prescedence over virtual server default LB traffice behaviour.
+	Includes duplicating setting to multiple virtual servers which point to the same pool. Multiple Virtual servers are used when the service is provide to multiple networks (a VS for each LAN, WAN, Subnets, etc)
+	Includes SSL Termination. Used when you want BIG-IP to handle all SSL sessions.
+	Includes active FTP. 
+		he clients initiates a connection typically to port 21 for “command control” but the server initiates the data transfer connection from typically port 20. How can this possibly work on BIG-IP LTM? The answers is an FTP profile is used. The FTP profile gives BIG-IP the smarts to accepts the server initiation packed back to the client for the data transfer connection.
+Persistence:
+	1) Persistence Profile
+		Persistent client's session. All subsequent connection requests from the same client are direct back to the same pool member if they occur prior to the persistence record time out.
+		BIG-IP will track and store session data in persistence record
+	2) Source Address Persistence
+		Supports TCP and UDP protocols and direct client requests to the same server based solely on the clients IP address.
+		One limitation of source address persistence is that if a group of clients pass through a NAT device before they get to the BIG-IP, they may all have the same source address. Source address persistence will see them as the same client, and same them all to the same pool member.
+	3) Cookie Persistence
+		To overcome the limitation of Source Address Persistence, Cookie Persistence might help in handling internal clients if their application is http or web based.
+		Modes:
+			Insert mode
+				BIG-IP inserts a cookie in the servers response prior to sending to it to the client.
+			Rewrite mode
+				The pool member inserts a blank cookie and BIG-IP rewrite the cookie with the appropriate BIG-IP information like the pool member.
+			Passive mode
+				The pool member inserts the cookie in the correct format for BIG-IP to handle.
+				BIG-IP can read the cookie upon the next client connection. 
+	4) <Username> Status
+Processing SSL Traffic
+	SSL accelerator card performs the work of data encryption and decryption in hardware, rather than software. This approach takes a huge load off the server’s CPU.
+	SSL Termination
+		We realized with the online shopping cart application BIG-IP cannot impact data that is encrypted. With out the ability to read the data in a packet, BIG-IP cannot perform cookie persistence. 
+		BIG-IP can terminate the SSL session. In other words, the BIG-IP virtual server can act as the end point for the client SSL session. It can decrypt the data, instead of relying on the actual server.
+		Advantages:
+			SSL termination allows for cookies persistence and i rules processing despite the client traffic being SSL.
+			Because BIG-IP contains an SSL accelerators card the SSL key exchange and bulk encryption are performed in hardware. This of course enhances performance, but also saver money. There is no need to to purchase separate SSL accelerator cards for each of your servers.
+			makes it possible to centralize the management of your SSL certificates in one place-both a time and money saver.
+		Traffic Flow SSL
+			A client indicates an SSL connection to the virtual server. BIG-IP acts as the server for the SSL negotiations, establishes an SSL session with the client, and then decrypts the packet.
+			BIG-IP establishes a separate TCP connection to the appropriate pool member that does not use SSL
+			The Pool member processes the request, and then sends an encrypted response back to BIG-IP.
+			BIG-IP then re-encrypts the server response and sends it back to the client.
+	BIG-IP’s sever-side SSL initiation
+		Ued if SSL is required between BIG-IP and the servers
+		increase BIG-IP processing time, use it only if necessary
+		The traffic flow is similar to the Traffic Flow SSL, but the connections between BID-IP and the servers is SSL
+	SSL Acceleration
+		Depending on the model, BIG-IP contains one or more of these cards, which allows BIG-IP to use hardware for performing the SSL key exchange and bulk crypto work
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,3 @@
+vi  /etc/sysconfig/selinux
+	SELINUX=disable
+reboot

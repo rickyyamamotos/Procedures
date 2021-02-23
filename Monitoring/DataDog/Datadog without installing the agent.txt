@@ -1,0 +1,29 @@
+From https://www.npmjs.com/package/datadog-metrics
+
+Datadog-metrics
+Datadog-metrics lets you collect application metrics through DataDog's HTTP <Site>. Using the HTTP <Site> has the benefit that you don't need to install the DataDog Agent (StatsD). Just get an <Site> key, install the module and you're ready to go.
+The downside of using the HTTP <Site> is that it can negatively affect your app's performance. Datadog-metrics solves this issue by buffering metrics locally and periodically flushing them to DataDog.
+
+Installation
+$ npm install datadog-metrics --save
+
+creating a custom metric:
+$ vi example_app.js
+	var metrics = require('datadog-metrics');
+	metrics.init({ host: 'myhost', prefix: 'myapp.' });
+	function collectMemoryStats() {
+	    var memUsage = process.memoryUsage();
+	    metrics.gauge('memory.rss', memUsage.rss);
+	    metrics.gauge('memory.heapTotal', memUsage.heapTotal);
+	    metrics.gauge('memory.heapUsed', memUsage.heapUsed);
+	};
+	setInterval(collectMemoryStats, 5000);
+
+Run the metric:
+$ DATADOG_<Site>_KEY=YOUR_KEY DEBUG=metrics node example_app.js
+	//* replace YOUR_KEY with the <Site> key you get when creating an account with datadog.com
+	//* The above will run a metric and report it to the datadog system, so you can see the metrics stats online on datadoghq.com
+
+
+
+

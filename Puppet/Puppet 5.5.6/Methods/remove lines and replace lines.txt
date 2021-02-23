@@ -1,0 +1,55 @@
+On the puppet master
+$ cd /etc/puppetlabs/code/environments/production/modules/
+$ mkdir modossecconf
+$ cd modossecconf
+$ mkdir files
+$ mkdir manifests
+$ mkdir templates
+$ mkdir tests
+$ cd files
+$ nano /etc/puppetlabs/code/environments/production/modules/modossecconf/files/modossecconf.sh
+	#!/bin/bash
+	# upload this script and execute via puppet on the <Datacenter>
+	if [ ! -f /var/ossec/etc/ossec.conf.bak ]; then
+	   mv /var/ossec/etc/ossec.conf /var/ossec/etc/ossec.conf.bak
+	   sed '/<command>netstat -tulpn/d' /var/ossec/etc/ossec.conf.bak > /tmp/ossec.conf
+	   IFS=''
+	   while read -r vline1; do
+	      if [ "$vline1" = "    <alias>netstat listening ports</alias>" ]; then
+	         echo -e "    <command>netstat -tulpn | grep 'LISTEN' | sed 's/\// /g' | awk 'FNR > 2 {print \$4}' | sed '/\(2353\)/d' | sort </command>"
+	      fi
+	     echo "$vline1"
+	   done < /tmp/ossec.conf > /var/ossec/etc/ossec.conf
+	   /var/ossec/bin/ossec-control restart
+	fi
+$ cd /etc/puppetlabs/code/environments/production/modules/modossecconf/manifests/
+$ nano init.pp
+	class modossecconf {
+	    file { "/tmp/modossecconf.sh":
+		ensure => "present",
+	        mode => "0711",
+	        owner => 'root',
+	        group => 'root',
+	        source => 'puppet:///modules/modossecconf/modossecconf.sh',
+	        checksum => mtime,
+	    }
+	    exec { "modifying ossec.conf":
+	        command => "/tmp/modossecconf.sh",
+	        cwd => "/tmp",
+	        user => "root",
+	    }
+	}
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node default {
+	   include modossecconf
+	}
+$ /opt/puppetlabs/bin/puppet parser validate /etc/puppetlabs/code/environments/production/modules/modossecconf/manifests/init.pp
+$ service puppetserver restart
+
+Give it 2 or 3 hours for all agents to be modified, then
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node default {
+		remove this line =====>   include modossecconf
+$ service puppetserver restart
+
+

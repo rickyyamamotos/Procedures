@@ -1,0 +1,20 @@
+
+$ yum install ntp
+$ vi /etc/ntp.conf
+	server 0.centos.pool.ntp.org
+	server 1.centos.pool.ntp.org
+	server 2.centos.pool.ntp.org
+$ service ntpd restart
+$ ntpq -p
+
+
+
+Optionally:
+$ yum -y install ntpdate
+$ ntpdate pool.ntp.org
+$ systemctl enable ntpdate
+	//* centos 7+
+$ chkconfig ntpd on
+	//* centos 6-
+
+

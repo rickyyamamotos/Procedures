@@ -1,0 +1,19 @@
+CREATE ROOT USER
+user <Username>
+db.createUser(
+  {
+    user: "<Username>",
+    pwd: "<Password>",
+    roles: [ { role: "root", db: "<Username>" } ]
+  }
+)
+
+CREATE <Username> USER
+user <Username>
+db.createUser(
+  {
+    user: "<Username>",
+    pwd: "<Password>",
+    roles: [ { role: "user<Username>AnyDatabase", db: "<Username>" } ]
+  }
+)

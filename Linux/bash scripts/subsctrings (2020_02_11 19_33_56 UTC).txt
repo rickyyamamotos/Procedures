@@ -1,0 +1,2 @@
+before ${var1%%anything*}
+after  ${var1#*anything}

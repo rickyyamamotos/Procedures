@@ -1,0 +1,14 @@
+Jenkins used pipelines to automatize processes.
+
+Pipelines (aka Worflows)
+It is a script that contains intructions to provide CD (Contunious Deployment) and CI (Continous Integration)
+
+Continous Integration
+	-It is a develiper methodoloy that automates the re-build of the project when new code is added.
+	-It integrates new developed functionality (new code) in the project.
+	-It automatically verifies the integration (self test)
+	-It automatically deploys the new build
+
+Continous Delivery
+	-It provides continous, sucess and repeatable methodoloy to deploy code.
+	-It automates the steps of taking checked in code and making it run on productions servers.

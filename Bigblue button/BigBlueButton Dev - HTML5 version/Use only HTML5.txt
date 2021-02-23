@@ -1,0 +1,2 @@
+You can make the change here: https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/resources/prod/BigBlueButton.html#L151-L157
+Simply keep the redirect to html5 instead of checking if/else. 

@@ -1,0 +1,9 @@
+user VMWare Vcenter Converter Standalone
+
+set the helper to an unused ip on the target network (not the source network)
+
+you will need to configure the source server to allow you to sudo without password
+visudo
+	rick	ALL=(ALL)	NOPASSWS: ALL
+vi /etc/sudoers
+	# Defaults requiretty

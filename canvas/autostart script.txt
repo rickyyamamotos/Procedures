@@ -1,0 +1,6 @@
+sudo su
+crontab -e
+sudo su - <Username> bash -c "sleep 15 ; cd /home/<Username>/<Site> ; rvm use 2.3.5 ; rvm reload ; bundle exec passenger start -d --port 3000 --user <Username> ; date >> /tmp/canvas-autostart.log"
+    //* rails user: <Username>
+    //* rails root: /home/<Username>/<Site>
+    //*in this case the rail app uses ruby 2.3.5, being the default ruby 2.3.1.

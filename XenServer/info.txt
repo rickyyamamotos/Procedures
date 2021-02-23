@@ -1,0 +1,23 @@
+https://identity.citrix.com/Utility/STS/Sign-In?ReturnUrl=%2fUtility%2fSTS%2fsaml20%2fpost-binding-response
+	<Username> / <Password>
+
+Servername: 	XENSERVER-PE2850
+Location:	IT Closet
+IP:		XXX.XXX.XXX.65
+Password:	<Password>
+XenServer Ver:	7.4.0
+Accesible via:	Xen Center (download and install it on a PC in the same subnet) or via console
+Dell Service Tag:	<Key>
+
+XenServer 7.4 is a Open Source bare metal virtualization platform based on "Xen Project"
+
+Features:
+- Multi server management from a single interface
+- Performance alerts and reporting
+- Live VM migration (XenMotion)
+- Live storage migration
+- Health Checks
+- scheduled snapshots
+
+
+

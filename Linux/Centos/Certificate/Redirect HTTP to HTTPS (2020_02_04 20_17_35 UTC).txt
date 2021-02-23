@@ -1,0 +1,12 @@
+Option 1: Using .htaccess
+	$ nano /var/www/html/.htaccess
+		RewriteEngine On 
+		RewriteCond %{HTTPS}  !=on 
+		RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L] 
+
+Option 2: Apache Virtual Host
+$ nano /etc/httpd/conf/httpd.conf
+	<VirtualHost *:80>
+	   ServerName www.yourdomain.com
+	   Redirect / https://www.yourdomain.com
+	</VirtualHost>

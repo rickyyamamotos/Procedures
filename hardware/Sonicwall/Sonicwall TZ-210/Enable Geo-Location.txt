@@ -1,0 +1,25 @@
+
+The database for geolocation will download as soon as you select a country, accept/save on sonicwall
+
+Enable geolocation
+Check if the databases is downloaded and updated. Fix is otherwise
+1) Log onto mgmt console -> Security Services -> Geo IP FIlter -> Status
+	Country Database: Not Downloaded  (this is normal, it will download as soon as you choose a country)
+2) Check "Block connections to/from countries listed in the table below"
+3) check "All Connections"
+4) Select countries
+5) Click on Accept at the top of the page. 
+6) Cick on Close to return to the management page.
+
+Troubleshoot database download
+1) Log onto mgmt console -> Security Services -> Geo IP FIlter -> Status
+	Country Database: Not Downloaded 
+	 Geo Enforcement or GeoIP for Visualization is not enabled 
+2) Log onto sonicwallIP/diag.html -> Internal Settings ->  GeoIP/Location Service Paragraph -> GeoIP/Location Remote Server Address
+	change 173.240.214.190 to 204.212.170.9
+		204.212.170.9 is the IP of database server
+			Generation 5 SonicWall | "gbdata.global.sonicwall.com"
+			Generation 6 SonicWall | "gbdata.global.sonicwall.com"
+3) Click on Accept at the top of the page. 
+4) Cick on Close to return to the management page.
+

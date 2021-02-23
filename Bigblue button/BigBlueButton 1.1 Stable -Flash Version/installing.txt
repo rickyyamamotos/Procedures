@@ -1,0 +1,143 @@
+http://docs.bigbluebutton.org/install/install.html
+Bibgluebutton ver 1.1
+
+Minimum server requirements
+Ubuntu 16.04 64-bit OS
+4 GB of memory with swap enabled (8 GB of memory is better)
+Quad-core 2.6 GHZ CPU (or faster)
+TCP ports 80, 443,and 1935 are accessible
+TCP port 7443 is accessible if you intend to configure SSL (recommended), otherwise port 5066 is accessible
+UDP ports 16384 - 32768 are accessible
+Port 80 is not in use by another application
+500G of free disk space (or more) for recordings
+100 Mbits/sec bandwidth (symmetrical)
+Dedicated (bare metal) hardware (not virtualized)
+
+Fix the time (optional)
+//*If time changes on every reboot
+$ sudo  timedatectl set-timezone Etc/UTC
+
+Setup the NIC
+$ sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet static
+	address XXX.XXX.XXX.46
+	netmask <Subnet>
+	network	XXX.XXX.XXX.0
+	broadcast	XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.1
+	dns-nameservers XXX.XXX.XXX.19 XXX.XXX.XXX.3
+$ nano /etc/host
+	XXX.XXX.XXX.186 bigbluebutton.<Site>
+$ sudo /etc/init.d/networking restart
+
+Install SSH
+$ sudo apt-get install ssh
+$ sudo service ssh start
+$ sudo systemctl enable ssh
+$ sudo nano /etc/ssh/sshd_config
+	add the following line
+		AllowUsers <Username>
+$ sudo service sshd restart
+
+Installl ntp
+$ apt-get install ntp
+
+Configuring the firewall
+VERY IMPORTANT: if you are connected to the server via SSH, enabling the firewall with disable SSH
+		you need to add rules to enable SSH before activating the firewall
+$ ufw status
+$ ufw allow from any to any port 80
+$ ufw allow from any to any port 443
+$ ufw allow from any to any port <PortNumber>
+	//* <PortNumber> is the port for SSH in <Site>
+$ ufw allow from any to any port 1935
+$ ufw allow from any to any port 7443
+$ ufw allow from any to any port 5066
+$ ufw allow from any to any port 16384:32768 proto udp
+$ ufw allow ntp 
+$ ufw enable
+//** Configure the firewall (if required)Anchor link for: configure the firewall if required
+//** for external access
+
+Check the locale, enter the following command and check its output matches LANG="en_US.UTF-8.
+$ cat /etc/default/locale
+	//* must be LANG="en_US.UTF-8" otherwise do the following
+		$ sudo apt-get install language-pack-en
+		$ sudo update-locale LANG=en_US.UTF-8
+		$ shutdown -r -t 0
+	//* test again
+	//* Note: If you see an additional line LC_ALL=en_US.UTF-8, then remove the entry for LC_ALL from 
+	//* /etc/default/locale and logout and then log back in once more.
+
+
+
+//** Install BigBlue Button
+grep "multiverse" /etc/apt/sources.list
+	//** verify that the following lines is in the sources.list
+		deb http://archive.ubuntu.com/ubuntu xenial multiverse
+	//** or this
+		deb http://archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+	//** if not do the following
+		$ echo "deb http://archive.ubuntu.com/ubuntu/ xenial multiverse" | sudo tee -a /etc/apt/sources.list
+apt-get update
+apt-get dist-upgrade
+//* Install apt-get key for BigBlueButton repository
+wget http://ubuntu.bigbluebutton.org/repo/bigbluebutton.asc -O- | sudo apt-key add -
+echo "deb http://ubuntu.bigbluebutton.org/xenial-110/ bigbluebutton-xenial main" | sudo tee /etc/apt/sources.list.d/bigbluebutton.list
+apt-get update
+sudo apt-get install bigbluebutton
+//** Note: During install, you may see an error “Failure to download extra data files” for the ttf-mscorefonts-installer package. This is a known issue with Ubuntu 16.04. You can ignore this error.
+sudo bbb-conf --restart
+bbb-conf --check
+	//** Any output that followed Potential problems may indicate configuration errors or installation errors. In many cases, the messages will give you recommendations on how to resolve the issue.
+
+//** Assign a hostnameAnchor link for: assign a hostname
+sudo bbb-conf --setip bigbluebutton.<Site>
+	//** where bigbluebutton is the hostname
+
+//** To configure the Moodle (and other) integrations with BigBlueButton, use bbb-conf --secret tool to get your BigBlueButton server’s URL and shared secret.
+$ bbb-conf --secret
+       URL: https://bigbluebutton.<Site>/bigbluebutton/
+    Secret: <Key>
+
+
+
+Install <Site> demos (optional)Anchor link for: 4 install <Site> demos optional
+	//* If you want to login to your BigBlueButton server through the landing page, install the <Site> demos using the command
+	//* These <Site> demos allow anyone to access your server without authentication to create/manage meetings and recordings. They are for testing purposes only. If you are running a production system, remove them by running:
+$ sudo apt-get install bbb-demo
+	http://bigbluebutton.<Site>/demo/demo1.jsp
+	//* If you are setting up a production server with custom front-end, you may want to temporarily install the <Site> demos for testing only.
+	//** Later on, to remove the <Site> demos, enter the command:
+	//*  $ sudo apt-get purge bbb-demo
+
+//* Install client self-check (optional)
+//* BigBlueButton provides an end-user self-check application that can help you diagnose networking and configuration issues that may be preventing an end-user from accessing the server.
+$ sudo apt-get install bbb-check
+	http://bigbluebutton.<Site>/check
+	//* Later on, if you wish to remove the end-user self-check page, enter the command
+	//* $ sudo apt-get purge bbb-check
+
+//* Restart your server
+$ sudo bbb-conf --restart
+$ sudo bbb-conf --check
+	//* Notice that sudo bbb-conf --check warns you the <Site> demos installed, which enable anyone with access the server to launch a session.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

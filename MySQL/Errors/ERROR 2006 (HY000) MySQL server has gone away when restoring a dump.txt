@@ -1,0 +1,10 @@
+https://stackoverflow.com/questions/10474922/error-2006-hy000-mysql-server-has-gone-away
+
+nano /etc/my.cnf
+	max_allowed_packet=64M
+		//* add this under [mysqld] for it to work
+		//* Make sure the variable is under [mysqld] section, not [mysql].
+
+optionally
+$ mysql -h <hostname> -u username -p --max_allowed_packet=1073741824 <databasename> < db.sql
+

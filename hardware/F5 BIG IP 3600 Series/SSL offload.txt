@@ -1,0 +1,146 @@
+Aka SSL offload
+It relieves a Web server of the processing burden of encrypting and/or decrypting traffic sent via SSL
+
+1) Getting a Certificate
+	1.1) Create a Public DNS A record for the domain pointing to the public IP of the server hosting frontendportal.<Site>
+	1.2) In the web server, install a free letsencrypt certificate
+		See "Installing Certificates TTL in ubuntu 16.04"
+	1.3) Copy the pem files
+2) Adding the Certificate
+	2.1) Local Traffic -> SSL Certificates -> Import
+		Import type:	Certificate
+		Create New:	frontendportal.<Site>
+		Upload file:	C:\Users\rick.yamamoto\Desktop\IT Change Log\Coresite - <Datacenter>\VMs\Frontendportal (2 VMs)\Certificates\cert.pem
+	2.2) Local Traffic -> SSL Certificates -> Import
+		Import type:	Key
+		Create New:	frontendportal.<Site>
+		Upload file:	C:\Users\rick.yamamoto\Desktop\IT Change Log\Coresite - <Datacenter>\VMs\Frontendportal (2 VMs)\Certificates\privkey.pem
+	2.3) Local Traffic -> SSL Certificates -> Import
+		Import type:	Certificate
+		Create New:	frontendportal.<Site>-Chain
+		Upload file:	C:\Users\rick.yamamoto\Desktop\IT Change Log\Coresite - <Datacenter>\VMs\Frontendportal (2 VMs)\Certificates\fullchain.pem
+	2.4) Local Traffic -> SSL Certificates
+		Verify that 	frontendportal.<Site> show as a "Certificate & key"
+3) Setup a SSL Profile that utilizes the certificate
+	3.1) Local Traffic -> Profiles -> SSL -> Client -> Create
+		Name: frontendportal.<Site>
+		Set the Parent profile to "clientssl"
+		Check the box for custom options
+		Select your Certificate, Key, and chain
+		In cyphers type: DEFAULT:@STRENGTH:!SSLv3:-LOW:-MEDIUM:+HIGH:-EXP:-EXPORT40:-DES-CBC-SHA:!EXPORT:!3DES:!DHE
+			//* This is because our F5 is on version 9.4.6 which does not have TLS1.2
+		Leave all the other defaults
+		Click on "Finished"
+	3.2) Setup a HTTPS Virtual Server
+		If you already have a Virtual Server for HTTPS, edit it. If not, create a new virtual server with these settings:
+			Name: [same as your HTTP virual server, with "https" added somewhere]
+			Destination Type: Host
+			Destination Address: [same as your HTTP virtual server]
+			Service Port: 443, HTTPS
+			HTTP Profile: http
+			SSL Profile (Client): example-com-wildcard
+			SSL Profile (Server): None
+			Enable "Port translation"
+			SNAT Pool: [same as your HTTP virtual server]
+	3.3) Verify that the pool that the HTTPS virtual server is pointing to is composed by server on port 80 instead of port 443
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1) Install a key/certificate pair on the BIG-IP system for terminating client-side secure connections.
+2) Configure a client-side SSL profile
+3) Create an iRule to insert Session ID headers into HTTP request.
+4) Create a pool of http servers
+5) Create a virtual server using this pool. 
+	Set server ssl is set to none in the VIP configuration, 
+	VIP must still be configured to answer on port 443 to handle the incoming HTTPS requests
+	Use a HTTP class
+	Associate that profile with a virtual server. 
+
+
+Importing a keys/x509 certificate into F5
+requirements:
+	- the certificate or archive is in the form of a file or a base-64 encoded text string
+	- certificate you are importing is in Privacy Enhanced Mail (PEM) format
+To import a key pair, certificate, or archive
+	1. On the Main tab of the navigation pane, expand Local Traffic, click SSL Certificates. This displays the list of existing certificates.
+	2. On the upper right corner of the screen, click Import.
+	3. From the Import Type list, select the type of import (Key, Certificate, or Archive). This expands the configuration screen for that import type.
+	4. Configure the settings required by your selection of import type: 
+		Key or Certificate, configure the Name and Source settings.
+		Archive, configure the Upload Archive File setting.
+	5. Click Import (for keys and certificates) or Load (for archives).
+
+Create a client-side SSL profile:
+	1. click on F5\Local Traffic\Virtual Servers\Profiles\SSL Tab\Client\Create
+	2. On Certificate, select the previous imported certificate
+	3. On the key box, type the key of the certificate
+	4. On the paraphrase box, type the paraphrase of the certificate if any. Once entered, F5 will hash it
+	5. On the chainbox, select the certificate you imported. 
+	6. On the Trusted Certifdicate Authorities, select the certificate you imported. 
+	7. In the cypher box type any of the following
+		The ciphers that the BIG-IP system supports are:
+			SSLv2 (Note: We recommend that you refrain from using the SSLv2 cipher unless absolutely necessary.)
+			SSLv3
+			TLSv1
+			SGC/Set-up
+			All standard protocol extensions and ciphers described in RFC 2246
+			AES ciphers (described in RFC 3268)
+			Note: The BIG-IP system supports the cipherlist format of OpenSSL version 0.9.7.
+			DEFAULT (equals: ALL:!SSLv2:@SPEED) All cypher except SSLv2
+	8. The Option box is used for workarounds. 
+		It is recommend that at a minimum you specify protocol version SSLv2 as invalid.
+		See https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_0_0/ltm_ssl_profiles.html for options
+	9. ModSSL method emulation
+		This setting enables or disables ModSSL method emulation. You enable this setting when the OpenSSL methods are inadequate.
+		When you enable the ModSSL Methods setting, you can then write an iRule, using the HTTP::header insert_modssl_fields command, which inserts some of the ModSSL options as headers into HTTP requests.
+	10. Configuring the SSL session cache
+
+
+
+
+Types of SSL Offloading:
+1) Client profile: enables the BIG-IP system to terminate incoming SSL connections by decrypting the client request. The BIG-IP system then sends the request, in clear text, to a target server. 
+			Next, the BIG-IP system retrieves a clear-text response (such as a web page) and encrypts the request, before sending the web page back to the client.
+			Refers to connections between a client system and the BIG-IP system
+2) Server profile: is a type of profile that enables the BIG-IP system to initiate secure connections to a target web server.
+			refers to connections between the BIG-IP system and a target server system
+
+Understanding SSL session persistence
+There are two types of SSL persistence available that you can implement. 
+1) The standard SSL persistence mode, which enables persistence for SSL sessions that do not involve the decryption of SSL requests and the re-encryption of SSL responses. 
+	You enable this SSL persistence mode by configuring an SSL persistence profile. For more information, see Chapter 7, Enabling Session Persistence.
+2) Enables persistence for SSL sessions that involve the decryption of requests and re-encryption of responses. 
+	In this case, you implement SSL persistence is by inserting SSL session IDs as headers into HTTP requests. 
+	You insert session ID headers by writing an iRule. For information on iRules, see Chapter 17, Writing iRules.
+
+
+Understanding SSL profiles
+A profile is a group of settings with values that determine the way that the BIG-IP system manages application-specific network traffic.
+Types:
+1) Client profiles: Refers to connections between a client system and the BIG-IP system
+2) Server profiles: refers to connections between the BIG-IP system and a target server system
+
+
+
+
+
+
+
+
+
+
+
+
+

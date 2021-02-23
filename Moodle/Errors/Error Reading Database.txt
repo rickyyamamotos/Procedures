@@ -1,0 +1,6 @@
+nano moodle/lib/dml/mysqli_native_moodle_database.php
+	//* MySQL 5.5.2-
+		storage_engine = @@storage_engine
+	//*MySQL 5.5.3+
+		default_storage_engine = @@storage_engine
+	

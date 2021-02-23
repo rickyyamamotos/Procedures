@@ -1,0 +1,7 @@
+cd /tmp
+wget https://downloads.wordpress.org/plugin/better-wp-security.6.9.2.zip
+unzip better-wp-security.6.9.2.zip 
+mv ./better-wp-security /var/www/html/wp-content/plugins/
+
+Log onto wordpress -> Plugins -> Activate and configure plugin
+

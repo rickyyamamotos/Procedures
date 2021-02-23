@@ -1,0 +1,4 @@
+Factory Default Settings
+	IP: 192.168.0.239	/	<Subnet> 
+	username: 
+	password: <Password>

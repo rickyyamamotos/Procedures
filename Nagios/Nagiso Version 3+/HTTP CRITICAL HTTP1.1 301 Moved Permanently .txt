@@ -1,0 +1,35 @@
+/usr/lib/nagios/plugins/check_http -I XXX.XXX.XXX.90 -f follow
+
+
+cd /etc/nagios3/conf.d
+nano templates.cfg
+	//*Add the followin
+define host{
+        name                    <Site>-linux-webserver-forwading
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          30
+        retry_interval          15
+        max_check_attempts      10
+        check_command           check_http!'-f follow'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+
+nano hosts.cfg
+	//* modify the line with use...
+define  host{
+        use                     <Site>-linux-webserver-forwarding
+        host_name               <Site><Site>
+        alias                   <Site><Site>
+        address                 XXX.XXX.XXX.90
+}
+
+
+Check Nagios configuraqtion
+nagios3 -v /etc/nagios3/nagios.cfg
+
+service nagios3 restart

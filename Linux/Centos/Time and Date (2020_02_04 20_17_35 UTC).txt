@@ -1,0 +1,31 @@
+$ date
+	//* shows date, time
+$ cat /etc/sysconfig/clock
+	//* shows timezone
+$ sudo hwclock --show
+	//* shows hardware clock
+
+
+Sync time/date with NTP server (manually)
+$ ntpdate time-a.nist.gov
+	//* update time/date 1 time
+
+
+Sync time/date with NTP server (automatically)
+$ yum update
+$ yum install ntp
+$ chkconfig ntpd on
+	//* if chkconfig not found run: $ apt-get install sysv-rc-conf && sysv-rc-conf ntp on
+$ ntpdate pool.ntp.org
+$ service ntpd start  or /etc/init.d/ntpd start
+$ systemd-sysv-install enable ntp
+
+Changing timezone
+$ nano /etc/sysconfig/clock
+
+manually change the date
+$ sudo date --set "15 MAY 2011 1:40 PM"
+
+
+If time changes on every reboot
+$ sudo  timedatectl set-timezone Etc/UTC

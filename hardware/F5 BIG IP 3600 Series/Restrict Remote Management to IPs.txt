@@ -1,0 +1,67 @@
+Not implemented because it is risky in a production system (07/25/17)
+
+By default, the current list allows all IP addresses to connect to the Configuration utility. 
+If you are adding an IP address or range of IP addresses to the current list the first time, you should perform the 
+   following Replacing the current allowed list with a new list procedure
+Procedure:
+1) Adding an IP address or range of IP addresses to the current allowed list
+2) Replacing the current allowed list with a new list
+3) Removing an IP address or range of IP addresses from the current allowed list
+
+
+Adding an IP address or range of IP addresses to the current allowed list:
+(This is if you want to keep current allowed host and add new hosts to the list of allowed hosts)
+1) Log in to the Traffic Management Shell (tmsh) by typing the following command:
+	tmsh
+2) To list the IP addresses of the current allowed hosts, type the following command:
+	list /sys httpd allow
+	//* Take note of the results
+3) To add an IP address or range of IP addresses to the current allowed list of hosts, type the following command:
+	modify /sys httpd allow add { <IP address or IP address range> }
+   For example, to add XXX.XXX.XXX.140 and XXX.XXX.XXX.150 to the current list, you would type the following command:
+	modify /sys httpd allow add { XXX.XXX.XXX.140 XXX.XXX.XXX.150 }
+   For example, To add the subnet XXX.XXX.XXX.0/<Subnet> to the current list, you would type the following command:
+	modify /sys httpd allow add { XXX.XXX.XXX.0/<Subnet> }
+4) To list the IP addresses of the current allowed hosts, type the following command:
+	list /sys httpd allow
+	//* the results should show the new entries
+5) Save the change by typing the following command:
+	save /sys config
+
+
+Replacing the current allowed list with a new list:
+(This is to remove the previous list of allowed hosts and replace it with new hosts)
+Note- Access to the Configuration utility will be denied if the IP address or range of IP addresses is incorrect.
+1) Log in to the tmsh utility by typing the following command:
+	tmsh
+2) To replace the current list of allowed hosts with an IP address or range of IP addresses, type the following command:
+	modify /sys httpd allow replace-all-with { <IP address or IP address range> }
+   For example, to replace the current list of allowed hosts with XXX.XXX.XXX.140 and XXX.XXX.XXX.150, you would type the following command:
+	modify /sys httpd allow replace-all-with { XXX.XXX.XXX.140 XXX.XXX.XXX.150 }
+   For example, To replace the current list of allowed hosts with the subnet XXX.XXX.XXX.0/<Subnet>, you would type the following command:
+	modify /sys httpd allow replace-all-with { XXX.XXX.XXX.0/<Subnet> }
+3) Save the change by typing the following command:
+	save /sys config
+
+
+Removing an IP address or range of IP addresses from the current allowed list:
+1) Log in to the  tmsh utility by typing the following command:
+	tmsh
+2) To remove an IP address or range of IP addresses from the current allowed list of hosts, type the following command:
+	modify /sys httpd allow delete { <IP address or IP address range> }
+   For example, to remove XXX.XXX.XXX.140 and XXX.XXX.XXX.150 from the current list, you would type the following command:
+	modify /sys httpd allow delete { XXX.XXX.XXX.140 XXX.XXX.XXX.150 }
+   For example, To remove the subnet XXX.XXX.XXX.0/<Subnet> from the current list, you would type the following command:
+	modify /sys httpd allow delete { XXX.XXX.XXX.0/<Subnet> }
+3) Save the change by typing the following command:
+4) save /sys config
+
+
+
+Alternative 
+Ports can be further controlled using packet filters. Packet filters allow you to control access based on combinations 
+  of criteria that include source IP address, destination IP address, MAC address, and so on.
+  See "Configuring Packet Filters" section of the manual
+
+
+

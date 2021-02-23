@@ -1,0 +1,7 @@
+1) Set the VM CDRom to point to the boot-repair-tool.iso
+2) Open the VM console, so you can see the VM screen
+3) type grub> reboot
+4) When you see the VM Logo press the <ESC> key
+5) Select CDROM
+
+After this the VM will boot to the CD

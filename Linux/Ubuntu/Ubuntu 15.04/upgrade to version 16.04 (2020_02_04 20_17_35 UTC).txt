@@ -1,0 +1,40 @@
+
+https://gist.github.com/blakethepatton/196e593999e4e8630d364bad3a076deb
+
+cp /etc/apt/sources.list ~/sources.list
+sudo sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+sudo apt-get update && sudo apt-get dist-upgrade
+
+mkdir wily && cd wily
+wget http://old-releases.ubuntu.com/ubuntu/dists/wily-updates/main/dist-upgrader-all/current/wily.tar.gz
+tar -xzf wily.tar.gz
+
+sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' Ubuntu.info
+sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' Ubuntu.mirrors
+
+sudo ./wily
+## Gets a bunch of 404's and then asks if it should overwrite the sources.list
+Y
+
+## Try not to kill ssh if you're connected via ssh...
+## Wait patiently and hope everything works... 
+
+restart
+
+## Should be on 15.10 
+
+cd ~
+mkdir 
+
+cp ~/sources.list ~/sources-backup.list
+cp /etc/apt/sources.list ~/sources.list
+
+sudo apt-get update && sudo apt-get upgrade
+sudo do-release-upgrade
+
+## go through the upgrade, hope everything works...
+## Things are going to be removed, I just removed them all, I'll add back whatever I need later
+## restart the server again
+
+## should be on 16.04.3
+sudo apt-get autoremove

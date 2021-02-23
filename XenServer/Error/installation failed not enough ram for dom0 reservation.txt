@@ -1,0 +1,5 @@
+During Installation after booting from Installation ISO
+Error: not enough ram for dom0 reservation, server reboot
+
+Solution:
+Disable "OS Install Mode" from Server BIOS, then retry to install

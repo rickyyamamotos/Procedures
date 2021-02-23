@@ -1,0 +1,11 @@
+To run the server side of the HTML5 client in development mode
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/
+$ npm start
+
+
+
+To run the server side of the HTML5 client in production mode:
+========================================================
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/
+$ NODE_ENV=production npm start
+

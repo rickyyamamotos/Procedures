@@ -1,0 +1,133 @@
+Configure Bigbluebutton to use a public domain name
+Bibgluebutton ver 1.1
+
+Ensure that bigbluebutton.<Site> points to the public IP
+$n nano /etc/host
+	XXX.XXX.XXX.186	bigbluebutton.<Site>
+
+Test if https is workig:
+test that https:bigbluebutton.<Site> is working
+	//* https will not work by default, we need to set ip up
+
+
+Setting up sonicwall 
+System -> <Site>
+	HTPPS Management port: 8443
+Firewall -> Access rules:
+ 70 WAN > LAN 1  Change priority... Any WAN Primary IP HTTPS Allow All   Enabled  Enabled
+ 71 WAN > LAN 2  Change priority... Any WAN Primary IP HTTP Allow All   Enabled  Enabled 
+Network -> Address Objects:
+ 11 bigbluebutton  XXX.XXX.XXX.46/255.255.255.255 Host  LAN    
+Network -> NAT Policies:
+ 13 Firewalled Subnets WAN Primary IP WAN Primary IP bigbluebutton HTTPS Original Any Any 16
+ 14 Firewalled Subnets WAN Primary IP WAN Primary IP bigbluebutton HTTP Original Any Any 17
+ 15 Any Original WAN Primary IP bigbluebutton HTTPS Original X1 Any 58
+ 16 Any Original WAN Primary IP bigbluebutton HTTP Original X1 Any 59    
+
+
+Configure Public DNS record:
+rdp to XXX.XXX.XXX.19
+Administrative tools -> DNS -> <Site> -> Add New Host (A or AAAA)
+	Host: bigbluebutton
+	IP: XXX.XXX.XXX.186
+cmd -> ipconfig /flushdns
+Note- give it a couple of hours for the new public record to disseminate
+
+
+Updating the host name in the server:
+$ hostname bigbluebutton.<Site>
+$ nano /etc/hosts
+127.0.0.1	bigbluebutton.<Site>
+$ bbb-conf --setip bigbluebutton.<Site>
+
+
+Test the new FQDN
+http://bigbluebutton.<Site>
+	//* should show a Bigbluebutton demo server with description like welcome, features, etc
+	//* it should not be the ngix page
+
+
+Installing Let's Encrypt:
+$ add-apt-repository ppa:certbot/certbot
+$ apt-get update
+$ apt-get install certbot
+$ mkdir /etc/nginx/ssl
+$ openssl dhparam -out /etc/nginx/ssl/dhp-2048.pem 2048
+	//* generate a set of 2048-bit diffie-hellman parameters to improve security for some types of ciphers
+$ certbot certonly --webroot --webroot-path=/var/www/bigbluebutton-default -d bigbluebutton.<Site>
+	//* email: <Email>
+	//* cert saved on: /etc/letsencrypt/live/bigbluebutton.<Site>/fullchain.pem
+	//* let's encrypt configuration directory: /etc/letsencrypt, which backed up to rick-pc\$C:\Users\rick.yamamoto\Desktop\IT Change Log\Websites\Bigbluebutton\Lets encrypt
+Backing up the /etc/letsencrypt folder and certificates
+	C:\> PSCP -P <PortNumber> -p -r <Username>@XXX.XXX.XXX.46:/etc/letsencrypt/* "C:\Users\rick.yamamoto\Desktop\IT Change Log\Websites\Bigbluebutton\Lets encrypt"
+$ nano /etc/nginx/sites-available/bigbluebutton
+	//* add the following lines after listen [::]:80;
+		listen 443 ssl;
+		listen [::]:443 ssl;
+		ssl_certificate /etc/letsencrypt/live/bigbluebutton.<Site>/fullchain.pem;
+		ssl_certificate_key /etc/letsencrypt/live/bigbluebutton.<Site>/privkey.pem;
+		ssl_session_cache shared:SSL:10m;
+		ssl_session_timeout 10m;
+		ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+		ssl_ciphers "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS:!AES256";
+		ssl_prefer_server_ciphers on;
+		ssl_dhparam /etc/nginx/ssl/dhp-2048.pem;
+
+
+Automatic renew the Let's encrypt certificate:
+$ crontab -e
+	//* add the following 2 lines:
+		30 2 * * 1 /usr/bin/letsencrypt renew >> /var/log/le-renew.log
+		35 2 * * 1 /bin/systemctl reload nginx
+
+
+Configuring SSL:
+$ nano /opt/freeswitch/conf/sip_profiles/external.xml
+	replace this line: 	<param name="ws-binding" value=":5066"/>
+	with the following:
+				<param name="wss-binding" value=":7443"/>
+$ nano /etc/bigbluebutton/nginx/sip.nginx
+	change 	proxy_pass http://XXX.XXX.XXX.46:5066;
+	to	proxy_pass https://XXX.XXX.XXX.46:7443;	
+
+
+Configuring HTTP:
+$ nano /var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+	change:	bigbluebutton.web.serverURL=http://bigbluebutton.<Site>
+	with:	bigbluebutton.web.serverURL=https://bigbluebutton.<Site>
+$ nano /usr/share/red5/webapps/screenshare/WEB-INF/screenshare.properties
+	replace jnlpUrl=http://bigbluebutton.<Site>/screenshare
+	with	jnlpUrl=https://bigbluebutton.<Site>/screenshare
+	replace	jnlpFile=http://bigbluebutton.<Site>/screenshare/screenshare.jnlp
+	with	jnlpFile=https://bigbluebutton.<Site>/screenshare/screenshare.jnlp
+$ sed -e 's|http://|https://|g' -i /var/www/bigbluebutton/client/conf/config.xml
+	//* update the file /var/www/bigbluebutton/client/conf/config.xml to tell the BigBlueButton client to load components via HTTPS
+	//* if you need to revert this change try: sed -e 's|http://|https://|g' -i /var/www/bigbluebutton/client/conf/config.xml
+$ nano /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
+	replace	playback_protocol: http
+	with	playback_protocol: https
+
+
+If you have installed the <Site> demos
+$ nano /var/lib/tomcat7/webapps/demo/bbb_<Site>_conf.jsp
+	change	String BigBlueButtonURL = "http://bigbluebutton.<Site>/bigbluebutton/";
+	with	String BigBlueButtonURL = "https://bigbluebutton.<Site>/bigbluebutton/";
+
+Restart bigbluebutton
+$ bbb-conf --restart
+
+
+Configuring the perimeter Firewall:
+close ports 80, 5066
+Open ports 443, 7443, 1935, 16384:32768 UDP
+
+
+
+
+
+
+
+
+
+
+

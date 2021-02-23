@@ -1,0 +1,9 @@
+http://dcomcomputers.blogspot.com/2013/09/how-to-factory-default-and-test-ports.html
+
+
+
+Make sure your serial port on your PC is set to: 9600, 8, no parity, 1 stop bit, no flow control.
+
+Make sure you are using a NULL modem serial cable.
+
+If you have these correct, then on power-up, you should be able to see output on the serial port from the boot code.  When you do, you will see the output pause with a menu that allows you to choose the "boot menu", choose it.   The boot menu will have a choice for resetting the switch to factory defaults.

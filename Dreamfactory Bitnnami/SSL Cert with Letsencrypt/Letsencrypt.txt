@@ -1,0 +1,50 @@
+https://docs.bitnami.com/google/how-to/generate-install-lets-encrypt-ssl/
+
+Determine which the the root folder
+	cd /
+	find -name "ctlscript.sh"
+		//* I.E. /var/www/html
+
+Determine who is the bitnami user
+	go to the root folder
+	ls -l
+		//* check file and directories ownership
+		//* I.E. root:root
+
+Install lego
+$ su root
+$ cd /tmp
+$ curl -s https://<Site>.github.com/repos/xenolf/lego/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -i -
+$ tar -xf lego_v1.1.0_linux_amd64.tar.gz
+$ sudo mv lego /usr/local/bin/lego
+
+$ sudo /opt/bitnami/ctlscript.sh stop
+$ sudo lego --email="<Email>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --path="/etc/lego" run
+
+Location of new certs
+$ ls /etc/lego/certificates/
+	<Site>.crt  <Site>.issuer.crt  <Site>.json  <Site>.key
+
+Configuring dreamfactory to use thse new certs
+$ nano /var/www/html/apache2/conf/bitnami/bitnami.conf
+	SSLCertificateFile "/etc/lego/certificates/<Site>.crt"
+	SSLCertificateKeyFile "/etc/lego/certificates/<Site>.key"
+	SSLCACertificateFile "/etc/lego/certificates/<Site>.issuer.crt"
+$ sudo /opt/bitnami/ctlscript.sh start
+
+
+renew a cert
+$ sudo /opt/bitnami/ctlscript.sh stop
+$ sudo lego --email="<Email>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --path="/etc/lego" renew
+$ sudo /opt/bitnami/ctlscript.sh start
+
+Script to renew
+$ nano /etc/lego/renew-certificate.sh
+	#!/bin/bash
+	sudo /opt/bitnami/ctlscript.sh stop apache
+	sudo /usr/local/bin/lego --email="<Email>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --domains="<Site>" --path="/etc/lego" renew
+	sudo /opt/bitnami/ctlscript.sh start apache
+$ chmod +x /etc/lego/renew-certificate.sh
+$ sudo crontab -e
+	0 0 1 * * /etc/lego/renew-certificate.sh 2> /dev/null
+	//* renew every 1st day of the month at 12:00 am

@@ -1,0 +1,34 @@
+
+Installing redis
+$ apt-get install redis
+$ apt-get install php-redis
+	//* this is required for WP 4.9.5+
+
+Configuring Redis to be a non-persistent cache
+	//* We dont need pesistency. It will make cache slower when writting to disk
+$ nano /etc/redis.conf
+	//* Change maxmemory value. 100 Mb for 1 Gb server 
+	//* Append the following line
+		maxmemory-policy allkeys-lru
+	//* Comment out the following 3 lines
+		#save 900 1
+		#save 300 10
+		#save 60 10000
+$ service redis-server restart
+
+Configuring Redis for object caching and transient caching
+	//* Installing the "Redis Object Cache", by Till Kruss, instead of the "WP Redis plugin"
+	- Log into <Username>, 
+	- install the plugin, 
+	- activate it, 
+	- Visit Settings -> Redis and click ‘Enable Object Cache’. 
+	- You’ll then see the Status: Connected.
+
+
+Monitor redis
+$ redis-cli
+127.0.0.1:6379> config get maxmemory
+
+$ redis-cli --latency
+
+$ redis-benchmark -q -n 10000 -c 1 -d 5000

@@ -1,0 +1,4 @@
+$ rpcinfo -p localhost
+	//* on nfs server
+$ grep nfs /proc/mounts
+	//* on the client

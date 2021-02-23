@@ -1,0 +1,12 @@
+https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/digital_ocean/nginx/oss/bionic/deploy_app.html
+
+$ passenger-config about ruby-command
+	//* take note of /usr/bin/ruby2.3
+	  Command: /usr/bin/ruby2.3
+	  Version: ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]
+	  To use in Apache: PassengerRuby /usr/bin/ruby2.3
+	  To use in Nginx : passenger_ruby /usr/bin/ruby2.3
+	  To use with Standalone: /usr/bin/ruby2.3 /usr/bin/passenger start
+$ cd /
+$ find -name "sites-enabled"
+if 

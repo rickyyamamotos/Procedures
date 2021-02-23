@@ -1,0 +1,21 @@
+Removing /home LVM and merging in to /
+
+vgdisplay -s
+move your home directory
+usermod -m -d /tmp/<Username> <Username>
+usermod -m -d /tmp/rick rick
+usermod -m -d /tmp/postgres postgres
+	Error: usermod: user postgres is currently used by process 1230
+	kill -9 1230
+	chkconfig --list
+	service stop alfresco
+umount /home
+vgdisplay
+	//* centos (this is the name of the partition that has /home)
+lvremove centosy
+df -h
+	//* /dev/mapper/centos-root (this is the name of the partition that has /)
+lvextend -l +100%FREE -r /dev/mapper/centos-root
+reboot
+move the home subdirectories back to /home
+

@@ -1,0 +1,13 @@
+There are multiple Dell PowerConnect 6224P Switches
+
+IP XXX.XXX.XXX.3
+username: <Username>
+password: <Password>
+
+The one used for WiFi is the Top of the Rack's one
+Trunk Between IT room and IT Closet is port 12
+Aps Ports are 4, 10, 14,19,20
+Free ports: 13,33
+
+
+Default IP XXX.XXX.XXX.100

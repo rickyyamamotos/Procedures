@@ -1,0 +1,25 @@
+Install VMaware tools
+	$ apt-get update
+	$ apt-get upgrade-dist
+	$ sudo apt-get install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms
+	$ nano $HOME/.profile
+		Append the following line: 
+			vmware-user
+
+
+
+DONT USE THE FOLLOWING:
+Shut down the VM
+Edit config to change CD-rom to "host device"
+Start the VM
+Righ click and install the VM Tools
+
+sudo mkdir /mnt/cdrom
+sudo mount /dev/cdrom mnt/cdrom
+cp *.tar.gz /tmp
+cd /tmp
+tar -zxfo vmware-tool-distrib.tar.gz
+sudo perl vmware-tool.pl
+
+
+

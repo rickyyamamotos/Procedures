@@ -1,0 +1,3 @@
+IIS manager -> sites -> right click on a site -> edit bindings
+	it will show which ports th site is listening to
+When multiple sites are hosted by IIS then the binding include the host (i.e. <Site>)

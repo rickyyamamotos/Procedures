@@ -1,0 +1,16 @@
+1) Connect a null modem cable to the F5 serial port
+2) Control Panel\System and Security\System\Device Manager
+	Check the serial port, f.e. comm1
+3) putty 
+	Session\Check: Serial
+	Session\Serial Line: COM1
+	Session\Speed: 19200
+	Connection\Serial Line to connect to: COM1
+	Connection\Speed: 19200
+	Connection\Data bits: 8
+	Connection\Parity: None
+	Connection\Stop bit: 1
+	Connection\Flow control: None
+4) When the BIG-IP system starts up with the console working correctly, the system start-up sequence displays, and then the sequence completes with a BIG-IP system login prompt. 
+5) If garbled text displays on the console, you may be required to change the baud of the serial console port using the LCD panel on the BIG-IP system. 
+

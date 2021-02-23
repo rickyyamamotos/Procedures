@@ -1,0 +1,28 @@
+I had to manually migrate
+
+
+
+THE FOLLOWING OPTIONS DID NOT WORKED FROM 2012 TO 2008
+NEW OPTION
+https://www.interworks.com/blog/ijahanshahi/2015/11/30/migrating-dhcp-part-2-migrate-dhcp-new-windows-server
+
+
+
+OLD OPTION
+http://www.brycematheson.io/how-to-migrate-dhcp-from-windows-server-2008-to-2012-2016/
+
+Log on to the old/existing DHCP server.
+	Click Start, click Run, type cmd in the Open box, right-click, and then "Run as <Username>".
+	On the Action menu, click Backup.
+	Type netsh dhcp server export C:\Users\xxxx\Desktop\dhcp.txt all, and then press ENTER.
+	Install the DHCP role on the new (2012) DHCP server using Server Manager.
+Copy the exported DHCP text file to the desktop of the new DHCP server.
+	Verify that the DHCP service is installed and started on the new DHCP server.
+	Click Start, click Run, type cmd in the Open box, right-click, and then "Run as <Username>".
+	Type netsh dhcp server import C:\Users\xxxx\Desktop\dhcp.txt all, and then press ENTER
+	Open DHCP console on the new server.
+	In the console tree, right-click DHCP.
+	Select "Authorize".
+If your old DHCP server is in the same network/subnet as the new DHCP server, you'll notice that the old DHCP server has been de-authorized automatically. This is to prevent two DHCP servers from handing out conflicting addresses.
+
+Check to make sure that your new DHCP has all of the same settings, options, scopes, and reservations set as the current one. If done correctly, everything should have been brought over. I was pretty impressed as to how well this worked and just how seamless it truly was.

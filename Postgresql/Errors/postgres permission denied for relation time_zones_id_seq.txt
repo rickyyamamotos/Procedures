@@ -1,0 +1,6 @@
+make user a superuser
+
+$ sudo su - postgres
+$ psql
+postgres=# \du
+postgres=# ALTER USER "my_user" WITH option;

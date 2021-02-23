@@ -1,0 +1,200 @@
+Site-to-Site VPN to connect the <Location> office and the <Datacenter>
+
+To create VPN to both routers at the office, a nat-over-vpn is needed
+https://www.sonicwall.com/support/knowledge-base/how-can-i-configure-nat-over-vpn-in-a-site-to-site-vpn/170515155805172/
+
+
+Site-to-Site VPN using Main Mode
+   A VPN configuration used if both VPN endpoints have static IP addresses
+
+Single Arm: It should be a Single Arm (on way) VPN, where user in the <Location> Office can
+   connect to the <Datacenter> using the IP address, but users in the <Datacenter> cant use
+   the VPN to connect to the Henrdon Office.
+
+
+
+Requirements for a Single Arm VPN
+   (https://www.sonicwall.com/support/knowledge-base/vpn-configuring-one-way-vpn-single-arm-mode-in-sonicos-enhanced/170504579116742/)
+   - the sonicwall must be in transparent mode
+   - This must be configured on the main and secondary Sonicwalls or use a route on the secondary sonicwall to forward them to the main sonicwall
+     aka Hub and Spoke VPN
+   - Because both office main and office backup share the same ip addresses (they overlap), we need to implement addresses translation on the backup sonicwall
+
+Hub and Spoke VPN
+   (https://www.sonicwall.com/support/knowledge-base/implementing-hub-and-spoke-site-to-site-vpn-video-tutorial/170503738192273/)
+   <Datacenter> is the HUB
+   <Location> office main is 1 spoke
+   <Location> office backup is 1 spoke
+   Each spoke will need only one VPN policy pointing to the hub. The hub will require two VPN policies, one to each spoke
+
+Address Translation to avoid overlapping or remote IP addresses
+   (https://www.sonicwall.com/support/knowledge-base/how-can-i-configure-a-site-to-site-vpn-with-multiple-network-overlaps-nat-over-vpn/170817123531353/)
+
+Transparent Mode
+   It enables the SonicWall security appliance to bridge the WAN subnet onto an internal
+   interface. It requires valid IP addresses for all computers connected to the interface
+   in Transparent Mode on your network, but allows remote access to authenticated users.
+   You can use an interface in Transparent mode for public servers and devices with static
+   IP addresses you want visible outside your SonicWall security appliance-protected network.
+   Note- The sonicwall on the <Datacenter> has its WAN interface already on transparent mode
+
+Steps
+   1) Set up a VPN in the standard configuration using Main Mode between office main and the <Datacenter>
+   2) Enable theVPN in the standard configuration using Main Mode between office main and the <Datacenter>
+   3) Configure the Single-Arm VPN between office main and the <Datacenter>
+   4) Set up a VPN in the standard configuration using Main Mode with address tranlation between office backup and the <Datacenter>
+   5) Enable the VPN in the standard configuration using Main Mode between office backup and the <Datacenter>
+   6) Configure the Single-Arm VPN between office backup and the <Datacenter>
+
+
+Step 1 & 2: Setting up a VPN in the standard configuration using Main Mode
+   (https://www.sonicwall.com/support/knowledge-base/how-can-i-configure-a-site-to-site-vpn-policy-using-main-mode/170504380887908/)
+   1) Creating Address Objects for VPN subnets on the <Location>'s backup sonicwall (site A, a spoke)
+      1.1) Login to the SonicWall management Interface.
+      1.2) Click on "Manage" in the top navigation menu.
+      1.3) Navigate to "Objects" -> "Address Objects", scroll down to the bottom of the page and click "Add".
+      1.4) Name: <Site>-<Datacenter>-LAN-Subnet-VPN
+           Zone Assigment: VPN
+           Type: Network
+           Network: XXX.XXX.XXX.0
+           Netmask: <Subnet>
+      1.5) Click "Add"
+   2) Creating Address Objects for VPN subnets on the <Datacenter>'s sonicwall (site B, the hub)
+      2.1) Login to the SonicWall management Interface.
+      2.2) Click on "Manage" in the top navigation menu.
+      2.3) Navigate to "Objects" -> "Address Objects", scroll down to the bottom of the page and click "Add".
+      2.4) Name: <Site>-OfficeMain-LAN-Subnet-VPN
+           Zone Assigment: VPN
+           Type: Network
+           Network: XXX.XXX.XXX.0
+           Netmask: <Subnet>
+      2.5) Click "Add"
+   3) Configuring a VPN policy on Site B (Hub) SonicWall
+      3.1) In the <Datacenter> router, Click "Manage" in the top navigation menu.
+      3.2) Navigate to "VPN" -> "Base Settings" page ,click "Add". The VPN policy window is displayed.
+      3.3) Click "General" tab.
+         Policy Type: Site to Site
+         Authentication Method: IKE using Preshared Secret
+         Name: VPN to the <Location> Office
+         IPSec Primary GatewayName or Address: XXX.XXX.XXX.178
+            //* WAN IP address of other endpoint of the VPN. In this case the Hendon's office IP address
+         Shared Secret: <Password>
+      3.4) Click Network Tab.
+         Local Networks -> Choose local network from list: LAN Subnets
+         Remote Networks -> Choose local network from list: Office-Main-LAN-subnet-VPN
+      3.5) Click the Proposals Tab
+         IKE (Phase 1) Proposal -> Exchnage: Main Mode
+         IKE (Phase 1) Proposal -> DH Group: <DH Group>
+         IKE (Phase 1) Proposal -> Encryption: <Encryption>
+         IKE (Phase 1) Proposal -> Authentication: <Authentication>
+         IKE (Phase 1) Proposal -> Lifetime: 28800
+         IKE (Phase 2) Proposal -> Protocol: <Protocol>
+         IKE (Phase 2) Proposal -> Encryption: <Encryption>
+         IKE (Phase 2) Proposal -> Authentication: <Authentication>
+         IKE (Phase 2) Proposal -> Enable Perfect Forward Secrecy: uncheck
+         IKE (Phase 2) Proposal -> Life Time: 28800
+      Note- the Phase 2 values on the opposite side of the tunnel are configured to match.
+      3.6) Click "Advanced" tab
+         Enable Keep Alive: Check
+         Enable Windows Networking (NetBIOS) Broadcast: check
+         Management via this SA -> HTTPS: Check
+         VPN Policy bound to: Zone WAN
+   4) Configuring a VPN policy on Site A (spoke) SonicWall 
+      4.1) In the office-backup router, Click "Manage" in the top navigation menu.
+      4.2) Navigate to "VPN" -> "Base Settings" page ,click "Add". The VPN policy window is displayed.
+      4.3) Click "General" tab.
+         Policy Type: Site to Site
+         Authentication Method: IKE using Preshared Secret
+         Name: VPN to the <Datacenter>
+         IPSec Primary GatewayName or Address: XXX.XXX.XXX.4  (<Datacenter>)
+					       XXX.XXX.XXX.228
+            //* WAN IP address of other endpoint of the VPN. In this case the <Datacenter> IP address
+         Shared Secret: <Password>
+      4.4) Click Network Tab.
+         Local Networks -> Choose local network from list: LAN Subnets
+         Remote Networks -> Choose local network from list: <Site>-<Datacenter>-LAN-Subnet-VPN
+      4.5) Click the Proposals Tab
+         IKE (Phase 1) Proposal -> Exchnage: Main Mode
+         IKE (Phase 1) Proposal -> DH Group: <DH Group>
+         IKE (Phase 1) Proposal -> Encryption: <Encryption>
+         IKE (Phase 1) Proposal -> Authentication: <Authentication>
+         IKE (Phase 1) Proposal -> Lifetime: 28800
+         IKE (Phase 2) Proposal -> Protocol: <Protocol>
+         IKE (Phase 2) Proposal -> Encryption: <Encryption>
+         IKE (Phase 2) Proposal -> Authentication: <Authentication>
+         IKE (Phase 2) Proposal -> Enable Perfect Forward Secrecy: uncheck
+         IKE (Phase 2) Proposal -> Life Time: 28800
+      Note- the Phase 2 values on the opposite side of the tunnel are configured to match.
+      4.6) Click "Advanced" tab
+         Enable Keep Alive: Check
+         Enable Windows Networking (NetBIOS) Broadcast: check
+         Management via this SA -> HTTPS: Check
+         VPN Policy bound to: Zone WAN
+5) Configuring firewall on Site A (Hub)
+   5.1) In the office-backup router, Navigate to "Manage" -> "Rules" -> "Access Rules" -> "Matrix" -> "Add"
+      Name: VPN to the <Datacenter>
+      From: LAN
+      To: VPN
+      Source Port: any
+      Service: any
+      Source: LAN subnets
+      Destination: <Datacenter> LAN subnet VPN
+      Users included: all
+      Users excluded: none
+      Schedule: always on
+      Priority: Auto Prioritize
+      IP version: IPv4
+      enable logging: check
+6) Configuring firewall on Site B (Spoke)
+   6.1) In the <Datacenter> router, Navigate to "Manage" -> "Rules" -> "Access Rules" -> "Matrix" -> "Add"
+      Name: VPN to the <Datacenter>
+      From: VPN
+      To: VLAN
+      Source Port: any
+      Service: any
+      Source: Office Main LAN Subnet VPN
+      Destination: Any
+      Users included: all
+      Users excluded: none
+      Schedule: always on
+      Priority: Auto Prioritize
+      IP version: IPv4
+      enable logging: check
+7) Configure single-arm VPN. On the <Datacenter> sonicwall
+   7.1) Select: Firewall --> Access rules
+   7.2) Under View style, check the matrix radio button
+   7.3) Select the configure icon for LAN to VPN
+   7.4) Select "From Lan to VPN Source Lan Subnets Destiantion Office MAIN LAN subnet VPN Service Any Action Allow"
+   7.5) Under Action, select the “Deny” radio button
+Now the network behind the other SonicWall will not be able to access the network
+   behind the SonicWall where the deny rule is applied.
+8) Address Translation to avoid overlapping or remote IP addresses
+
+
+Step 3: Configuring the Single-Arm VPN
+   (https://www.sonicwall.com/support/knowledge-base/vpn-configuring-one-way-vpn-single-arm-mode-in-sonicos-enhanced/170504579116742/)
+   On the SonicWall whose LAN you want to deny access to over VPN:
+   1) Select: Firewall --> Access rules
+   2) Under View style, check the matrix radio button
+   3) Select the configure icon for VPN to LAN
+   4) Click “Add” to add an Access Rule. The Add rule window will appear.
+   5) Under Action, select the “Deny” radio button
+   6) Under Service, select Any
+   7) Under Source, select the address object of the remote network behind the other
+      SonicWall that you have created when establishing the VPN tunnel
+      This will not block any existing remote VPN user
+   8) Under Destination, select Any
+   9) Click OK to save the configuration
+Now the network behind the other SonicWall will not be able to access the network
+   behind the SonicWall where the deny rule is applied.
+
+
+Sonicwall logs
+ERROR: IKEv2 Received notify error payload
+
+
+
+
+
+
+

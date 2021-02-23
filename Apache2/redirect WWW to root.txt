@@ -1,0 +1,19 @@
+http:///www.example.com -> https://example.com
+
+The one we are using
+AcceptPathInfo On
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301]
+RewriteCond %{HTTPS} off
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+
+$ vi /etc/www/html/.htaccess  //* this affect the whole domain
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+RewriteCond %{HTTPS} !on
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]

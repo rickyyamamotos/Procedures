@@ -1,0 +1,113 @@
+
+Creating a mysql's user in the source computer (read-only user in mysql for mdb1)
+on server mdb1 (source)
+	$ mysql -u root -p
+		//* password=<Password>
+	mysql> CREATE USER '<Username>'@'%' IDENTIFIED BY '<Password>';
+	mysql> GRANT LOCK TABLES, SELECT ON v.* TO '<Username>'@'%' IDENTIFIED BY '<Password>';
+Create a linux user with right to only read the "/tmp" directory
+on server mdb2 (target)
+	$ useradd <Username> --no-create-home
+	$ passwd <Username>
+		//* password=<Password>
+	//* /tmp already has full access (777)
+	//Restrict user to access only /tmp
+		$ nano /etc/ssh/sshd_config
+			//*  comment: Subsystem   sftp    /usr/lib/openssh/sftp-server
+			Match user <Username>
+			  ForceCommand internal-sftp
+			  ChrootDirectory /tmp
+			  X11Forwarding no
+			  AllowTcpForwarding no
+			Subsystem       sftp    internal-sftp
+	//* Restrict user connections from only mdb2 (XXX.XXX.XXX.16)
+		$ nano /etc/ssh/sshd_config
+			AllowUsers <Username>@XXX.XXX.XXX.15
+				//* where XXX.XXX.XXX.15 is the mdb1 server
+	$ service sshd restart
+Installing sshpass
+on the source server (mdb1)
+	$ wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz
+	$ tar -xvf sshpass.tar.gz
+	$ cd sshpass-1.06
+	$ ./configure
+	$ sudo make install
+	$ mv /tmp/sshpass-1.06 /etc
+
+
+SCRIPT OF A SIMPLE BACKUP A MYSQLDUMP FILE
+==========================================
+$ vi /mysql-local-backup.sh
+	#!/bin/bash
+	#Purpose = Backup of Important Data
+	#Created on 07/07/2017
+	#Author = Rick Yamamoto
+	#Version 1.0
+	#START
+	mysqldump -h localhost -u <Username> -p<Password> -C -Q -e --create-options v > /tmp/v-backup.sql
+	TIME=$(date "+%b-%d-%y")	# This Command will add the date to the Backup File's Name.
+	FILENAME=v-sql-backup-$TIME.tar.gz	# Here i define Backup file name format.
+	SRCDIR=/tmp			# Location of Important Data Directory (Source of backup).
+	DESDIR=/tmp			# Destination of backup file.
+	tar -cpzf $DESDIR/$FILENAME $SRCDIR/*.sql
+					# tar = Tape archive
+					# c = Create
+					# v = Verbose mode
+					# p = Preserving files and directory permissions.
+					# z = This will tell tar that compress the files further to reduce the size of tar file.
+					# f = It allows tar to get file name.
+					# u = update
+					# d = find differences between archive and file system
+					# --recursion = recurse into directories
+	chmod 777 $DESDIR/$FILENAME
+	/etc/sshpass-1.06/sshpass -p '<Password>' scp -P <PortNumber> -p /tmp/*.tar.gz <Username>@XXX.XXX.XXX.16:/tmp
+	rm -f /tmp/*.tar.gz
+	rm -f /tmp/*.sql
+	#END
+$ chmod +x /mysql-local-backup.sh
+
+Adding the script to cron to start it everyday at 3:01 am
+$ crontab -e
+	01 03 * * * /bin/bash /mysql-local-backup.sh
+//*     f1 f2 f3f4f5  command
+//*     f1=Minutes (0-59)
+//*	f2=Hours (0-23)
+//*	f3=Day of Month(1-31)
+//*	f4=Month(1-12)
+//*	f5=Day of Week (0-6, 0 = Sunday)
+//*	Command= command to run
+
+
+
+
+
+
+
+This is the same script with no comments:
+#!/bin/bash
+#Purpose = Backup of Important Data
+#Created on 07/07/2017
+#Author = Rick Yamamoto
+#Version 1.0
+#START
+mysqldump -h localhost -u <Username> -p<Password> -C -Q -e --create-options v > /tmp/v-backup.sql
+TIME=$(date "+%b-%d-%y")
+FILENAME=v-sql-backup-$TIME.tar.gz
+SRCDIR=/tmp
+DESDIR=/tmp
+tar -cpzf $DESDIR/$FILENAME $SRCDIR/*.sql
+chmod 777 $DESDIR/$FILENAME
+/etc/sshpass-1.06/sshpass -p '<Password>' scp -P <PortNumber> -p /tmp/*.tar.gz <Username>@XXX.XXX.XXX.16:/tmp
+rm -f /tmp/*.tar.gz
+rm -f /tmp/*.sql
+#END
+
+
+
+
+
+
+
+
+
+

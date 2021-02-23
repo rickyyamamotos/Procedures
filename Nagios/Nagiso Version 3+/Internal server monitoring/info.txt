@@ -1,0 +1,111 @@
+1) Set an internal web server listening to the internet
+	XXX.XXX.XXX.232	(it is a Virtual server on the F5 pointing to XXX.XXX.XXX.9(backendportal1) and XXX.XXX.XXX.10(backendportal2)
+2) Setup backendportal1
+	ssh XXX.XXX.XXX.232:<PortNumber>
+2.1) Set index.html
+	index.html is needed for F5 health status for the pool
+2.2) Set index.php
+	this script will request http to all internal server and display if they are UP or DOWN
+	<HTML>
+	<BODY>
+	<CENTER>
+	<H1><U> This is server Backendportal2 to parse:</U></H1>
+	<BR>
+	<BR>
+	<IMG SRC="./logo_Smaller.png" HEIGHT="273" WIDTH="840">
+	<BR>
+	</CENTER>
+	<BR>
+	<BR>
+	<FONT COLOR="RED">
+	<H2>Information for Nagios:</H2>
+	<?php
+	function checkOnline($domain) {
+	   $curlInit = curl_init($domain);
+	   curl_setopt($curlInit,CURLOPT_CONNECTTIMEOUT,1);
+	   curl_setopt($curlInit,CURLOPT_TIMEOUT,1);
+	   curl_setopt($curlInit,CURLOPT_HEADER,true);
+	   curl_setopt($curlInit,CURLOPT_NOBODY,true);
+	   curl_setopt($curlInit,CURLOPT_RETURNTRANSFER,true);
+	   $response = curl_exec($curlInit);
+	   curl_close($curlInit);
+	   if ($response) { return "UP"; }
+	   else { return "DOWN"; }
+	}
+	echo "internal wpg-content.<Site> is ";
+	echo checkOnline("http://XXX.XXX.XXX.11");
+	echo "<BR>";
+	echo "internal wpg<Site> is ";
+	echo checkOnline("http://XXX.XXX.XXX.12");
+	echo "<BR>";
+	echo "internal backendportal1 is ";
+	echo checkOnline("http://XXX.XXX.XXX.9");
+	echo "<BR>";
+	echo "internal backendportal2 is ";
+	echo checkOnline("http://XXX.XXX.XXX.10");
+	echo "<BR>";
+	?>
+	</FONT>
+	<BR>
+	<BR>
+	<BR>
+	Last Update: 05/26/2017
+	</BODY>
+	</HTML>
+3) Setup backendportal2
+	$ ssh <Username>@XXX.XXX.XXX.10 -p <PortNumber>
+	//* repeat steps 2.1 to 2.2
+4) Setup Nagios3
+	ssh to nagios XXX.XXX.XXX.47:<PortNumber>
+	$ nano /etc/nagios3/conf.d/commands.cfg
+	//* Append the following lines
+define host{
+        name                    <Site>-internalchk
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          30
+        retry_interval          15
+        max_check_attempts      10
+        check_command           check_http!'-H XXX.XXX.XXX.232 -u /index.php -s "<Site> is UP"'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        name                    <Site>-internalchk
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          30
+        retry_interval          15
+        max_check_attempts      10
+        check_command           check_http!'-H XXX.XXX.XXX.232 -u /index.php -s "<Site> is UP"'
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+$ nano host.cfg
+	//* Append the following lines
+define host{
+        use                     <Site>-internalchk
+        host_name               <Site>-internal
+        alias                   <Site>-internal
+        address                 XXX.XXX.XXX.232
+        }
+define host{
+        use                     <Site>-internalchk
+        host_name               <Site>-internal
+        alias                   <Site>-internal
+        address                 XXX.XXX.XXX.232
+        }
+
+		
+
+Once HTTPS is enabled then change the following
+        check_command           check_http!'-H XXX.XXX.XXX.232 -u /index.php -s "<Site> is UP"'
+TO
+        check_command           check_http!'-H XXX.XXX.XXX.232 -u /index.php -s "<Site> is UP" -S'
+

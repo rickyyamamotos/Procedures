@@ -1,0 +1,33 @@
+Debugging functions are enabled on the remote HTTP server.
+The remote webserver supports the TRACE and/or TRACK methods. TRACE and TRACK are HTTP methods which are used to debug web server connections. 
+It has been shown that servers supporting this method are subject to cross-site-scripting attacks, dubbed XST for Cross-Site-Tracing, when used in conjunction with various weaknesses in browsers. 
+An attacker may use this flaw to trick your legitimate web users to give him their credentials.
+
+Test
+$ telnet <Webserver IP> 80
+type the following:
+    TRACE / HTTP/1.0
+    Host: <hostname_you_are_testing>
+    TestA: Hello
+    TestB: World
+Press enter twice and if trace is enabled, you should see output similar to the following:
+    HTTP/1.1 200 OK
+    Server: Apache
+    Date: Tue, 04 Aug 2009 20:17:15 GMT
+    Content-Type: message/http
+    Content-Length: 76
+    TRACE / HTTP/1.0
+    Host: <hostname_you_are_testing>
+    TestA: Hello
+    TestB: World
+
+Remediation
+$ nano /etc/httpd/conf/httpd.conf
+Append the following
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+    RewriteRule .* - [F]
+$ service httpd restart
+
+Re-test as show above
+results should be "HTTP 405-Method Not Allowed"

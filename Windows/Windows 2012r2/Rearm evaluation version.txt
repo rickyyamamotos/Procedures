@@ -1,0 +1,8 @@
+Run CMD as <Username>
+C:> slmgr -rearm
+
+
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform\SkipRearm=1
+Reboot
+ 

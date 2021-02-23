@@ -1,0 +1,18 @@
+tomcat.service Main process existed, code=exited, status=1FAILURE
+
+on systemctl start tomcat
+	error: tomcat.service: Main process existed, code=exited, status=1/FAILURE
+	       tomcat.service: Failed with result 'exit-code'
+From /opt/tomcat/logs/catalina.out
+	Conflicting collector combinations in option list; please refer to the release notes for the combinations allowed
+	Error: Could not create the Java Virtual Machine.
+	Error: A fatal exception has occurred. Program will exit.
+
+sudo nano /etc/systemd/system/tomcat.service
+	//* remove the following line
+		Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+systemctl daemon-reload
+service tomcat start
+service tomcat status
+
+

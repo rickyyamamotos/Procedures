@@ -1,0 +1,25 @@
+Install MySQL if not installed yet:
+	$ yum update
+	$ sudo yum install mysql-server
+	$ sudo systemctl start mysqld
+	$ sudo mysql_secure_installation
+		//* Old root password 
+		//* New root password: <Password>
+
+Create empty databases:
+	$ mysql -u root -p
+		//* New root password: <Password>
+	mysql> CREATE USER 'moodle'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> create database v default character set utf8 default collate  utf8_general_ci;
+	mysql> GRANT USAGE ON *.* TO 'moodle'@'localhost';
+	mysql> GRANT ALL PRIVILEGES ON v.* TO 'moodle'@'localhost' WITH GRANT OPTION;
+
+Copy dump into the local server
+	$ scp -P <PortNumber> <Username>@XXX.XXX.XXX.15:/tmp/*.sql /tmp
+		//* password=<Password>
+		//* wehre XXX.XXX.XXX.15 is the ip of mdb1
+
+Uploading the dump into mysql
+	$ cd /tmp
+	$ mysql -u root -p v < /tmp/v-backup.sql
+		//* password =<Password>

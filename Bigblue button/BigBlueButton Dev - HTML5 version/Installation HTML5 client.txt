@@ -1,0 +1,39 @@
+This procedure is to install Bibbluebutton 1.1 HTML5 version (Beta)
+
+Pre-requisites:
+1) Fully functional bigbluebutton 1.1 Flash Version
+
+
+Installation:
+============
+//* install the HTML5 client
+	$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv XXXXXXX
+	$ echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+	$ sudo apt-get update
+	$ sudo apt-get install -y mongodb-org curl
+	$ sudo service mongod start
+//* install the nodeJS server
+	$ curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+	$ sudo apt-get install -y nodejs
+//* install BigBlueButton HTML5 client
+	$ sudo apt-get install -y bbb-html5
+	$ sudo apt-get update
+	$ sudo apt-get dist-upgrade
+//* restart the bbb service
+	$ bbb-conf --restart
+
+//* Test is HTML5 is running
+https://bigbluebutton.<Site>/html5client/check
+	//* it should show: {"html5clientStatus":"running"}
+
+OPTIONAL STEPS:
+==============
+//* See logs (optional)
+$ nano /var/log/bigbluebutton/html5/html5client.log
+//* See code for the client (optional)
+$ ls /usr/share/meteor/bundle/
+//* See configuration files for the client 
+$ ls /usr/share/meteor/bundle/programs/server/assets/app/config
+//* Remove HTML5 client (Optional)
+$ sudo apt-get purge bbb-html5
+

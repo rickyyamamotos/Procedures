@@ -1,0 +1,35 @@
+$ su $RAIL_USER
+	//* replace $RAIL_USER with the user of rails
+$ passenger-config restart-app
+
+
+
+STOP
+#!/bin/bash -i
+#su <Username>
+if [[ $EUID -ne 1000 ]]; then
+   echo "You must run this script as the <Username> user. Use the following command and try again: su <Username>"
+   exit 10
+fi
+PATH=$PATH:/usr/local/rvm/bin
+cd /home/<Username>/<Site>
+rvm use 2.3.5 --default
+rvm reload
+bundle exec passenger stop
+echo "Rails/passenger successfully stoped"
+
+
+START
+#!/bin/bash -i
+#su <Username>
+if [[ $EUID -ne 1000 ]]; then
+   echo "You must run this script as the <Username> user. Use the following command and try again: su <Username>"
+   exit 10
+fi
+PATH=$PATH:/usr/local/rvm/bin
+cd /home/<Username>/<Site>
+rvm use 2.3.5 --default
+rvm reload
+bundle exec passenger start -d
+echo "Rails/passenger successfully restarted"
+

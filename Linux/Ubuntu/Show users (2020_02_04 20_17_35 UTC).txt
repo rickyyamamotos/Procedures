@@ -1,0 +1,7 @@
+
+
+Current logged
+$ who -all
+
+Existing users
+sed 's/:.*//' /etc/passwd

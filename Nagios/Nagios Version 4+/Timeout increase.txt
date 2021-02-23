@@ -1,0 +1,10 @@
+
+/usr/local/nagios/etc/nagios.cfg
+	service_check_timeout=60
+	host_check_timeout=90
+	event_handler_timeout=60
+	notification_timeout=60
+
+service nagios restart
+
+

@@ -1,0 +1,8 @@
+Using Resultant Set of Policy Logging to Gather Computer Policy Information
+to locate Policy errors
+
+on a DC
+c:\> rsop.msc
+Navigate into all gpo results to find rules marked with a X
+
+Go to GPO Mgr and edit the offending GPO rule

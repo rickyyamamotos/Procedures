@@ -1,0 +1,56 @@
+
+
+Warning	8/12/2019 9:37:15 AM	srv	2025	None
+Log Name:      System
+Source:        srv
+Date:          8/12/2019 9:37:15 AM
+Event ID:      2025
+Task Category: None
+Level:         Warning
+Keywords:      Classic
+User:          N/A
+Computer:      <Site>
+Description:
+The server has detected an attempted Denial-Of-Service attack from client \\XXX.XXX.XXX.51, and has disconnected the connection.
+Event Xml:
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="srv" />
+    <EventID Qualifiers="32768">2025</EventID>
+    <Level>3</Level>
+    <Task>0</Task>
+    <Keywords>0x80000000000000</Keywords>
+    <TimeCreated SystemTime="2019-08-12T13:37:15.838Z" />
+    <EventRecordID>710651</EventRecordID>
+    <Channel>System</Channel>
+    <Computer><Site></Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data>\Device\LanmanServer</Data>
+    <Data>\\XXX.XXX.XXX.51</Data>
+    <Binary>000000000200280000000000E907008000000000220000C000000000000000000000000000000000</Binary>
+  </EventData>
+</Event>
+
+
+
+
+
+Fix
+Method 1: Increase the MaxMpxCt value
+regedit -> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters -> 
+	New DWORD MaxMpxCt value 50 through 65535
+
+Method 2: Disable denial of service attack detection
+regedit -> HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters ->
+	New DWORD DisableDos value 1
+
+Best Method:	
+setting on the Advanced tab in the NIC's properties
+	- disable the IPv4 and IPv6 Large Send Offload 
+	- CheckSum Offload to None
+	- TCP Connection Offload settings to Disable
+
+
+

@@ -1,0 +1,221 @@
+Ubuntu 18.04
+	2 CPUs
+	2 Gb RAM
+	40 Gb HD
+
+CONFIGURE NETWORKING:
+$ ip addr
+	//* ens32
+$ ls /etc/netplan/
+	//* 01-netcfg.yaml
+$ nano /etc/netplan/01-netcfg.yaml
+	network:
+	 version: 2
+	 renderer: networkd
+	 ethernets:
+	   ens32:
+	   dhcp4: no
+	   addresses: [XXX.XXX.XXX.166<CIDR>]
+	   gateway4: XXX.XXX.XXX.1
+	   nameservers:
+	    addresses: [XXX.XXX.XXX.20,XXX.XXX.XXX 19]
+$ sudo netplan try
+	//* test configuration
+$ netplan apply
+$ neplan generate
+$ sudo systemctl restart network-manager
+	//* or sudo systemctl restart system-networkd
+$ apt-get install net-tools curl wget -y
+
+CONFIGURE SSH ACCESS
+$ apt-get update - y
+$ apt-get install ssh -y
+$ nano /etc/ssh/sshd_config
+	Port <PortNumber>
+$ service ssh restart
+$ ufw allow from any to any port <PortNumber> proto tcp
+$ ufw reload
+
+CONFIGURE USERS:
+$ visudo
+	rick		ALL=NOPASSWD: ALL
+	<Username>	ALL=NOPASSWD: ALL
+	<Username>	ALL=NOPASSWD: ALL
+$ useradd -m <Username> -s /bin/bash
+$ useradd -m rick -s /bin/bash
+$ passwd rick
+	<Password>
+$ passwd <Username>
+	<Password>
+$ passwd root
+	<Password>
+
+INSTALL APACHE
+$ sudo apt install apache2 -y
+$ ufw allow from any to any port 80 proto tcp
+$ ufw allow from any to any port 443 proto tcp
+$ ufw reload
+$ nano /etc/apache2/sites-enabled/000-default.conf
+	//* Add the following line
+		ServerName wordpress498.<Site>
+		<Directory /var/www/>
+			Options Indexes FollowSymLinks
+			AllowOverride All
+			Require all granted
+		</Directory>
+
+INSTALING PHP 7.4: 
+$ sudo apt-get update -y
+$ sudo apt -y install software-properties-common -y
+$ sudo add-apt-repository ppa:ondrej/php -y
+$ sudo apt-get update -y
+$ sudo apt-get install php7.4 -y
+$ php -v
+	//* 7.4
+$ apt-get install aspell graphviz php7.4-curl php7.4-gd php7.4-intl php7.4-ldap php7.4-mysql php7.4-pspell php7.4-xml php7.4-xmlrpc php7.4-zip -y
+$ apt-get install php7.4-bcmath php7.4-bz2 php7.4-mbstring -y
+
+Installing mysql-server 
+go to https://dev.mysql.com/downloads/repo/apt/  and see for the last DEB package
+	//* mysql-apt-config_0.8.15-1_all.deb
+$ cd /tmp
+$ curl -OL https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb
+$ dpkg -i mysql-apt-config_0.8.10-1_all.deb
+$ apt-get update -y
+$ apt list -a mysql-server
+$ apt-get install mysql-server
+$ apt-get upgrade -y
+$ mysql --version
+	//* 8.0
+$ mysql -uroot -p
+	//* <Password>
+$ create database wpdatabase default character set utf8 default collate  utf8_general_ci;
+$ CREATE USER '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+$ CREATE USER '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+$ GRANT ALL PRIVILEGES ON *.* TO '<Username>'@'localhost' WITH GRANT OPTION;
+$ GRANT ALL PRIVILEGES ON wpdatabase.* TO '<Username>'@'localhost' WITH GRANT OPTION;
+
+
+INSTALLING WORDPRESS 4.9.8
+$ wget https://wordpress.org/wordpress-4.9.8.tar.gz
+$ tar -xvf wordpress-4.9.8.tar.gz
+$ cd wordpress
+$ mv * /var/www/html
+Go to https://<Site>.wordpress.org/secret-key/1.1/salt/
+	To generate random keys. These keys are used for encryption and cookies
+$ cd /var/www/html
+$ mv wp-config-sample.cfg wp-config.php
+$ mv wp-config-sample.php ../wp-config.php
+$ cd /var/www
+$ nano wp-config.php
+	change define('DB_NAME', 'wpdatabase');
+	change define('DB_USER', '<Username>');
+	change define('DB_PASSWORD', ''<Password>');
+	define('AUTH_KEY',         
+	define('SECURE_AUTH_KEY',  
+	define('LOGGED_IN_KEY',    
+	define('NONCE_KEY',        
+	define('AUTH_SALT',        
+	define('SECURE_AUTH_SALT', 
+	define('LOGGED_IN_SALT',   
+	define('NONCE_SALT',       
+$ cd /var/www/html/wp-content
+$ mkdir uploads
+$ sudo chown <Username>:www-data uploads
+$ sudo chmod 775 uploads
+$ sudo chmod 775 plugins
+$ sudo chmod 775 themes
+$ rm /var/www/html/index.html
+
+Run the Install Script
+Go to https://wordpress498.<Site>/<Username>/
+username: <Username>
+password: <Password>
+Your email: <Email>
+
+
+INSTALL phpmyadmin
+$ apt-get install phpmyadmin -y
+$ nano /etc/apache2/conf-enabled/phpmyadmin.conf
+Listen  <SSHPort>
+<VirtualHost *:<SSHPort>>
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        ServerName wordpress498.<Site>
+        DocumentRoot /var/www/html
+
+        ##  other existing lines
+
+</VirtualHost>
+$ service apache2 restart
+
+
+
+$ nano /etc/apache2/conf-enabled/phpmyadmin.conf
+<VirtualHost *:<SSHPort>>
+        SSLEngine on
+        ssl_certificate //etc/ssl/certs/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/ssl/certs/privkey.pem; # managed by Certbot
+        SSLProtocol all -SSLv2 -SSLv3
+        SSLCipher<Phone> HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA:!RC4
+</VirtualHost>
+
+
+
+====================================OLD=========================================
+INSTALING PHP 7.3: (7.3+ does not support mcrypt anymore)
+$ sudo apt-get update -y
+$ sudo apt -y install software-properties-common -y
+$ sudo add-apt-repository ppa:ondrej/php -y
+$ sudo apt-get update -y
+$ sudo apt-get install php7.3 -y
+$ php -v
+	//* 7.3.15
+$ apt-get install php-curl php-bcmath php-bz2 php-intl php-gd php-mbstring php-mysql php-zip -y
+$ sudo apt-get install php-xml php7.3-xml
+
+INSTALLING PHP-MCCRYPT (DOES NOT WORK)
+$ apt install php-pear -y
+$ sudo apt-get install php7.2-dev -y
+$ sudo apt-get install gcc make autoconf libc-dev pkg-config -y
+$ sudo apt-get install libmcrypt-dev -y
+$ sudo pecl install mcrypt-1.0.2
+$ php -i | grep php.ini
+	//* Loaded Configuration File => /etc/php/7.3/cli/php.ini
+
+$ nano /etc/php/7.3/mods-available/mcrypt.ini
+	extension=/usr/lib/php/20170718/mcrypt.so
+$ sudo phpenmod mcrypt
+	OR
+	$ ln -s /etc/php/7.3/mods-available/mcrypt.ini /etc/php/7.3/cli/conf.d/
+	$ ln -s /etc/php/7.3/mods-available/mcrypt.ini /etc/php/7.3/apache2/conf.d/
+$ php -m | grep mcrypt
+	//* PHP Warning:  PHP Startup: mcrypt: Unable to initialize module
+$ php -i | grep mcrypt
+	//* Module compiled with module <Site>=20170718
+	//* PHP    compiled with module <Site>=20180731
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+To allow only local to acces the a website hosted on a ubuntu server (f.e. nagios)
+$ nano /etc/httpd/conf.d/nagios.conf
+	//* Comment Lines 15 & 16 ##
+		#   Order allow,deny
+		#   Allow from all
+	//* Uncomment and Change lines 17,18 & 19 as shown below ##
+		Order deny,allow
+		Deny from all
+		Allow from 127.0.0.1 XXX.XXX.XXX.0<CIDR>
+$ service apache2 restart

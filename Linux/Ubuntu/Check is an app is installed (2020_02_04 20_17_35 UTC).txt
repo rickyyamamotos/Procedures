@@ -1,0 +1,2 @@
+$ dpkg --get-selections | grep "App name"
+	//* replace "App Name"

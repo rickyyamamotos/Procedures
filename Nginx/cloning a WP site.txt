@@ -1,0 +1,43 @@
+After cloning a WP site, the new clone will point/forward to the original site.
+To avoid this temporary, so site.com/<Username> can be modified, 
+do the following:
+-identify the active theme. See the original wp site, and determine the original theme
+-ssh log onto the new clone
+-$ cd /var/www/html/wp-content/themes
+-$ cd /"active theme"
+	replace "active theme" with the name of the actual active theme
+-nano function.php
+-add the following line just after the <?php
+	update_option( 'siteurl', 'http://<Site>' );
+	update_option( 'home', 'http://<Site>' );
+		where http://<Site> is the url of the newly cloned wp site
+-$ log onto the wordpress site
+		http://<Site>/wp-admim
+		where http://<Site> is the url of the newly cloned wp site
+site/phpmyadmin -> WP_database -> wp_options
+	siteurl: 
+	home: 
+$ change the setting of the site
+-remove the 2 lines added to function.php
+
+also modified the VHOST
+nano /etc/apache2/sites-enable/servername.
+	modify the ServerName, redirect, etc to the new server name
+
+if server is reverse proxy you will need also to do the following
+The HTTP_HOST variable is set by PHP based on the incoming Host header
+connect to the nginx server XXX.XXX.XXX.42
+cd /etc/nginx/sites-enabled
+nano test-<Site>
+	On both 80, and 443
+	comment out:	##                   proxy_set_header Upgrade $http_upgrade;
+			##                   proxy_set_header Connection 'upgrade';
+	proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_redirect          off;
+
+
+Plugin Virtual Classroom must be disabled. It will give an 500 error
+
+
+

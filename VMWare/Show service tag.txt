@@ -1,0 +1,8 @@
+From console
+1) enable ssh on the esxi server
+2) connect using putty port 22
+3) smbiosDump |grep -A 5 'System Info'
+
+From vsphere client
+1) login
+2) configuration -> processors  (sometimes it does not show)

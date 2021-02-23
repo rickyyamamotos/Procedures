@@ -1,0 +1,7 @@
+In linux
+
+cd /tmp
+wget https://www.manageengine.com/products/applications_manager/54974026/ManageEngine_ApplicationsManager_64bit.bin
+chmod 744 ManageEngine_ApplicationsManager_64bit.bin
+./ManageEngine_ApplicationsManager_64bit.bin --console
+

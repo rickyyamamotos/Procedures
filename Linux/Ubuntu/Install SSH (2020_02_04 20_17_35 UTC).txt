@@ -1,0 +1,31 @@
+$ sudo apt-get install ssh
+$ sudo service ssh start
+$ sudo systemctl enable ssh
+$ sudo nano /etc/ssh/sshd_config
+	PermitRootLogin no
+		//* Disabling root login through ssh
+	Port <PortNumber>
+		//* Changing the port
+	AllowUsers <Username>
+$ sudo service sshd restart
+
+Rate-limit the connections
+$ ufw limit ssh
+	//* If an IP address is tries to connect more than 10 times in 30 seconds, all the following attempts will fail since the connections will be DROPped.
+	//* nano /etc/ssh/sshd_config
+	//* 	MaxStartups 2:30:10
+	//*		Between the third and tenth connection the system will start randomly dropping connections from 30% up to 100% at the tenth simultaneous connection. 
+
+Disabling forwarding
+$ nano /etc/ssh/sshd_config
+	//* AllowTcpForwarding no
+	//* X11Forwarding no
+
+From a Windows client connect using PUTTY XXX.XXX.XXX.48:22
+From other linux $ ssh <Username>@XXX.XXX.XXX.10 -p <PortNumber>
+
+
+
+
+
+

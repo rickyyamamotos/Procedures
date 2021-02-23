@@ -1,0 +1,224 @@
+NAGIOS 4
+
+Create VM
+	Linux
+	Ubuntu 64 bits
+	1 CPU
+	2048 Gb
+	64 Gb HD
+	SCSI LSI Logic Parallel
+	CDROM -> ISO
+Shutdown
+	VM->Setting->CDROM to CDROM
+reduce session timeout
+	settings/privacy/screen lock = 0ff
+Install VMaware tools
+	$ sudo apt-get install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms
+	$ nano $HOME/.profile
+		Append the following line: 
+			vmware-user
+
+$ useradd -m -s /bin/bash <Username>
+$ passwd <Username>
+	//* password: <Password>
+$ adduser <Username> sudo
+$ useradd -m -s /bin/bash rick
+$ passwd rick
+	//* password: <Password>
+$ adduser rick sudo
+
+Configure static IP XXX.XXX.XXX.47
+//* Permanent change
+$ sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet static
+	address XXX.XXX.XXX.47
+	netmask <Subnet>
+	network	XXX.XXX.XXX.0
+	broadcast	XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.1
+	dns-nameservers XXX.XXX.XXX.19 XXX.XXX.XXX.3
+$ sudo /etc/init.d/networking restart
+$ reboot
+
+Install SSH
+$ sudo apt-get install ssh
+$ sudo service ssh start
+$ sudo systemctl enable ssh
+$ sudo nano /etc/ssh/sshd_config
+	//* modify the port
+		port to <PortNumber>
+	//* add the following line
+		AllowGroups sudo
+$ sudo service sshd restart
+//* From a Windows client connect using PUTTY XXX.XXX.XXX.47:<PortNumber>
+
+
+sudo apt-get update
+sudo apt-get install build-essential libgd2-xpm-dev openssl libssl-dev xinetd apache2-utils unzip
+sudo apt-get install nagios3
+go to http://XXX.XXX.XXX.47/nagios3
+
+
+Modifying the cfg files
+//* config files are located in /etc/nagios-plugins/config/
+				/etc/nagios3/conf.d/
+nano /etc/nagios-plugins/config/disk.cfg
+	//* add -A -i .gvfs in both the section at end of the lines
+	define command{
+	        command_name    check_disk
+	        command_line    /usr/lib/nagios/plugins/check_disk -w '$ARG1$' -c '$ARG2$' -e -p '$ARG3$' -A -i .gvfs
+	        }
+	# 'check_all_disks' command definition
+	define command{
+	        command_name    check_all_disks
+	        command_line    /usr/lib/nagios/plugins/check_disk -w '$ARG1$' -c '$ARG2$' -e -A -i .gvfs
+	        }
+cd /etc/nagios3/conf.d/
+nano commands.cfg
+	//* copy and paste the template list from commands.cfg of the old nagios server
+	//* note that the path for the commands is /usr/lib/nagios/plugins/
+nano templates.cfg
+	//* copy and paste the template list from templates.cfg of the old nagios server
+nano hosts.cfg
+	//* copy and paste the hosts list from localhost.cfg the old nagios server
+nano hostgroups.cfg
+	//* copy and past the host groups from localhost.cfg of the old nagios server
+nano contacts_nagios2.cfg
+	//* update email
+	//* add rick to the <Username>s group
+nano services.cfg
+	define service{
+	        name                            local-service           ; The name of this service template
+	        use                             generic-service         ; Inherit default values from the 		generic-service definition
+	        max_check_attempts              4                       ; Re-check the service up to 4 times in order to determine its final (hard) state
+	        check_interval           5                      ; Check the service every 5 minutes under normal conditions
+	        retry_interval            1                     ; Re-check the service every minute until a hard state can be determined
+	        <Site>                        0                       ; DONT <Site> THIS DEFINITION - ITS NOT A REAL SERVICE, JUST A TEMPLATE!
+	        }
+	define service{
+	        use                             local-service         ; Name of service template to use
+	        host_name                       localhost
+	        service_description             HTTP
+	        check_command                   check_http
+	        notifications_enabled           1
+	        }
+
+Installing sendMail
+$ cd /tmp
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ apt-get install libnet-ssleay-perl libcrypt-ssleay-perl libio-socket-ssl-perl
+cd /etc/nagios3/
+nano commands.cfg
+	//* replace the email to service line with the info from the old server
+
+
+Check Nagios configuraqtion
+nagios3 -v /etc/nagios3/nagios.cfg
+
+enable HTTPS
+$ sudo a2enmod ssl
+$ sudo a2ensite default-ssl
+
+$ sudo service apache2 restart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Install NRPE
+$ cd /tmp
+$ curl -L -O https://downloads.sourceforge.net/project/nagios/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz
+$ tar xvf nrpe-*.tar.gz
+$ cd nrpe-2.15
+$ ./configure --enable-command-args --with-nagios-user=nagios --with-nagios-group=nagios --with-ssl=/usr/bin/openssl --with-ssl-lib=/usr/lib/x86_64-linux-gnu
+$ make all
+$ sudo make install
+$ sudo make install-xinetd
+$ sudo make install-daemon-config
+
+
+Configure Nagios
+$ nano /usr/local/nagios/etc/nagios.cfg
+	//* Uncomment this line #cfg_dir=/usr/local/nagios/etc/servers
+$ mkdir /usr/local/nagios/etc/servers
+$ nano /usr/local/nagios/etc/objects/contacts.cfg
+	//* replace email                           nagios@localhost with
+	//*                                         <Email>
+$ nano /usr/local/nagios/etc/objects/commands.cfg
+	define command{
+	        command_name check_nrpe
+	        command_line $<Username>$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$
+	}
+
+
+Configure Apache
+$ a2enmod rewrite
+$ a2enmod cgi
+$ htpasswd -c /usr/local/nagios/etc/htpasswd.users <Username>
+	//* <Password>
+$ ln -s /etc/apache2/sites-available/nagios.conf /etc/apache2/sites-enabled/
+$ nano /etc/systemd/system/nagios.service
+	//* if blank
+		[Unit]
+		Description=Nagios
+		BindTo=network.target
+		[Install]
+		WantedBy=multi-user.target
+		[Service]
+		User=nagios
+		Group=nagios
+		Type=simple
+		ExecStart=/usr/local/nagios/bin/nagios /usr/local/nagios/etc/nagios.cfg
+$ systemctl enable /etc/systemd/system/nagios.service
+$ systemctl  start nagios
+$ systemctl  restart nagios
+$ service nagios start
+$ ln -s /etc/init.d/nagios /etc/rcS.d/S99nagios
+
+
+$ nano /usr/local/nagios/etc/objects/commands.cfg 
+	//* Add the following commands
+	define command{  
+		command_name notify-host-by-email
+		command_line  /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress:$HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" -t $CONTACTEMAIL$ -xu <Email> -xp <Password>
+		}
+	define command{  
+		command_name notify-service-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" -t $CONTACTEMAIL$  -xu <Email> -xp <Password>
+		}
+
+To allow only local to the web console
+$ nano /etc/httpd/conf.d/nagios.conf
+	//* Comment Lines 15 & 16 ##
+		#   Order allow,deny
+		#   Allow from all
+	//* Uncomment and Change lines 17,18 & 19 as shown below ##
+		Order deny,allow
+		Deny from all
+		Allow from 127.0.0.1 XXX.XXX.XXX.0<CIDR>
+$ service apache2 restart
+
+

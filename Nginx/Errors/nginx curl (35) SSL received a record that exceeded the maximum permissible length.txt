@@ -1,0 +1,9 @@
+nginx curl (35) SSL received a record that exceeded the maximum permissible length
+
+Solved. You need to add "ssl" to the end of the listen.
+in the nginx conf file for the host
+	change
+		listen       443;
+	with
+		listen       443 ssl;
+

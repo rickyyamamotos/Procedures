@@ -1,0 +1,111 @@
+
+
+On the server (mdb1 XXX.XXX.XXX.15) (master)
+================================
+username:<Username>
+password: <Password>
+$ sudo su
+$ vi /etc/my.cnf
+	binlog-do-db=v
+	binlog_format=ROW
+	server-id=1
+	log-error=/var/log/mysql/mysql.err
+	log-bin = /var/log/mysql/mysql-replication.log
+	#bind-address=   //* comment out
+$ service mysqld stop
+$ cd /var/log/mysql
+$ chown -R mysql:mysql /var/log/mysql
+$ /etc/init.d/mysqld restart
+$ mysql -u root -p
+	<Password>
+	//* or use moodle/<Password>
+mysql> show grants for replicationuser;
+mysql> DROP USER 'replicationuser'@'%';
+	//* remove an existing replicationuser
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'replicationuser'@'XXX.XXX.XXX.16' IDENTIFIED BY '<Password>';
+	//* replace XXX.XXX.XXX.16 witht the IP of the slave server
+	//* this is a remote user
+mysql> FLUSH PRIVILEGES;
+mysql> use v;
+mysql> FLUSH TABLES WITH READ LOCK;
+mysql> SHOW MASTER STATUS;
+	//* Take note of the File mysql-replication.000001 and position 29873
+	//* you will need these numbers later on Slave server.
+mysql> quit;
+$ mysqldump -h localhost -u root -p -C -Q -e --create-options v > /tmp/v-backup.sql
+	//* pass=<Password>
+$ mysql -u root -p
+	<Password>
+	//* or use moodle/<Password>
+mysql> use v;
+mysql> UNLOCK TABLES;
+mysql> quit;
+
+On the Slave (mdb2 XXX.XXX.XXX.16)
+===================================================================
+$ scp -P <PortNumber> <Username>@XXX.XXX.XXX.15:/tmp/v-backup.sql /tmp
+$ mysql -u root -p
+	<Password>
+mysql> select host,user from mysql.user;
+	//* see if moodle and replicationuser exist
+	//* if not then
+		mysql> CREATE USER 'moodle'@'localhost' IDENTIFIED BY '<Password>';
+		mysql> CREATE USER 'replicationuser'@'%' IDENTIFIED BY '<Password>';
+mysql> show databases;
+	//* check that v does not exist
+	//* if it exist, then
+		mysql> drop database v;
+mysql> create database v default character set utf8 default collate  utf8_general_ci;
+mysql> GRANT USAGE ON *.* TO 'moodle'@'localhost';
+mysql> GRANT ALL PRIVILEGES ON v.* TO 'moodle'@'localhost' WITH GRANT OPTION;
+mysql> quit;
+$ mysql -u root -p v < /tmp/v-backup.sql
+$ service mysqld restart
+$ nano /etc/my.cnf
+	server-id=2
+	relay_log=relay-log
+#	master-host='XXX.XXX.XXX.15'
+#		# replace XXX.XXX.XXX.15 with the IP of the master
+#	master-user='replicationuser'
+#	master-password='<Password>'
+#	master-connect-retry=60
+#	replicate-do-db=v
+#	replicate-wild-do-table=v.%
+#	relay log = /var/lib/mysql/mysql-relay-bin
+#	relay-log-info-file = /var/lib/mysql/mysql-relay-log.info
+#	relay-log-index = /var/lib/mysql/mysql-relay-bin.index
+#	master-info-file = /var/lib/mysql/mysql-master.info
+#	log-error = /var/log/mysqld.log
+$ service mysqld restart
+$ mysql -u root -p
+	<Password>
+	//* or use moodle/<Password>
+mysql> CHANGE MASTER TO MASTER_HOST='XXX.XXX.XXX.15',MASTER_PORT=3306,MASTER_USER='replicationuser',MASTER_PASSWORD='<Password>',MASTER_LOG_FILE='mysql-replication.000001',MASTER_LOG_POS=29873;
+	//* replace 'mysql-replication.000001' and MASTER_LOG_POS=199 with the data you took note when execute "SHOW MASTER STATUS;"
+mysql> START SLAVE;
+mysql> SHOW SLAVE STATUS\G
+	//* Slave_IO_State: Waiting for master to send event
+	//* If both Slave_IO_Running and Slave_SQL_Running = Yes, then the replication had been set up correctly.
+
+
+
+
+
+Verifying MySQL Replication on Master and Slave Server
+======================================================
+On Master Server
+	mysql> use v;
+	mysql> CREATE TABLE replicatest (c int);
+	mysql> INSERT INTO replicatest VALUES (1);
+	mysql> SELECT * FROM replicatest;
+On the Slaver server
+	mysql> user v;
+	mysql> SELECT * FROM replicatest;
+		//* it show show the a record with value of 1
+
+
+
+
+
+
+

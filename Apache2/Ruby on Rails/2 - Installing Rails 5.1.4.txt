@@ -1,0 +1,94 @@
+https://gorails.com/setup/ubuntu/16.04
+
+Installing ruby on rails using rvm
+
+Requirements
+-Install rvm and ruby (see "1 - Installing ruby 2.4.2.txt"
+-start rvm
+	$ source /usr/local/rvm/scripts/rvm
+
+install NodeJS and npm
+$ sudo <Username>
+$ curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+$ sudo apt-get install -y nodejs
+$ gem install rails -v 5.1.4
+
+Run Rails
+$ rails -v
+	//* Rails 5.1.4
+
+Installing MySQL (better not to install mysql and install PostgreSQL)
+$ sudo apt-get install mysql-server mysql-client libmysqlclient-dev
+	//* mysql credentials root / <Password>
+
+
+Setting Up PostgreSQL
+$ sudo sh -c "echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' > /etc/apt/sources.list.d/pgdg.list"
+$ wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+$ sudo apt-get update
+$ sudo apt-get install postgresql-common
+$ sudo apt-get install postgresql-9.5 libpq-dev
+	//* You can now start the database server using:
+	//*  /usr/lib/postgresql/9.5/bin/pg_ctl -D /var/lib/postgresql/9.5/main -l logfile start
+	//* 9.5 main    5432 down   postgres /var/lib/postgresql/9.5/main /var/log/postgresql/postgresql-9.5-main.log
+
+create a user with permission to create databases in Postgres
+$ sudo -u postgres createuser <Username> -s
+$ sudo -u postgres psql
+postgres=# \password <Username>
+	//* <Password>
+postgres=# \q
+
+RUBY ON RAILS RUNS FOR A SPECIFIC RAILS APP
+===========================================
+create your first Rails application:
+Do step 1 or step 2. Not both
+1) #### If you want to use MySQL (dont do this)
+	$ rails new myapp -d mysql
+2) #### If you want to use Postgres (do this)
+   # Note that this will expect a postgres user with the same username
+   # as your app, you may need to edit config/database.yml to match the
+   # user you created earlier
+	$ cd ~				     //* better use cd ~
+	$ rails new <Site> -d postgresql       //* run this as a regular user, not as root
+		//* the application will be created on ~/<Site>/
+# Move into the application directory
+$ cd ~/<Site>
+# If you setup MySQL or Postgres with a username/password, modify the
+# config/database.yml file to contain the username/password that you specified
+$ nano ~/<Site>/config/database.yml
+	//* replace username and password for postgresql and mysql
+	//* username: <Username>
+	//* password: <Password>
+# Create the database
+$ sudo apt install rake
+$ sudo apt install ruby-bundler
+$ bundle install
+$ su <Username>		//* run the below lines as regular user, not as root
+$ rake db:create
+$ cd ~/<Site>
+$ rails server
+	//* message: Listening on tcp://0.0.0.0:3000
+	//* http://127.0.0.1:3000
+	//* if you did not get the message you will need to start nvm and ruby: $ source /usr/local/rvm/scripts/rvm
+$ sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 3000
+	http://127.0.0.1:80
+
+Test the rail application
+Go to http://localhost:3000 
+
+
+Set Rails to autostart (AUTOSTART DID NOT WORKED, INSTALLING PASSENGER SOLVED THE ISSUE)
+$ which rails
+	//* /usr/local/rvm/gems/ruby-2.4.2/bin/rails
+$ cd ~	//* as <Username>, not root
+$ nano startrails.sh
+	sudo -H -u <Username> bash -c 'source /usr/local/rvm/scripts/rvm ; cd /home/<Username>/<Site> ; /usr/local/rvm/gems/ruby-2.4.2/bin/rails server --port=3000 --binding=127.0.0.1 -d'
+$ cd /etc
+$ sudo nano rc.local
+	//* insert the following before the exit line
+	//* 	/home/<Username>/startrails.sh
+
+
+
+

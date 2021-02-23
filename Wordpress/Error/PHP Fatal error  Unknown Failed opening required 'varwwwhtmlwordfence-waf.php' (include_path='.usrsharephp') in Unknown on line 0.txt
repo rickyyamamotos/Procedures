@@ -1,0 +1,7 @@
+PHP Fatal error  Unknown Failed opening required 'varwwwhtmlwordfence-waf.php' (include_path='.usrsharephp') in Unknown on line 0
+
+Somebody tried to manually remove wordfence and messed the apache configuration
+$ nano /etc/php/7.0/apache2/php.ini
+	comment out auto_prepend_file = '/var/www/html/wordfence-waf.php'
+if problem persist also check on
+	user.ini and .htaccess

@@ -1,0 +1,4 @@
+canvas encryption key required see configsecurity.yml
+
+check settings on /var/canvas/config/dynamic_setting.yml
+	in my case it missed "production"

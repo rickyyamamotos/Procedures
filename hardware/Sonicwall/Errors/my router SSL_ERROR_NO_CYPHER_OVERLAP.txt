@@ -1,0 +1,5 @@
+download firefox portable for windows and run it to access the router
+	https://sourceforge.net/projects/portableapps/files/Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%20ESR%2C%20Portable%20Edition%2045.8.0/
+http://XXX.XXX.XXX.1/diag.html
+under Encryption Settings, disable check box "Enable RC4-Only Cipher <Phone> Support"
+save and the router will reboot

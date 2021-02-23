@@ -1,0 +1,8 @@
+download http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v156.zip
+unzip sendEmail.exe into c:\windows\system32
+
+optioanlly if using python
+uzip sendEmail.py into the desired directory
+
+test
+c:\sendEmail.exe -vv -o tls=yes -m "test2" -f <Email> -t <Email> -s smtp.gmail.com:587 -xu <Email> -xp <Password> -u "test2"

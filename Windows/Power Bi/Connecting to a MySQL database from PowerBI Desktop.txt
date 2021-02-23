@@ -1,0 +1,25 @@
+Connecting to <Site>.<Domain> 
+(https://social.technet.microsoft.com/wiki/contents/articles/32004.power-bi-tips-for-working-with-mysql.aspx)
+0) in the mysql server
+	$ mysql -uroot -p
+	mysql>  GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '<Password>';
+	mysql> flush privileges;
+1) Download and installmysql-connector
+	https://dev.mysql.com/downloads/connector/
+2) Start Power BI Desktop - Get Data - MySQL Database - Connect
+3) In "MySQL Database" dialog enter "localhost" or name of local machine, enter name of database and press "OK" button.
+	XXX.XXX.XXX.236	XXX.XXX.XXX.32	(for <Site>.<Domain>)
+	XXX.XXX.XXX.242			(for <Site>.<Domain>)
+	v
+4) Check "Use alternative credentials"
+	root / 		(<Password>)
+5) Click on "Connect"
+
+6) You may see the following error in your query editor window:
+	"DataSource.Error: Object reference not set to an instance of an object."
+	You are most likely getting a "user not authorized error". To resolve this issue, go to File | 
+	Options and Settings | Data source settings and edit your data source and set the credentials to 
+	"Database credentials", not Windows credentials.
+
+
+Error: We couldn't authenticate with the credentials provided. Please try again

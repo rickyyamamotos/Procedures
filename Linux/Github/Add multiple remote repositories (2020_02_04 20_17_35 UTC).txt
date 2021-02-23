@@ -1,0 +1,6 @@
+
+$ git remote
+origin
+$ git remote add pb https://github.com/paulboone/ticgit
+$ git remote -v
+

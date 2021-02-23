@@ -1,0 +1,4 @@
+Replace a string with another one inside the current directory and all subdirectories
+$ find ./ -type f -exec sed -i 's/assets/Assets/g' {} \;
+	//* assets is the original string
+	//* Assets is the new string

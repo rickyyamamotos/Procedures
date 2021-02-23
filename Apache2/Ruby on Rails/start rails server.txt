@@ -1,0 +1,4 @@
+
+$ rails server
+	//* message: Listening on tcp://0.0.0.0:3000
+	//* if you did not get the message you will need to start nvm and ruby: $ source /usr/local/rvm/scripts/rvm

@@ -1,0 +1,9 @@
+Hide php version
+nano /etc/httpd/conf/httd.conf
+ServerSignature Off
+Servers Prod
+
+Hide apache version
+nano /etc/httpd/conf/httd.conf
+Servers ProductOnly
+ServerSignature Off

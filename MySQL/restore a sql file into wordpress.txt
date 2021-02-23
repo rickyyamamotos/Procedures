@@ -1,0 +1,17 @@
+copy the sql file to /tmp/
+c:> pscp c:\temp\test.sql rick@<Site>:/tmp/
+
+if a restore is into an existing database
+$ mysql -u root -p
+mysql> drop WP_database
+
+create a database
+mysql> CREATE DATABASE WP_database;
+mysql> CREATE USER WP_user@localhost IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON WP_database.* TO "WP_user"@"localhost";
+mysql> FLUSH PRIVILEGES;
+mysql> EXIT
+
+$ mysql –u <Username> –p WP_database < /tmp/test.sql
+
+

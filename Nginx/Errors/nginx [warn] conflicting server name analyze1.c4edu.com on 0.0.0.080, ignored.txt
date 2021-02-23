@@ -1,0 +1,13 @@
+nginx [warn] conflicting server name <Site>1.<Site> on 0.0.0.080, ignored
+
+this may happend when you add a new server to certbot using
+	cert-auto --nginx -d newserver
+The above may edit /etc/nginx/sites-available/default to add the newserver in the setting
+
+fix
+	modify /etc/nginx/sites-available/default.conf
+	to allow only the default block, and delete any newserver block
+	when adding certbot cert, use 
+			certbot-auto --apache -w /var/www/html/ -d servername
+	and modify the /etc/nginx/sites-available/servername.conf to add the pem
+

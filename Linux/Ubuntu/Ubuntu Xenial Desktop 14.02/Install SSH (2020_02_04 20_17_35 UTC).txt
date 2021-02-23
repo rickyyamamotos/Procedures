@@ -1,0 +1,15 @@
+$ sudo apt-get install ssh
+$ sudo service ssh start
+$ sudo systemctl enable ssh
+$ sudo nano /etc/ssh/sshd_config
+	add the following line
+		AllowUsers <Username>
+$ sudo service sshd restart
+
+From a Windows client connect using PUTTY XXX.XXX.XXX.48:22
+
+
+
+
+
+

@@ -1,0 +1,11 @@
+SMTP ERROR Failed to connect to server php_network_getaddresses getaddrinfo failed Temporary failure in name resolution SMTP connect failed.txt
+
+in moodle you get this error when emailing and debbuging is on
+
+Solution
+1) check the OS DNS resolution
+2) ensure that http.conf and ssl.conf defines NameServer
+	nano /etc/httpd/conf/httpd.conf
+		NameServer wdp.<Domain>
+	service httpd restart
+

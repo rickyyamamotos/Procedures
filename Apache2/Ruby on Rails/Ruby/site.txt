@@ -1,0 +1,83 @@
+<Site> ruby app is using mysql, not postgresql
+database name: <DBName>
+table: <Table>
+record name: host
+record values:
+	empty
+
+
+http://nicholasjohnson.com/ruby/ruby-course/exercises/hashes-and-symbols/
+
+<Site> is an object
+
+symbols (:name)
+	it is a inmutable data type that does not hold a value.
+	It is a placeholder, ommonly used as placeholders in Hashes.
+	It is used to represent the name of a value, or name of the key in a list.
+	Assigning a symbols a value
+		 :cool => :symbol
+			//* the rocket or arrow syntax was the only way to have a symbol key point to a symbol value
+	Convert a string to a symbol
+		 "cool" => :thing
+			//* converts the string "cool" to a symbol
+Hashes
+	They are objects that associate lists of arbitrary objects with each other. It is a list
+		I.E.
+			animals = Hash.new
+			animals[:tall] = "giraffe"
+			animals[:minute] = "kitten"
+			puts animals.inspect
+		I.E.
+			animals = {:tall => "giraffe", :minute => "kitten"}
+			puts animals[: minute]
+		I.E.
+			food_hash = {
+			  :happy => "ice cream",
+			  :pensive => "witchetty grub"
+			}
+			puts "#{:happy}"
+				//* ice cream
+:exists is a method
+
+
+if <Site>.exists?(:host => domain)
+	check if a key named "host" exists in the list <Site>
+	":host" is a symbol
+	":host => domain" use the symbol ":host" as a map-key, for key host that is equal to domain
+<Site>.exists?(:host => domain) is translated to:
+	SELECT COUNT(*) FROM `canvas_<Site>s` WHERE `canvas_<Site>s`.`host` = 'https://<Site>'
+replace with
+	<Site>.where(:host => domain).any?
+	
+https://<Site>:<SSHPort>/phpmyadmin/
+	root / <Password>
+
+https://<Site>
+https://www.<Site>
+
+development.rb
+  create_table "canvas_<Site>s", force: :cascade do |t|
+    t.string   "host",         limit: 255
+    t.string   "client_id",    limit: 255
+    t.string   "secret",       limit: 255
+    t.string   "redirect_url", limit: 255
+    t.string   "access_", limit: 255
+    t.string   "refresh_s", limit: 255
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+
+database.yml
+development:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: <DBName>
+  pool: 5
+  username: root
+  password: <Password>
+
+
+
+
+
+{"oauth_nonce"=>"Email>",

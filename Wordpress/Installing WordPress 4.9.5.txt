@@ -1,0 +1,235 @@
+Install wordfence into any new wp website
+
+rick/<Password>
+
+Requirements:
+-PHP 7 or greater
+-MySQL 5.6 or greater OR MariaDB 10.0 or greater
+-The mod_rewrite Apache module
+-HTTPS support	(get certificate)
+
+ssh XXX.XXX.XXX.186:<PortNumber>
+pscp -P -r -p <PortNumber> -pw <Password> dev@XXX.XXX.XXX.186:/var/www/* c:\temp\
+
+Set Up a Static IP
+$ sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet static
+	address XXX.XXX.XXX.186
+	netmask <Subnet>
+	network	XXX.XXX.XXX.0
+	broadcast	XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.4
+	dns-nameservers XXX.XXX.XXX.2
+$ sudo /etc/init.d/networking restart
+$ shutdown -r -t 0
+
+Set Time
+$ sudo  timedatectl set-timezone Etc/UTC
+
+Add Public Key Authentication (Recommended)
+1) If you do not already have an SSH key pair, you need to generate one
+$ ssh-keygen
+	//* take note where you save the keys /root/.ssh/id_rsa
+	//* enter a paraphrase <Password>
+	
+Install PHP 7 or greater
+$ apt-get update
+$ apt-get remove php5-common -y
+$ apt-get install apache2
+$ nano /etc/apache2/apache2.conf
+	//* Add the following line
+		ServerName localhost	//* replace localhost with your public domain name
+$ sudo apache2ctl configtest
+	//* test apache configuration
+$ sudo systemctl restart apache2
+
+$ sudo ufw app list
+	//* make sure that UFW has an application profile for Apache
+
+
+$ a2query -m php7.0
+	//** Verifies that php is working
+$ a2enmod php7.0
+$ apt-get install aspell graphviz php7.0-curl php7.0-gd php7.0-intl php7.0-ldap php7.0-mysql php7.0-pspell php7.0-xml php7.0-xmlrpc php7.0-zip
+$ service apache2 restart
+$ nano /etc/apache2/apache2.conf
+	//* Add the following line
+		ServerName localhost
+$ sudo service apache2 restart
+
+Install MySQL 5.6 or greater
+$ apt-get install mysql-server
+	//* password=<Password>
+$ nano /etc/mysql/mysql.conf
+$ mysql -u root -p
+	//** <Password>
+
+Secure your site with SSL
+See Secure Apache with Let's Encrypt on Ubuntu 16.04.txt
+
+
+Download Wordpress
+$ cd /tmp
+$ wget https://wordpress.org/latest.tar.gz
+$ tar -zxvf https://wordpress.org/latest.tar.gz
+
+$ mysql -u root -p
+	//* password=<Password>
+mysql> CREATE DATABASE WP_database;
+mysql> CREATE USER WP_user@localhost IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON WP_database.* TO "WP_user"@"localhost";
+mysql> FLUSH PRIVILEGES;
+mysql> EXIT
+
+Set up wp-config.php
+Go to https://<Site>.wordpress.org/secret-key/1.1/salt/
+	To generate random keys. These keys are used for encryption and cookies
+$ cd /tmp/wordpress
+$ mv wp-config-sample.cfg wp-config.php
+$ nano wp-config.php
+	change define('DB_NAME', 'WP_database');
+	change define('DB_USER', 'WP_user');
+	change define('DB_PASSWORD', ''<Password>');
+	define('AUTH_KEY',         ';
+	define('SECURE_AUTH_KEY',  '');
+	define('LOGGED_IN_KEY',    '');
+	define('NONCE_KEY',        '');
+	define('AUTH_SALT',        '');
+	define('SECURE_AUTH_SALT', '');
+	define('LOGGED_IN_SALT',   '
+	define('NONCE_SALT',       '
+	define('WP_DEBUG', true);
+		//** DEbuging mode is on for dev
+$ 
+
+
+Upload the files
+$ rsync -avP /tmp/wordpress/ /var/www/html/
+$ cd /var/www/html
+$ sudo chown -R rick:www-data *
+$ rm index.html
+$ mkdir /var/www/html/wp-content/uploads
+	//* directory for user to upload images and other content
+$ sudo chown -R :www-data /var/www/html/wp-content/uploads
+
+Run the Install Script
+Go to https://<Site>/<Username>/
+username: <Username>
+password: <Password>
+Your email: <Email>
+
+Securing WordPress
+$ cd /var/www/html
+$ mv wp-config.php ../
+$ chown root:www-data wp-config.php
+$ chmod 640 wp_config.php
+$ nano /etc/apache2/apache2.conf
+	//* Modify the following lines
+	//* This will allow .htaccess files on directories to work
+	<Directory /var/www/>
+		Options Indexes FollowSymLinks
+		AllowOverride All
+		Require all granted
+	</Directory>
+$ cd /var/www
+$ nano .htaccess
+	//* Add the following lines
+# PROTECT WP-CONFIG
+	<Files wp-config.php>
+		# Apache < 2.3
+		<IfModule !mod_authz_core.c>
+			Order allow,deny
+			Deny from all
+			Satisfy All
+		</IfModule>
+		# Apache >= 2.3
+		<IfModule mod_authz_core.c>
+			Require all denied
+		</IfModule>
+	</Files>
+	Options All - Indexes
+	# SECURE LOOSE FILES 
+	# http://m0n.co/04
+	<IfModule mod_alias.c>
+	RedirectMatch 403 (?i)(^#.*#|~)$
+	RedirectMatch 403 (?i)/readme\.(html|txt)
+	RedirectMatch 403 (?i)\.(ds_store|well-known)
+	RedirectMatch 403 (?i)/wp-config-sample\.php
+	RedirectMatch 403 (?i)\.(7z|bak|bz2|com|conf|dist|fla|git|inc|ini|log|old|psd|rar|tar|tgz|save|sh|sql|svn|swo|swp)$
+	</IfModule>
+$ chown root:www.data .htaccess
+$ chmod 640 .htaccess
+//** create a .htaccess in every subfolder of /var/www/html/ with the following text
+	Options All - Indexes
+	//* This will disallow the end-user to list the folder/directory content
+$ cd /tmp
+$ cp -p /var/www/html/.htaccess .
+$ find /var/www/html/ -type d -exec cp -p .htaccess {} \;
+	//* this will copy .htaccess from /var/www/html/ to all subfolders preserving its attributes
+//* 
+
+
+Optionally but when in production and may interfere with plugins
+$ nano /var/www/html/wp-content/.htaccess
+	# disable code execution in folder and subfolders
+	# fit for wp-content/uploads and also full wp-content if plugins/themes well written
+	# extensions list for zone.ee (Apache 2.4 version)
+	Options -ExecCGI
+	RemoveType .php .php3 .phtml .inc
+	RemoveHandler .php .php3 .phtml .inc
+	<FilesMatch "\.(?i:php|php3|phtml|inc)($|\.)">
+	    Require all denied
+	</FilesMatch>
+	<IfModule mod_php7.c>
+	  php_flag engine off
+	</IfModule>
+$ cd /tmp
+$ find /var/www/html/wp-content -type d -exec cp -p .htaccess {} \;
+$ nano /var/www/html/wp-includes
+	# disable code execution in wp-includes
+	# extensions list for zone.ee (Apache 2.4 version)
+	Options -ExecCGI
+	RemoveType .php3 .phtml .inc
+	RemoveHandler .php3 .phtml .inc
+	<FilesMatch "\.(?i:php|php3|phtml|inc)($|\.)">
+	    Require all denied
+	</FilesMatch>
+	<Files wp-tinymce.php>
+	    Require all granted
+	</Files>
+	<Files ms-files.php>
+	    Require all granted
+	</Files>
+$ find /var/www/html/wp-includes -type d -exec cp -p .htaccess {} \;
+
+Create a ubunt user to manage /var/www/html
+	//* this will give rwx access to this user to all files and subdirectories
+$ sudo useradd username -m -s /bin/bash
+$ sudo passwd dev
+	//* <Password>
+$ adduser dev www-data
+$ find /var/www/html/*.* -exec chown dev:www-data {} \;
+$ find /var/www/ -name .htaccess -exec chmod 750 {} \;
+
+Allowing the installation of uploaded plugins
+$ chmod 751 /var/www/html/wp-contents/uploads
+$ find /var/www/html/wp-content/ -exec chown www-data:www-data {} \;
+This is optional ==> $ find /var/www/html/wp-content/ -exec chmod 770 {} \;
+$ nano /var/www/wp-config.php
+	//* Add the following line
+	define('FS_METHOD', 'direct');
+$ service apache2 restart
+
+On https://www.<Site>\<Username>
+Settings/General/Timezone --> New York
+Settings/General/Anyone can <Site> --> Uncheck
+Settings/Users/Add New
+	dev
+	<Password>
+	Role: <Username>
+Settings/Users/Add New
+	ricktest
+	<Password>
+	Role: Subscriber
+

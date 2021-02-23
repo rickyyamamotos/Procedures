@@ -1,0 +1,42 @@
+$ cd /usr/local/nagios/etc/objects
+
+//* adding the commands
+$ nano commands.cfg
+	define command {
+	    command_name check_http_port
+	    command_line $<Username>$/check_http -I $HOSTADDRESS$ -p $ARG1$ <other options you use>
+	}
+
+//* adding a template that will use the new command
+$ nano templates.cfg
+	define host {
+		name			check_http_port_template
+		use			generic-host	//* Existing template to inherit from
+		check_interval		5
+		retry_interval		1
+		max_check_attempts	10
+		check_command		check_http_port!443	//* this is the new command, passing it 443 as argument
+		notification_period	24x7
+		notification_interval	25
+		contact_groups		<Username>s
+		<Site>		0		//* do not <Site> as a host, so it stays as a template
+	}
+
+//* adding a host
+$ nano localhost.cfg
+	define host	{
+		use 		check_http_port_template
+		host_name	myweb.com
+		alias		ThisIsMyWeb
+		address		100.100.100.100
+	}
+
+//* restart nagios
+$ service nagios restart
+
+
+//* test
+http://XXX.XXX.XXX.98/nagios
+	login
+	click on Host Details
+	//* check that the new host myweb.com shows in the list

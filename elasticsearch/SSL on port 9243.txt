@@ -1,0 +1,46 @@
+use a nginx reverse proxy or the proxy currently used by kibana
+create a new conf file
+	nano /etc/nginx/conf.d/elasticsearch.conf
+
+server {
+    listen 9243 ssl;
+    server_name <Site>;
+
+    ssl_certificate         /etc/nginx/ssl/<Site>_bundle.crt;
+    ssl_certificate_key     /etc/nginx/ssl/<Site>.key;
+    ssl_ciphers         EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
+    ssl_protocols       TLSv1.1 TLSv1.2;
+
+    location / {
+       # Deny Nodes Shutdown <Site>
+       if ($request_filename ~ "_shutdown") {
+         return 403;
+         break;
+       }
+       # Deny access to Cluster <Site>
+       if ($request_filename ~ "_cluster") {
+         return 403;
+         break;
+       }
+       if ($request_method !~ ^(GET|POST|HEAD)$ ) {
+          return 405;
+          break;
+       }
+       # Pass requests to ElasticSearch
+       proxy_pass http://localhost:9200;
+       proxy_redirect off;
+
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header Host $http_host;
+
+       # For CORS Ajax
+       add_header Access-Control-Allow-Origin *;
+       add_header Access-Control-Allow-Credentials true;
+       add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+
+       # Route all requests to feeds index
+#       rewrite ^(.*)/(.*)/(.*) /$1/$2/_search$3 break;
+#       rewrite_log on;
+    }
+}

@@ -1,0 +1,2 @@
+
+check .htacess on the apache root. Sometimes redirections on the .htaccess break the forwardimg

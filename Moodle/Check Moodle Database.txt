@@ -1,0 +1,8 @@
+mysqlcheck -u moodleuser -p --auto-repair moodle
+	//* replace moodleuser with the actual mysql user used by moodle. See /var/www/html/config,php: CFG->dbuser
+	//* replace moodle with the actual database used b moodle. See /var/www/html/config.php: $CFG->dbname
+
+Individual Moodle tables may be repaired using MySQL <Username>/phpmyadmin as follows:
+	In the databases section, select the Moodle database.
+	Click the SQL tab, then in the "Run SQL query/queries on database moodle" field type REPAIR TABLE mdl_tablename
+	Click the Go button.

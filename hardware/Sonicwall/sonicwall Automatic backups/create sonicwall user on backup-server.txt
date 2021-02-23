@@ -1,0 +1,51 @@
+the "sonicwall" user is to allow ftp access from the sonicwalls
+username: sonicwall
+password: <Password>
+
+
+The ftp service in the backup-server is chrooted to restrict ftp access to only
+  the user home directory
+
+
+In the backup-server (XXX.XXX.XXX.51)
+Install vsftpd:
+	sudo apt-get install vsftpd
+Setup firewall rules:
+	sudo ufw allow 20/tcp
+	sudo ufw allow 21/tcp
+	sudo ufw allow 990/tcp
+	sudo ufw allow 40000:50000/tcp
+	sudo ufw status
+Make backup of vsftpd.conf:
+	sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.orig
+Create the sonicwall user
+	# we cant use the default user's home directory because a bug on SonicOS Enhanced 5.8.0.2-37o
+	sudo useradd -m -s /bin/bash sonicwall
+	cd /home/sonicwall
+	mkdir ftp
+	passwd sonicwall
+		<Password>
+nano /etc/vsftpd.userlist
+	sonicwall
+customize vsftp
+	nano /etc/vsftp.conf
+		anonymous_enable=NO
+		chroot_local_user=YES
+		user_sub_=$USER
+		local_root=/home/$USER/ftp
+		pasv_min_port=40000
+		pasv_max_port=50000
+		listen_port=21
+		userlist_enable=YES
+		userlist_file=/etc/vsftpd.userlist
+		userlist_deny=NO
+		allow_writeable_chroot=YES
+	service vsftpd restart
+
+
+
+
+
+
+
+

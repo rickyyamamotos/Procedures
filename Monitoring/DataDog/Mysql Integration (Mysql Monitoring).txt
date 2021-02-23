@@ -1,0 +1,57 @@
+DataDog v5 (https://docs.datadoghq.com/integrations/mysql/)
+1) Install the DataDog Agent into the server with mysql
+2) log onto mysql
+	mysql> CREATE USER 'datadog'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> GRANT REPLICATION CLIENT ON *.* TO 'datadog'@'localhost' WITH MAX_USER_CONNECTIONS 5;
+	mysql> GRANT PROCESS ON *.* TO 'datadog'@'localhost';
+	mysql> flush privilesges;
+	mysql> quit;
+3) cp conf.yaml.example conf.yaml
+   nano /etc/datadog-agent/conf.d/mysql.d/conf.yaml
+	init_config:
+	  instances:
+	    - server: 127.0.0.1
+	      user: datadog
+	      pass: '<Password>'
+	      port: 3306
+
+
+
+
+
+DataDog v5
+1) Install the DataDog Agent into the server with mysql
+2) grant the Agent access to read metrics from your database
+	$ sudo mysql -e "CREATE USER 'datadog'@'localhost' IDENTIFIED BY '<Password>';"
+	$ sudo mysql -e "GRANT REPLICATION CLIENT ON *.* TO 'datadog'@'localhost' WITH MAX_USER_CONNECTIONS 5;"
+		//* where <Password> is the password on the datadog account: <Email>
+3) If you'd like to get the full metrics catalog please also grant the following privileges:
+	$ sudo mysql -e "GRANT PROCESS ON *.* TO 'datadog'@'localhost';"
+	$ sudo mysql -e "GRANT SELECT ON performance_schema.* TO 'datadog'@'localhost';"
+4) Verifiying grant
+	$ mysql -u datadog --password=<Password> -e "show status" | grep Uptime && echo -e "\033[0;32mMySQL user - OK\033[0m" || echo -e "\033[0;31mCannot connect to MySQL\033[0m"
+	$ mysql -u datadog --password=<Password> -e "show slave status" && echo -e "\033[0;32mMySQL grant - OK\033[0m" || echo -e "\033[0;31mMissing REPLICATION CLIENT grant\033[0m"
+5) Verifiying full metrics catalog
+	$ mysql -u datadog --password=<Password> -e "SELECT * FROM performance_schema.threads" && echo -e "\033[0;32mMySQL SELECT grant - OK\033[0m" || echo -e "\033[0;31mMissing SELECT grant\033[0m"
+	$ mysql -u datadog --password=<Password> -e "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST" && echo -e "\033[0;32mMySQL PROCESS grant - OK\033[0m" || echo -e "\033[0;31mMissing PROCESS grant\033[0m"
+6) Configure the Agent to connect to MySQL
+	$ vi /etc/dd-agent/conf.d/mysql.yaml
+		instances:
+		  - server: localhost
+		    user: datadog
+		    pass: <Password>
+		    tags:
+		        - optional_tag1
+		        - optional_tag2
+		    options:
+		        replication: 0
+		        galera_cluster: 1
+7) Restart the Agent
+	$ /etc/init.d/datadog-agent restart
+8) 5) Verification that Datadog-Mysql Integration is working
+	$ /etc/init.d/datadog-agent info
+		//* It should show  Mysql, instance #0 [OK], collected # metrics
+
+
+
+

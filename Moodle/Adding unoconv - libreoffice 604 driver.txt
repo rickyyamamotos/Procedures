@@ -1,0 +1,140 @@
+For Libreoffice 4.3 see
+https://docs.moodle.org/34/en/Universal_Office_Converter_(unoconv)#CentOS_.2F_RedHat
+Installing
+	$ yum install openoffice* openoffice-pyuno
+	$ cd /tmp
+	$ git clone https://github.com/dagwieers/unoconv.git
+	$ mv /tmp/unoconv /etc/
+	$ ln -s /etc/unoconv/unoconv /usr/bin/unoconv
+		//* # or link unoconv to /usr/bin
+Test
+	https://<Site>/<Username>/search.php?query=unoconv
+Configuring unoconve as a service
+//* The following did not work
+	$ nano /etc/init.d/unoconv.service
+		[Unit]
+		Description=Unoconv listener for document conversions
+		Documentation=https://github.com/dagwieers/unoconv
+		After=network.target remote-fs.target nss-lookup.target
+		[Service]
+		Type=simple
+		Environment="UNO_PATH=/usr/lib64/libreoffice/program"
+		ExecStart=/usr/bin/unoconv --listener
+		[Install]
+		WantedBy=multi-user.target
+	$ chmod 755 unoconv.service
+	$ systemctl enable unoconv.service
+	$ systemctl start unoconv.service
+Production servers should consider running unoconv in listener mode 
+	see https://docs.moodle.org/34/en/Installing_unoconv#Run_a_unoconv_listener
+$ nano /etc/init.d/unoconvd
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+#UNO_PATH=/opt/libreoffice5.2/program unoconv --listener
+#dir="/opt/libreoffice5.2/program"
+dir="/usr/lib64/libreoffice/program"
+#cmd="/usr/bin/unoconv -vvv --listener &"
+cmd="/usr/bin/unoconv --listener"
+user="root"
+name=`basename $0`
+pid_file="/var/run/$name.pid"
+stdout_log="/var/log/$name.log"
+stderr_log="/var/log/$name.err"
+get_pid() {
+    cat "$pid_file"
+}
+is_running() {
+    [ -f "$pid_file" ] && ps `get_pid` > /dev/null 2>&1
+}
+case "$1" in
+    start)
+    if is_running; then
+        echo "Already started"
+    else
+        echo "Starting $name"
+        cd "$dir"
+        if [ -z "$user" ]; then
+            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        else
+            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        fi
+        echo $! > "$pid_file"
+        if ! is_running; then
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
+        fi
+    fi
+    ;;
+    stop)
+    if is_running; then
+        echo -n "Stopping $name.."
+        kill `get_pid`
+        killall soffice.bin
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+ 
+            echo -n "."
+            sleep 1
+        done
+        echo
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
+        else
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
+        fi
+    else
+        echo "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+exit 0
+
+$ chmod 755 /etc/init.d/unoconvd
+$ chkconfig --add unoconvd
+$ chkconfig --level 5 unoconvd on
+$ chkconfig --level 4 unoconvd on
+$ chkconfig --level 3 unoconvd on
+$ /etc/init.d/unoconvd start
+
+
+
+
+For LibreOffice 6.04 see
+https://www.tecmint.com/install-libreoffice-on-rhel-centos-fedora-debian-ubuntu-linux-mint/
+$ uname -rv
+	//* Kernel 2.6.18 or higher version

@@ -1,0 +1,18 @@
+yum -y install open-vm-tools
+service vmtoolsd start
+chkconfig vmtoolsd on
+
+
+Error: No package open-vm-tools available
+	yum install epel-release-6-8.noarch
+		Error: epel-release-6-8.noarch already installe
+			yum reinstall epel-release-6-8.noarch
+
+optionally
+go to http://packages.vmware.com/tools/esx/X.X/repos/
+	//* replace X.X witht the CentOS version of your system. I.E. 6.7
+$ yum install http://packages.vmware.com/tools/esx/X.X/repos/vmware-tools-repo-RHEL6-9.0.0-2.x86_64.rpm
+	//* replace vmware-tools-repo-RHEL6-9.0.0-2.x86_64.rpm with a
+	//* x86_64 RHEL package. I.E vmware-tools-repo-RHEL6-10.2.0-1.el6.x86_64.rpm for CentOS 6.9
+$ yum search vmware
+$ yum -y install vmware-tools-esx-nox

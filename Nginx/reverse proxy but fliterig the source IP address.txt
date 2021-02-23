@@ -1,0 +1,50 @@
+cd /etc/nginx/sites-available
+nano DEFAULT_FILTERED_IP
+server {
+    if ($host = <Site>) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+        listen 80;
+        listen [::]:80;
+        server_name <Site>;
+        location ^~ /.well-known {
+                   allow all;
+                   auth_basic off;
+                   alias /var/www/html/.well-known;
+                   }
+#       return 301 https://$server_name$request_uri;
+#       redirection of http to https
+
+
+}
+
+geo $allowed_ip_addresses {
+        default         0;
+        XXX.XXX.XXX.0<CIDR>    1;
+        XXX.XXX.XXX.0/24  1;
+        XXX.XXX.XXX.186   1;
+        XXX.XXX.XXX.248 1;
+}
+
+
+server {
+        listen 443;
+        ssl on;
+        ssl_certificate /etc/letsencrypt/live/<Site>/fullchain.pem; # managed by Certbot
+        ssl_certificate_key /etc/letsencrypt/live/<Site>/privkey.pem; # managed by Certbot
+        server_name <Site>;
+        location ~ {
+                   if ($allowed_ip_addresses) {
+                      proxy_pass  https://XXX.XXX.XXX.97:8443;
+                   }
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_redirect          off;
+#                   proxy_set_header Upgrade $http_upgrade;
+#                   proxy_set_header Connection 'upgrade';
+#                   proxy_cache_bypass $http_upgrade;
+       }
+}

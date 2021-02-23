@@ -1,0 +1,15 @@
+WordPress will only prompt you for your FTP connection information while trying to install plugins or a WordPress update if it cannot write to /wp-content directly
+
+cd \var\www\html
+chmod 775 wp-content
+cd \var\www\html\wp-content
+find -type d -exec chmod 775 {} \;
+find -type f -exec chmod 774 {} \;
+nano /var/www/wp-config.php
+	define('FS_METHOD','direct');
+service apache2 restart
+
+
+
+
+

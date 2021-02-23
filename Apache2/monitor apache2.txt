@@ -1,0 +1,1 @@
+top -c -p `pgrep apache2 -d','`

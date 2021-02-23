@@ -1,0 +1,87 @@
+Seurity recommendation for directories and files permissions are	(This will allow moodle update, plugins, and uploads)
+	Moodle
+		Directories
+			/var/www/html		<Username>:apache	750	All/ER/None		This not allow new directories from plugins
+			/var/www/<moodledata>	<Username>:apache	770	All/All/None
+		Files
+			/var/www/html/*		<Username>:apache	740	All/R/None		This will not allow updates of moodle
+			/var/www/<moodledata>/*	<Username>:apache	770	All/All/None
+
+
+
+
+==============================TOOLS=====================================
+//* Save directory permission
+	cd /var/www/
+	ls -l > dir.txt
+	sort dir.txt > dir1.txt
+//* show upload directoies
+	find -name "upload"
+//* show any files with extension other than php
+	find -type f ! -name "*.php"
+//* Show log files
+	find -type f -name "*.log"
+//* Show zip files
+	find -type f -name "*.zip"
+//* show any files with permission other than -rw-r--r--
+	find -type f ! -perm 0644 -exec ls -l {} \;
+//* show any files with permission other than -rw-r--r--
+	find -type d ! -perm 0750 -exec ls -ld {} \;
+//* show any files owned by www-data
+	find -type f -user www-data -exec ls -l {} \;
+//* show any files owned by www-data
+	find -type d -user www-data -exec ls -ld {} \;
+//* show directory with permission different thant 0755 (drwxr-xr-x)
+	find -type d ! -perm 0755
+//* show file with permission different thant 0644 (-rw-r--r--)
+	find -type f ! -perm 0644
+
+//* Change permission of directories and files
+	find -type d -exec chmod 750  {} \; && find -type d -exec chown <Username>:www-data  {} \; && find -type f -exec chown <Username>:www-data {} \; && find -type f -exec chmod 740  {} \;
+//* Change directory permission recursively
+	find -type f ! -perm 0644 -exec chmod 644  {} \;
+//* Change Files permissions recursively
+	find -type d ! -perm 0755 -exec chmod 755  {} \;
+
+
+
+
+==============================OLD=====================================
+Performance recommendation for directories and files permissions are	(This will allow moodle update, plugins, and uploads)
+	Moodle
+		Directories
+			/var/www/html		<Username>:apache	750	All/ER/None
+			/var/www/html/*		<Username>:apache	770	All/All/None		Allows new directories
+			/var/www/<moodledata>	<Username>:apache	750	All/ER/None
+			/var/www/<moodledata>/*	<Username>:apache	770	All/All/None
+		Files
+			/var/www/html		<Username>:apache	750	All/ER/None		Allows files to be updated
+			/var/www/<dataroot>	<Username>:apache	770	All/All/None		
+
+
+
+==============================OLD=====================================
+apache or www-data
+/var/www/html read permissions		
+	default persmision: 775 
+	default owners: root:apache
+	chmod -R g+rwx *	//* to allow <Username> to write
+	chmod -R u+rwx *
+	usermod -G apache <Username>
+/var/www/moodledata write permissions	775 root:apache
+
+
+
+
+upload, plugins, themes
+$ sudo chown -R <Username>:apache "your_plugin_directory"
+	/var/www/html/theme
+	/var/www/html/repository/upload
+	/var/www/html/mod/assignment/type/upload
+$ sudo chmod -R g+w "your_plugin_directory"
+/path/to/moodle/theme/ - themes
+/path/to/moodle/mod/ - activity modules and resources
+/path/to/moodle/blocks/ - sidebar blocks
+/path/to/moodle/question/type/ - question types
+/path/to/moodle/course/format/ - course formats
+/path/to/moodle/<Username>/report/ - <Username> reports

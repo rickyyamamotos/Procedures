@@ -1,0 +1,36 @@
+Install sendemail v 1.56
+see "C:\Users\rick.yamamoto\Desktop\Training\Linux\Centos\linux-notifier.txt"
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ sudo cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ sudo yum install 'perl(Net::SSLeay)'
+$ sudo yum install 'perl(IO::Socket::SSL)'
+
+Fixing path for all users:
+$ sudo nano /etc/profile.d/addpath.sh
+	export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+disconnect from ssh, then reconnect for the path to update
+
+nano -c /usr/local/bin/sendEmail
+	on line 1906 remove SSLv3 and leave only tlsv1
+
+
+$ sendEmail -v -f $username -s $host -xu $username -xp $password -t $recipient -o tls=yes -u $subject -m $content
+GUSERNAME=<Email>
+Gpassword=<Password>
+GSERVER=smtp.gmail.com:587
+GRECIPIENT=<Email>
+GSUBJECT="New created users for <Site>.<Domain> on $DATE"
+GCONTENT="hello, this is a test"
+$ sendEmail -o tls=yes -f $GUSERNAME -t $GRECIPIENT -s $GSERVER -xu $GUSERNAME -xp $GPASSWORD -u $GSUBJECT -m $GCONTENT
+	//* testing email
+sendEmail -o tls=yes -o message-file=/home/<Username>/dailylog/v-newusers-Aug-08-17.txt -f $GUSERNAME -t $GRECIPIENT -s $GSERVER -a $DESDIR/$FILENAME -xu $GUSERNAME -xp $GPASSWORD -u 
+	//Test
+
+error: invalid SSL_version specified at /usr/share/perl5/IO/Socket/SSL.pm 
+	nano /usr/local/bin/sendEmail
+	 if (! IO::Socket::SSL->start_SSL($SERVER, SSL_version => 'TLSv1')) {
+
+
+/usr/local/bin/sendEmail -o tls=yes -f <Email> -s smtp.gmail.com:587 -u "test1" -m "test1" -t <Email> -xu <Email> -xp <Password>
+

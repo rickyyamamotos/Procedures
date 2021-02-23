@@ -1,0 +1,26 @@
+centos 7 with firewalld
+It is unmanageable to filter ip on at the host firewall level.
+Better do rules on the router. 
+
+$ nano /etc/ssh/sshd_config
+	AllowUsers *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.230 *@XXX.XXX.XXX.186 *@XXX.XXX.XXX.181 *@XXX.XXX.XXX.44 
+$ service sshd restart
+$ firewall-cmd --permanent --zone=public --add-port=<PortNumber>/tcp
+
+
+
+Optionally if you want to filter at the host firewall level:
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0/24" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.224/28" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.128/26" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.240/28" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.176/28" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.33" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --remove-port=<PortNumber>/tcp
+$ firewall-cmd --zone=public --remove-service=dhcpv6-client --permanent
+$ firewall-cmd --zone=public --remove-service=ssh --permanent
+$ firewall-cmd --reload
+$ cat /etc/firewalld/zones/public.xml
+$ firewall-cmd --zone=public --list-all
+

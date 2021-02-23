@@ -1,0 +1,13 @@
+Chris the Error "Sorry, you are not allowed to access this page" is not showing anymore.
+
+The following was done to bypass the error in <Site>
+$ nano /var/www/html/wp-includes/capabilities.php
+	function current_user_can( $capability ) {
+	        $current_user = wp_get_current_user();
+	/** the following 2 lines were added by rick 01/17/2019 **/
+		if ( is_<Username>() )
+		   return true;
+
+Just in case, i did a VM snapshot before making any changes, so we can go back at any time
+
+

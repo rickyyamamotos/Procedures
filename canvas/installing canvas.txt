@@ -1,0 +1,5 @@
+https://github.com/instructure/canvas-lms/wiki/Production-Start
+
+restart canvas
+	$ sudo /etc/init.d/apache2 restart
+	$ sudo /etc/init.d/canvas_init restart

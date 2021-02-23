@@ -1,0 +1,186 @@
+
+INSTALLING NAGIOS
+In a linux server (CentOS or RHEL Linux)
+-Install apache
+	$ apt-get install apache2 php7.0 libapache2-mod-php7.0 php7.0-fpm php7.0-mysql -y
+-Install mail capabilities
+	$ apt-get install exim4
+	$ dpkg-reconfigure exim4-config
+	$ mail me@mymail.com <<<"TEST Message body goes here"
+		//** test if a program can mail out from this server,
+	$ apt-get install nagios3
+		//*When asked what web server to configure Nagios for, say "Apache2".
+		//* Take note of password
+		//* If password is lost use
+			ix:/etc/nagios3# htpasswd -c htpasswd.users <Username>
+	$ apt-get install nagios-plugins
+	$		
+
+CONFIGURING NAGIOS
+Nagios can
+	1) Split your configuration over multiple files
+	2) Inherit configuracion from templates and other definitions
+Object definitions:
+	They are configuration scripts for hosts and services monitoring.
+	They are stored in /etc/nagios3/objects/
+	You can organize them, with 1 file per definition in directories trees
+	Having 1 file per host may be overkill for very short host definitions, but has the advantage that you can disable a definition easily by changing the filename
+Fist configuration: (creating a structure)
+	$ mkdir /etc/nagios3/objects
+	$ nano /etc/nagios3/nagios.conf
+		//* add the following line
+			cfg_dir=/etc/nagios3/objects 
+	//* Making a structure
+	$ cd  /etc/nagios3/objects
+	$ mkdir commands
+	$ mkdir templates
+	$ mkdir hosts
+	$ mkdir hostgroups
+	$ mkdir services
+	$ mkdir misc
+	$ mkdir network
+	$ mkdir hosts/linux
+	$ mkdir hosts/windows
+	$ mkdir network/firewalls
+	$ mkdir network/links
+	$ mkdir network/routers
+	$ mkdir network/switches
+	$ cd /etc/nagios3/conf.d
+	//* Backing Up original configuration
+	$ mkdir ORIG
+	$ cp generic-service_nagios2.cfg ../objects/generic-service-templates.cfg 
+	$ mv generic-service_nagios2.cfg ORIG/generic-service.cfg.ORIG 
+	$ cp hostgroups_nagios2.cfg ../objects/hostgroups.cfg 
+	$ mv hostgroups_nagios2.cfg ORIG/hostgroups.cfg.ORIG 
+	$ cp generic-host_nagios2.cfg ../objects/generic-host-templates.cfg                    
+	$ mv generic-host_nagios2.cfg ORIG/generic-host_nagios2.cfg.ORIG   
+	$ cp contacts_nagios2.cfg contacts.cfg 
+	$ mv contacts_nagios2.cfg ORIG/contacts.cfg.ORIG 
+	$ cp extinfo_nagios2.cfg extinfo.cfg 
+	$ mv extinfo_nagios2.cfg ORIG/extinfo.cfg.ORIG 
+	$ cp timeperiods_nagios2.cfg timeperiods.cfg 
+	$ mv timeperiods_nagios2.cfg ORIG/timeperiods.cfg.ORIG 
+	$ cp services_nagios2.cfg services.cfg 
+	$ mv services_nagios2.cfg ORIG/services.cfg.ORIG 
+	$ cp localhost_nagios2.cfg ../objects/computers/localhost.cfg 
+	$ mv localhost_nagios2.cfg ORIG/ocalhost.cfg.ORIG 
+	$ mv host-gateway_nagios3.cfg ORIG/host-gateway_nagios3.cfg.ORIG 
+Your host definitions may be organized somewhat like this :
+  /etc/nagios3/
+		objects/
+			hosts/
+				linux/
+					bert.cfg
+					ernie.cfg
+					kermit.cfg
+				windows/
+					winsrv1.cfg
+					winsrv2.cfg
+				routers/
+					router_1.cfg
+				switches/
+					sw01.cfg
+					sw02.cfg
+					sw03.cfg
+					sw04.cfg
+					sw05.cfg
+			hostgroups/
+			services/
+			templates/
+
+
+"Parents"
+They are used to define IP switches in your network. 
+I.E: if host bert is connected to switch_1; switch_1 connected to switch_00, and the Nagios server is connected to the network through switch_00, you will say that
+	bert has parent : switch_1
+	switch_1 has parent: switch_00
+	switch_00 has parent : nagios host
+The idea of using Parents is to avoid getting alarms whena switch is down.
+Parent definition
+  define host {
+		use		linux_server_template
+		host_name	bert
+		alias		Bert
+		address		123.123.123.123
+		parents		switch_1
+	
+
+Hosts definitions
+	ping -> host is UP
+	check_command tcp!3128  (check without pinging)
+
+hostgroups
+Hosts can be grouped in "hostgroups". This is used mainly to provide categories of hosts in the Nagios user interface, and to assign services to groups of hosts.
+ define hostgroup{
+	hostgroup_name		linux-servers
+	alias			Linux Servers
+	members			bert, ernie,kermit,piggy
+  }
+1 host can be member of several hostgroups
+hostgroups can have other hostgroups as members
+Ways to make a host to be a member of a hostgroup
+	-via members in a hostgroup definition
+	-via hostgroups in a host definition
+
+
+
+Services definitions
+just like a host can be checked simply by pinging it, a network service can be checked by sending it the appropriate request (an SQL SELECT, a HTTP GET, a DNS query, ...) and interpreting the reply. Nagios has standard plugins to check this
+They are define in the host directory or in the object definitions
+As well as with host definitions, these definitions can be organized in separate files in directory trees. They can be inherit, etc
+define service {
+        use                             generic-network-service
+	service_description             SSH
+        hostgroup_name                  ssh-servers
+        check_command                   check_ssh
+        notification_interval           0 ; set > 0 if you want to be renotified
+}
+
+
+Associating Service definition with Host
+Two ways
+	1) At the service definition using a host clause
+		define service {
+		       [...]
+			service_description   SSH
+		        hosts                 bert,ernie,kermit
+		       [...]
+		}
+	2) At the service definition using a hostgroup clause
+		define service {
+		       [...]
+			service_description   SSH
+		        hostgroups            ssh-servers
+		       [...]
+		}
+
+
+Command Definitions
+This defines what a check_command specified in the host or service definitions does
+They are (usually) implemented by plugins
+define command{
+	command_name	check_ssh
+	command_line	/usr/lib/nagios/plugins/check_ssh '$HOSTADDRESS$'
+}
+
+
+Contact definition
+It specifies emails that will receive notifications
+Nagios may come with a predefined "root" contact
+define contact {
+        use             root
+        contact_name    me_work
+        alias           Me at work
+        email           koen.noens@sillysoftwareproductions.com
+}
+They are specify at the host and service definitions
+
+
+
+
+
+
+
+
+
+

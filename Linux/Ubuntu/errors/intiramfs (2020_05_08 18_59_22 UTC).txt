@@ -1,0 +1,5 @@
+<initramfs> exit
+	//* a fsck will run
+//* if it does not finish, run
+	<initramfs> fsck /dev/sda1
+<initramfs> exit

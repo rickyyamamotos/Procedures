@@ -1,0 +1,8 @@
+[WARN] could not build optimal proxy_headers_hash, you should increase either proxy_headers_hash_max_size 512 or proxy_headers_hash_bucket_size 64; ignoring proxy_headers_hash_bucket_size
+
+$ nano /etc/nginx/nginx.conf
+    //* append inside the http{}, and before the "include /etc/nginx/conf.d/*.conf;"
+         proxy_headers_hash_max_size 512;
+         proxy_headers_hash_bucket_size 128; 
+$ nginx -t
+$ service nginx restart

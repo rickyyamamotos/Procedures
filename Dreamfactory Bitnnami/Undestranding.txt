@@ -1,0 +1,44 @@
+DreamFactory is a free open source REST <Site> platform for<Site>le, web, and IoT applications. With DreamFactory, developers can build<Site>le, web, and IoT applications without hand-coding
+ <Site>s. DreamFactory automatically generates a comprehensive REST <Site> for SQL and NoSQL databases, file storage, cache, email, and push notifications. Additional features include server-side
+ scripting with Javascript, Node.js, PHP, and Python, cross-database <Site> calls, remote HTTP and SOAP connections, user management, role-based access control on <Site>s, SSO authentication, JWT
+ sessions, and OAuth/LDAP/Active Directory integration. With sample applications for JavaScript, AngularJS, ReactJS, Objective-C, Swift, Android, Titanium, and .NET, getting started with
+ DreamFactory is easy.
+
+
+Understanding WordPress REST <Site>
+Requirements:
+-A working installation of DreamFactory. Installation options and instructions are https://github.com/dreamfactorysoftware/dsp-core/wiki/Usage-Options
+-A working WordPress blog to which you have <Username> access. You can download and install WordPress from https://wordpress.org/download/
+-A Mailgun <Site> account. Sign up for free on http://www.mailgun.com/
+-A REST client for debugging <Site> requests and responses. For Chrome from https://chrome.google.com/webstore/detail/tabbed-postman-rest-clien/coohjcphdfgbiolnekdpbcijmhambjff?hl=en-US
+ For firefox from https://addons.mozilla.org/en-us/firefox/addon/httprequester/
+
+Create a GNOME Ubuntu Machine
+Mem: 1 Gb
+Storage: 60 Gb
+name: dreamfactory-test
+username: <Username>
+password: <Password>
+
+Dreamfactory Requirements:
+	-Php 7
+	-Apache
+	-Mysql
+	-php modules like curl, mbstring, zip, sqlite
+	-Minimum of 512 MB RAM
+	-Minimum of 150 MB hard drive space
+Dreamfactory 2.8.0-3 Install:
+	$ cd /tmp
+	$ wget https://bitnami.com/redirect/to/156336/bitnami-dreamfactory-2.8.0-3-linux-x64-installer.run
+	$ sudo chmod 777 bitnami-dreamfactory-2.8.0-3-linux-x64-installer.run
+	$ sudo ./bitnami-dreamfactory-2.8.0-3-linux-x64-installer.run
+
+
+WordPress requirements:
+-Php 7+
+-Mysql 5.6+
+-HTTPS support
+-Minimum 40 Gb of hard disk space
+WordPress install:
+	1) Download it from https://bitnami.com/stack/lamp/modules#wordpress
+

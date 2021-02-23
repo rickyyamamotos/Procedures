@@ -1,0 +1,15 @@
+etc\sudoers syntax error near line 21
+sudo: parse error in /etc/sudoers near line 21
+sudo: no valid sudoers sources found, quitting
+
+
+SOlution
+$ kexec visudo
+	or 	pkexec /usr/sbin/visudo  (debian)
+$ nano /etc/sudoers
+		#includedir /etc/sudoers
+	To:
+		#includedir /etc/sudoers.d
+
+
+

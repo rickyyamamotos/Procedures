@@ -1,0 +1,28 @@
+godaddy renew iis certificate
+
+Renewing an SSL certificate is similar to requesting a new certificate
+
+new Certificate Signing Request (CSR) in IIS
+IIS -> Select Server -> Open "Server Certificates" -> Select "Create a new Certificate Request"
+	fil the data and use "Microsoft RSA" and "2048
+Copy the content of the file
+
+Go to godaddy 
+	My Account -> SSL Certificates -> the respective domain -> rekey & Manage -> expand rekey -> paste the content of the file
+	click on "save" and click on "Submit"
+wait until rekey is approbed from godaddy, download the cert into the server and install
+download the certificate file and copy it to the iis server
+
+
+on the iis server
+	go to IIS -> select server -> -> Open "Server Certificates" -> Select "Complete Certificate Request"
+	go to IIS -> select server -> rght click on the site -> edit binding -> edit https and change the cert
+restart iis
+
+
+
+
+
+
+
+

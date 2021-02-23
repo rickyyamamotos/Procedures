@@ -1,0 +1,23 @@
+Sites that are reverse proxied
+The SSL certificates should be installed on the nginx server
+$ nano /etc/nginx/sites-enable/<Site>
+	//* add the following before location ~ { in port 80
+        location ^~ /.well-known {
+                   allow all;
+                   auth_basic off;
+                   alias /var/www/html/.well-known;
+                   }
+$ certbot certonly --webroot -w /var/www/html/ -d <Site>
+$ nano /etc/nginx/sites-enable/<Site>
+	//* change the path to the certs, and change the https to http
+        ssl_certificate         /etc/letsencrypt/live/<Site>/fullchain.pem;
+        ssl_certificate_key     /etc/letsencrypt/live/<Site>/privkey.pem;
+	proxy_pass              http://XXX.XXX.XXX.62;
+$ service nginx restart
+
+certificates will automatically renew
+
+
+
+Check the certificates renewal, installation and setting
+$ letsencrypt certificate

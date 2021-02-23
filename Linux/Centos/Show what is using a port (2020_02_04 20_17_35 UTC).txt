@@ -1,0 +1,8 @@
+$ fuser 80/tcp
+	//* get puid, f.e. 2850
+	//* Error fuser: command not found
+		yum install psmisc -y
+$ ps aux | grep 2850 | grep -v grep
+	//* get process name, f.e. httpd
+$ pgrep httpd
+	//* show child proces of httpd and instances of httpd

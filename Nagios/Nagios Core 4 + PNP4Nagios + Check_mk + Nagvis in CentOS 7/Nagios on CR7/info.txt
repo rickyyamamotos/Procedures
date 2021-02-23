@@ -1,0 +1,118 @@
+nagios4
+Used to monitor the internet connections of the <Location> Office
+
+It is hosted on the lower R610 VM host (XXX.XXX.XXX.5)
+
+http://XXX.XXX.XXX.26/nagios
+	username: <Username>	password: <Password>
+	username: <Username>	password: <Password>
+
+IP XXX.XXX.XXX.26	(main - frontend)
+   XXX.XXX.XXX.26	(nogateway - backend)
+
+SSH
+	XXX.XXX.XXX.26:<PortNumber>
+	XXX.XXX.XXX.26:<PortNumber>
+	<Username>	/ 	See excel page for passwords
+	<Username>	/	<Password>
+
+
+Plugins directory
+/usr/lib64/nagios/plugins/
+
+Configuration directory
+/usr/local/nagios/etc/objects/
+
+webpages location
+/usr/local/nagios/share
+
+icons location
+/usr/local/nagios/share/images/logos
+
+check configuration
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+
+http://www.aboutmonitoring.com/installing-nagios-core-4-pnp4nagios-check_mk-nagvis-centos-7-redhat-7/
+http://itclub.az/2016/08/02/nagios-core-with-check_mk/
+Installing Nagios Core 4.
+==============================
+yum install perl wget httpd php
+yum groupinstall "Development Tools"
+useradd nagios && passwd nagios
+	username <Username>
+	password: <Password>
+groupadd nagcmd
+usermod -a -G nagcmd nagios
+usermod -a -G nagcmd apache
+yum install wget httpd php gcc glibc glibc-common gd gd-devel make net-snmp libpng-devel libjpeg-turbo-devel
+cd /tmp
+wget https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.2.4.tar.gz?__hstc=118811158.ba49b8a31103b86e4bd5d9e3aac59c05.1520641326859.1520865819998.1520958698628.3&__hssc=118811158.4.1520958698628&__hsfp=633398250#_ga=2.36013408.1740647195.1520958698-742996443.1520641326
+tar zxfv nagios-4.2.4.tar.gz
+cd nagios-4.2.4
+./configure -with-command-group=nagcmd
+	Nagios executable:  nagios
+        Nagios user/group:  <Username>,<Username>
+        Command user/group:  <Username>,nagcmd
+        Event Broker:  yes
+        Install ${prefix}:  /usr/local/nagios
+    	Install ${includedir}:  /usr/local/nagios/include/nagios
+                Lock file:  ${prefix}/var/nagios.lock
+   	Check result directory:  ${prefix}/var/spool/checkresults
+           Init directory:  /etc/rc.d/init.d
+  	Apache conf.d directory:  /etc/httpd/conf.d
+             Mail program:  /bin/mail
+                  Host OS:  linux-gnu
+          IOBroker Method:  epoll
+
+	Web Interface Options:
+	------------------------
+                 HTML URL:  http://localhost/nagios/
+                  CGI URL:  http://localhost/nagios/cgi-bin/
+make all
+make install
+make install-init
+make install-commandmode
+make install-config
+make install-webconf
+cp -R contrib/eventhandlers/ /usr/local/nagios/libexec/
+chown -R <Username>:<Username> /usr/local/nagios/libexec/eventhandlers
+
+Installing Nagios Plugins.
+===========================
+rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm
+yum install nagios-plugins-all nagios-plugins-nrpe
+nano  /usr/local/nagios/etc/resource.cfg
+	$<Username>$=/usr/lib64/nagios/plugins
+yum install bind-utils net-snmp net-snmp-devel net-snmp-utils net-snmp-perl perl-Net-SNMP
+cd /tmp
+wget https://www.monitoring-plugins.org/download/monitoring-plugins-2.2.tar.gz
+tar zxfv monitoring-plugins-2.2.tar.gz
+cd monitoring-plugins-2.2
+# If install nagios-plugins
+./configure -with-nagios-user=nagios -with-nagios-group=nagios
+# If you want install monitoring-plugins
+./configure -with-nagios-user=nagios -with-nagios-group=nagios --prefix=/usr/local/nagios
+make
+make install
+
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+htpasswd -c /usr/local/nagios/etc/htpasswd.users <Username>
+	<Password>
+systemctl restart httpd.service && systemctl restart httpd.service
+chkconfig --add nagios && chkconfig --level 35 nagios on
+systemctl enable httpd.service
+
+firewall-cmd --permanent --zone=public --add-port=80/tcp
+firewall-cmd --permanent --zone=public --add-port=443/tcp
+systemctl restart firewalld.service
+setenforce 0
+service nagios restart
+
+
+cd /usr/local/nagios/etc/
+
+//* copy files from backups to nagios in <Datacenter>
+
+//* install sendemail and test
+

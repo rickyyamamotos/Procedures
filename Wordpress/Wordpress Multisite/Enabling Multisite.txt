@@ -1,0 +1,35 @@
+
+
+$ nano wp-config.php
+	//* append before require_once(ABSPATH . 'wp-settings.php');
+	define( 'WP_ALLOW_MULTISITE', true );
+$ service httpd restart
+
+Log into wp as <Username>, then: Plugins > Installed Plugins and deactivate all of your plugins.
+Log into wp as <Username>, then: Tools > Network Setup > Select subdirectories
+Give your network a title and enter your email address.
+Click “Install.”
+
+Follow the instructions shown in the wp site
+1) Add the following to your wp-config.php file in /var/www/html/ above the line reading /* That’s all, 
+   stop editing! Happy blogging. */:
+	define('MULTISITE', true);
+	define('SUBDOMAIN_INSTALL', true);
+	define('DOMAIN_CURRENT_SITE', '<Site>');
+	define('PATH_CURRENT_SITE', '/');
+	define('SITE_ID_CURRENT_SITE', 1);
+	define('BLOG_ID_CURRENT_SITE', 1);
+2) Add the following to your .htaccess file in /var/www/html/, replacing other WordPress rules:
+	RewriteEngine On
+	RewriteBase /
+	RewriteRule ^index\.php$ - [L]
+	# add a trailing slash to /<Username>
+	RewriteRule ^<Username>$ <Username>/ [R=301,L]
+	RewriteCond %{REQUEST_FILENAME} -f [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^ - [L]
+	RewriteRule ^(wp-(content|<Username>|includes).*) $1 [L]
+	RewriteRule ^(.*\.php)$ $1 [L]
+	RewriteRule . index.php [L]
+
+

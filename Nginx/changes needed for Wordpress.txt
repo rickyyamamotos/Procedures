@@ -1,0 +1,10 @@
+The HTTP_HOST variable is set by PHP based on the incoming Host header
+connect to the nginx server XXX.XXX.XXX.42
+cd /etc/nginx/sites-enabled
+nano test-<Site>
+	On both 80, and 443
+	comment 	##                   proxy_set_header Upgrade $http_upgrade;
+			##                   proxy_set_header Connection 'upgrade';
+	proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_redirect          off;

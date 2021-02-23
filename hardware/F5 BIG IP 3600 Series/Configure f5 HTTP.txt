@@ -1,0 +1,146 @@
+SET IP OF MGMT PORT (SYSTEM\PLATFORM\)
+DEFINE TRUNKS (IF YOU WANT TO USE 2 PORTS TOGETHER - AGGREGATED)
+DEFINE VLANS (SET WHICH PORTS TO BE USED IN EACH VLAN)
+DEFINE SELF IPS (SET IPS FOR THE PORTS IN A VLAN)
+
+
+
+CONFIGURE INTERFACES (ports from 1.1 to 2.2 on the front of the F5)
+	Bandwidth, flow control, STP
+
+DEFINE ROUTES	(Defines the gateway for the F5)
+	Default IPv4	Gateway	8.18.55.130            **********************************************************************************************************************
+
+SET PORT LOCKDOWN DEFAULT (allows you to specify particular protocols and services from which the self IP addresses can accept traffic)
+	<Site> F5 before the firmware Update is BIG-IP 9.4.6 Build 401.0 Final
+	the default port lockdown setting 
+		For BIG-IP 10.x 				is Allow None. 
+		For BIG-IP 11.0.0 - 11.5.2 			is Allow Default, 
+		For BIG-IP 11.5.3 and 11.6.0 and later versions	is Allow None
+
+DEFINE SELF IPs (Define IPs/Netmask for the interfaces that will be used)
+	IP		Netmask		VLAN		PortLockDown
+	8.18.55.132	255.255.255.128	external	Allow Default	(from Old Configuration, IP needs to be changed)
+	XXX.XXX.XXX.1	<Subnet>	Internal	Allow Default	(from Old Configuration, needs to be deleted)
+	XXX.XXX.XXX.1	<Subnet>	Internal	Allow Default
+
+
+DEFINE VLANS (VLANs are used to segregate the interfaces for different purposes, At least 2 must be used Internal and External)
+	Name		IP/Netmask		Interfaces	MTU
+	Internal	IP/<Subnet>	1.5,1.6,1.7,1.8	1500
+	External	IP/255.255.255.x	1.1		1500
+
+DEFINE ARP (IPTables)
+	None		//* this is set by nodes
+
+DEFINE TRUNKS (A trunk is a logical grouping of interfaces, the reason for this, is that you can use 2 or more interfaces to connect to a single node allowing double or more the bandwidth of a single interface, aka "link aggregation)
+	None	
+
+DEFINE SPANNING TRESS (When you connect multiple switches to a BIG-IP system in parallel, you can configure your hosts to make use of spanning tree protocols. Spanning tree protocols provide path redundancy while preventing unwanted loops in the network.)
+	Bridge Priority	
+	VLANs	external, 	internal
+		(1.1)		(1.5,1.6,1.7,1.8)	//* Avoid loops between interfaces
+
+DEFINE HEALTH MONITORS (How the nodes are going to be checked - hearth beat)
+	Define the type and the services that you want to monitor. use existing monitors or create new ones accordingly
+	Ideally you will create a monitor to get a http response from the server and compare that response with a string
+
+DEFINE NODES	(Create 1 node for each of the servers that F5 will serve)
+	IP		Name				Ratio	Connection Limit	State		Health Monitor
+	XXX.XXX.XXX.10	<Site>-moodleStudentSuccess-fs1	1	0			Enabled		http
+	XXX.XXX.XXX.11	<Site>-moodleStudentSuccess-fs2	1	0			Enabled		http
+		//* Ratio: Specifies the ratio weight you want to assign to the node to load balancing pools of nodes
+		//* Connection Limit: concurrent connections allowed on a node. 0 means not limit
+
+DEFINE RATE SHAPPING 	(allows you to enforce a throughput policy on incoming traffic. Throughput policies are useful for prioritizing and restricting bandwidth on selected traffic patterns.)
+			(Rate sh<Site>ng can be useful for an e-commerce site that has preferred clients. For example, the site might want to offer higher throughput for preferred customers, and lower throughput for other site traffic.)
+			(The rate sh<Site>ng feature works by first queuing selected packets under a rate class, and then dequeuing the packets at the indicated rate and in the indicated order specified by the rate class. )
+	Not used
+
+DEFINE THE USE OF SNAT	(translates the source IP address within a connection to a BIG-IP system IP address that you define. 
+			(For inbound connections, that is, connections initiated by a client node, SNATs ensure that server nodes always send responses back through the BIG-IP system, when the servers default route would not normally do so. )
+			(For outbound connections, that is, connections initiated by a server node, SNATs ensure that the internal IP address of the server node remains hidden 
+			(Using a SNAT for inbound connections can impact the availability of ephemeral ports.)
+	Not used
+
+DEFINE SSL CERTIFICATES	(This will be needed if the F5 will do SSL encryption/decription of packets)
+			(You can create a self-signed on, but it is useless for webhosting, you need to buy a CA certificate)
+			(self-sign may be useful if you want the F5 to communicate using SSL with the nodes, which is not recommended for performance)
+	You can purchase a certification from a CA and then import the private key to F5
+
+DEFINE POOLS	(Pools defines which nodes are part of a Load Balance
+		(It is a logical set of nodes grouped together. Instead of sending client traffic to the destination IP address specified in the client request, the BIG-IP system sends the request to one of the servers that are members of that pool. Providing load balancing)
+		(When you create a pool, the BIG-IP system places the pool into your current Administrative partition.)
+		(see https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_0_0/ltm_pools.html for options)
+	Name				Partition	Health Monitor	Action ServerDown	SlowRamp	Members				LB		GroupActivation
+	<Site>-moodlestudentsuccess-pool	Common		http		Reselect		0 Sec		<Site>-moodleStudentSuccess-fs1	RoundRobin	Disabled
+														<Site>-moodleStudentSuccess-fs2
+
+		//* Slow Ramp Time: protects a newly available pool member from being overloaded with connection requests, specially for Least Connections load balancing method.
+		//* Group Activation: If the number of available members in the highest priority group drops below the minimum number, the BIG-IP system also distributes traffic to the next higher priority group, and so on. 
+					It is normally used in conjuntion with node ratio to distribute the LB to specific servers.
+
+DEFINE IRULES (Allows directly manipulation and managing of any IP application traffic.)
+		(Using scripting, it enables you to customize how you intercept, inspect, transform, and direct inbound or outbound application traffic.
+		(it can be used to make session persistent or to forward a specific client (HTTP header) to a specific node (in case a specific service is not LB)
+		(For irules reference see https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_0_0/ltm_rules.html)
+	Normally not used, but for very specific needs
+
+DEFINE PROFILES 	(is an object (configuration) that contains settings with values that tells "Local Traffic Mgmt" how to direct the traffic types, such as HTTP connections. )
+			(provide a way for you to enable connection and session persistence, and to manage client application authentication.)
+			(After configuring a profile, you associate the profile with a virtual server. The virtual server then processes traffic according to the values specified in the profile.)
+			(You can associate multiple profiles with a single virtual server. For example, you can associate a TCP profile, an SSL profile, and an HTTP profile with the same virtual server.)
+			(see more https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm-concepts-11-1-0/ltm_understanding_profiles.html)
+	It is used
+
+DEFINE HTTP CLASS PROFILE	(profiles that you want the virtual server to use when load balancing its connections.)
+				(https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_1/ltm_protocol_profiles.html#1197706)
+	Determine fallback host
+	Enable Ram cache
+
+DEFINE VIRTUAL SERVERS	(When you configure a virtual server, you create two Local Traffic Manager objects: a virtual server and a virtual address.
+			(A virtual server is a traffic-management object on the BIG-IP system that is represented by an IP address and a service. Clients on an external network can send application traffic to a virtual server, which then directs the traffic according to your configuration instructions. )
+			(he main purpose of a virtual server is often to balance traffic load across a pool of servers on an internal network. Virtual servers increase the availability of resources for processing client requests.
+			(Not only do virtual servers distribute traffic across multiple, they also treat varying types of traffic differently, depending on your traffic-management needs)
+			(For each type of traffic, such as TCP, UDP, HTTP, SSL, SIP, and FTP, a virtual server can apply an entire group of settings, to affect the way that the BIG-IP system manages that traffic type.)
+			(A virtual server can also enable session persistence for a specific traffic type)
+			(a virtual server can apply an iRule, which is a user-written script designed to inspect and direct individual connections in specific ways. For example, you can create an iRule that searches the content of a TCP connection for a specific string and, if found, directs the virtual server to send the connection to a specific pool or pool member.)
+			(You can create a many-to-one relationship between virtual servers and a virtual address. For example, you can create the three virtual servers XXX.XXX.XXX.2:80, XXX.XXX.XXX.2:443, and XXX.XXX.XXX.2:161 for the same virtual address, XXX.XXX.XXX.2.)
+			(The virtual server address is the public IP of the webpage)
+			(Big IP Internal VLAN IP must be the default gateway of the web servers, if this is not possible createa SNAT))
+			(CMP is a traffic acceleration feature that distributes the workload equally among all CPUs)
+			(See https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_1/ltm_virtual.html#1191477)
+	Select the virtual server to be  a host Virtual Server
+	Select Performance (HTTP) for Type
+	Select fasthttp for Protocol Profile (Client)
+	Select n/a for Protocol Profile (Server)
+	Select n/a for OneConnet Profile (Maximum Size setting of the OneConnect profile can affect virtual server availability)
+	Select n/a for HTTP Profile
+	Select n/a for SSL Profile (Client)
+	Select n/a for SSL Profile (Server)
+	Select ???? for RTSP Profile (Real Time Streaming Protocol (RTSP) is a protocol used for streaming-media presentations. Using RTSP, a client system can control a remote streaming-media server and allow time-based access to files on a server.)
+	Select All VLANS for VLAN Traffic
+	Select 0 for Connection Limits
+	Select No for Address Translation ( useful when the BIG-IP system is load balancing devices that have the same IP address. This is typical with the nPath routing configuration where duplicate IP addresses are configured on the loopback device of several servers.)
+	Select No for Port Translation (useful if you want to use the virtual server to load balance connections to any service.)
+	Select Preserve for Source Port
+	Select None for SNAT Pool
+	Select None for Clone Pool (Client) (used for intrusion detection, this feature causes the virtual server to replicate client-side traffic (prior to address translation), to a member of the specified clone pool.)
+	Select None for Clone Pool (Server) (Used for intrusion detection, this feature that causes the virtual server to replicate server-side traffic (after address translation), to a member of the specified clone pool. )
+	Select None for Last Hop Pool (Used when the BIG-IP system should direct reply traffic to any router in a pool of routers,)
+	Select the Pool created before for Default Pool
+	Select Performance (HTTP) for Default Persistence Profile
+	Select None for Fallback Persistence Profile (Valid types of persistence profiles for this setting are Source Address Affinity profiles and Destination Address Affinity profiles. )
+
+	You might consider using a Fast HTTP profile when:
+		You do not need features such as remote server authentication, SSL traffic management, and TCP optimizations, nor HTTP features such as data compression, pipelining, and RAM Cache.
+		You do not need to maintain source IP addresses.
+		You want to reduce the number of connections that are opened to the destination servers.
+		The destination servers support connection persistence, that is, HTTP/1.1, or HTTP/1.0 with Keep-Alive headers. Note that IIS servers support connection persistence by default.
+
+
+
+
+
+			
+

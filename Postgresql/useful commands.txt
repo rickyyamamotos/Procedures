@@ -1,0 +1,51 @@
+Log onto postgres
+	visudo
+		<Username>     ALL=(postgres) ALL
+	Option 1: Accessing a Postgres Prompt by switching Over to the postgres Account
+		$ sudo -i -u postgres
+			//* Switch over to the postgres account on your server
+			//* log on postgresql onto postgres database
+		$ psql
+			//* You can now access a Postgres prompt immediately by typing:
+	Option 2: Accessing a Postgres Prompt Without Switching Accounts
+		$ sudo -u postgres psql
+			//* log on postgresql onto postgres database
+
+
+
+Quit postgres
+	postgres=# \q
+		quit postgres
+Create a user
+	$ sudo -u postgres createuser --interactive
+		//* role to add: <Username>
+			//* (username)
+	$ sudo -u postgres createdb <Username>
+	$ sudo -u <Username> psql
+		//* log on postgresql onto <Username> database
+
+Show existing users
+	$ sudo -u postgres psql
+	psql> \du
+or
+	$ sudo -u postgres psql -c "\du"	
+
+Show databases
+	$ sudo -u postgres psql
+	psql> \l
+
+Connecting to a differnt database
+	sudo -u postgres psql -d anotherdb
+or
+	$ sudo -u postgres psql
+	postgres> \connect database_name
+
+Show tables in current database
+	$ sudo -u postgres psql
+	psql> \dt
+
+Create database
+	pqsl> create database <DBName> with encoding='utf8';
+
+Grant privileges to user
+	psql> GRANT ALL PRIVILEGES ON DATABASE "<DBName>" to <Site>;

@@ -1,0 +1,8 @@
+All
+$ top
+OR
+$ ps aux
+
+
+For a process with know name
+$ ps aux | grep "process name" | grep -v grep

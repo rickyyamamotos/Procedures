@@ -1,0 +1,17 @@
+in moodle:/var/www/config.php
+comment out #reverseproxy=true
+restart apache
+
+in nginx
+/etc/nginx/sites-enable/<Site>.<Domain>
+        location ~ {
+                   proxy_pass  https://XXX.XXX.XXX.53;
+                   proxy_http_version 1.1;
+#                   proxy_redirect          off;
+#                   proxy_set_header Upgrade $http_upgrade;
+#                   proxy_set_header Connection 'upgrade';
+#                   proxy_cache_bypass $http_upgrade;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_redirect          off;
+restart nginx

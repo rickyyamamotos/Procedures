@@ -1,0 +1,17 @@
+VLAN allow the partition of a single physical swith onto 2 or more virtual switches, each not connected to the others.
+
+VLAN tag on switch ports: Tag the eggress packets on the port
+	 needed for trunks (that transport more than 1 vlan)
+	 for ports that server more than 1 vlan
+	 for trunks connected to a vswitch with multiple vlans
+	 for ports set different native lan (Port PVID)
+VLAN untag on switch ports: 
+	 for port connected to computers.
+
+Setting up vlans on a switch
+	Create a vlan
+	select the port and trunks that are members of the vlan
+	Note- different vlans can use the same ports, but these ports must be taged.
+	Set a native vlan for the ports (this normally will be the same number of the vlan the port belong to, if not then the port needs to be tagged)
+
+A tagged interface is an interface that is configured to process traffic for multiple VLANs. A VLAN tag identifies the specific VLAN and allows traffic to be passed through that specific VLAN. In order to cause traffic for multiple VLANs to be passed through a single trunk, you must assign the same trunk to each VLAN.

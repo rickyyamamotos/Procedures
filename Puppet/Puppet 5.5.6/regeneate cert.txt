@@ -1,0 +1,1 @@
+https://puppet.com/docs/pe/2018.1/regenerate_puppet_agent_certificates.html

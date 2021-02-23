@@ -1,0 +1,7 @@
+From the Nagios webconsole
+http://"NAGIOS IP"/nagios -> "Tactical View", look at the top
+
+
+From the host terminal
+$ /usr/local/nagios/bin/nagios --help
+

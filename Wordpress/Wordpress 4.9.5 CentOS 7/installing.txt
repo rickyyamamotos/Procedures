@@ -1,0 +1,490 @@
+CentOS 7 image
+http://packages.oit.ncsu.edu/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso
+
+Create VM
+Memory 		4 Gb
+Storage 	40 Gb
+Processors	2
+
+OS
+	Username: rick 	password: <Password>
+		<Username>	<Password>
+		<Username>		<Site>pa$$w0rd1
+Mysql
+	user		root	<Password>
+			<Username>	<Site>pa$$w0rd1	(all privileges)
+			<Username>	<Password>
+	database	WP_database
+
+
+
+Setting Static IP
+$ nmtui
+
+
+Disabling SELinux
+$ vi  /etc/sysconfig/selinux
+	SELINUX=disable
+$ reboot
+
+
+Installing SSH
+$ yum install openssh openssh-server openssh-clients openssl-libs
+$ nano /etc/ssh/sshd_config
+	Port <PortNumber>
+	PermitRootLogin no
+	AllowUsers	<Username> rick <Username>
+$ firewall-cmd --add-port <PortNumber>/tcp --permanent
+$ firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT_direct 0 -p tcp --dport 22 -m state --state NEW -m recent --set
+$ firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT_direct 1 -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 30 --hitcount 4 -j REJECT --reject-with tcp-reset
+$ firewall-cmd --reload 
+
+Setting up router for SSH
+	https://XXX.XXX.XXX.1
+		Add Network Service
+			SSH-alt 2221 TCP 2221 2221 
+		Add Network Object
+			<Site>  XXX.XXX.XXX.55/255.255.255.255 Host  LAN  
+		Add NAT
+			Any Original <Site>-nginx-WAN <Site> SSH-alt 2221 SSH-alt <PortNumber> Any Any 33   
+			 Firewalled Subnets <Site>-nginx-WAN <Site>-nginx-WAN <Site> SSH-alt 2221 SSH-alt <PortNumber> 
+		Add Firewall Rule
+			 Any <Site>-nginx-WAN SSH-alt 2221 Allow All  
+
+
+Create other users
+$ adduser <Username>
+$ passwd <Password>
+$ usermod -aG wheel <Username>
+$ adduser <Username>
+$ passwd <Site>pa$$w0rd1
+$ usermod -aG wheel <Username>
+$ visudo
+	rick    ALL=NOPASSWD:   ALL
+	<Username>        ALL=NOPASSWD:   ALL
+	<Username>   ALL=(ALL)       ALL
+
+Create a DNS
+$ curl ipinfo.io/ip
+		//* Show public domain
+create a DNS record on <Site> for wordpress495 to point to nginx 184.176.xxx.248
+create a block on ngix for <Site> pointing to XXX.XXX.XXX.55
+
+Installing ntp
+$ yum install ntp
+$ yum install ntpdate
+$ ntpdate pool.ntp.org
+$ chkconfig ntpd on
+
+Installing apache2 
+$ yum install epel-release
+$ yum install httpd mod_ssl
+$ nano /etc/httpd/conf/httpd.conf
+	ServerName <Site>:80
+$ chkconfig httpd on
+$ service httpd start
+$ firewall-cmd --add-port 80/tcp --permanent
+$ firewall-cmd --add-port 443/tcp --permanent
+//* Installing letsencrypt
+$ service firewalld restart
+$ yum update
+$ cd /tmp
+$ yum install git
+$ git clone https://github.com/letsencrypt/letsencrypt
+$ cd letsencrypt
+$ ./letsencrypt-auto certonly -d <Site>
+$ systemctl restart httpd
+#$ crontab -e
+#	30 2 * * 1 /usr/bin/letsencrypt-auto renew >> /var/log/le-renew.log
+$ nano /etc/httpd/conf.d/ssl.conf
+        SSLCertificateFile      /etc/letsencrypt/live/<Site>/cert.pem
+        SSLCertificateKeyFile   /etc/letsencrypt/live/<Site>/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/<Site>/chain.pem
+        SSLCACertificateFile    /etc/letsencrypt/live/<Site>/fullchain.pem
+copy /etc/letsencrypt/live/<Site>/* to nginx:/etc/letsencrypt/live/<Site>/
+
+Disable Server Version Banner
+$ nano /etc/httpd/conf/httpd.conf
+	//* append the following
+		Servers Prod
+		ServerSignature Off
+$ service httpd restart
+
+
+Disable Indexes
+$ nano /etc/httpd/conf/httpd.conf
+	Change Inside: <Directory "/var/www/html">
+		AllowOverride All
+$ nano /var/www/html/.htaccess
+	Options -Indexes
+	IndexIgnore *
+$ service httpd restart
+
+
+Set cookie with HttpOnly and Secure flag && X-Frame-Options
+$ nano /var/www/html/.htaccess
+	Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure
+	Header always append X-Frame-Options SAMEORIGIN
+$ service httpd restart
+
+
+Disabling unsecured ssl protocols
+nano /etc/httpd/conf.d/ssl.conf
+	SSLCipher<Phone> HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA:!RC4
+	SSLProtocol all -SSLv2 -SSLv3
+
+
+Installing php 7.2
+$ yum -y install epel-release
+$ yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+$ yum install yum-utils
+$ yum-config-manager --enable remi-php72
+$ yum update
+$ yum install php72
+$ yum install php72-php-fpm php72-php-gd php72-php-json php72-php-mbstring php72-php-mysqlnd php72-php-xml php72-php-xmlrpc php72-php-opcache
+$ yum install php php-mcrypt php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo
+
+
+Installing Mysql 5.7
+$ yum install -y wget
+$ cd /tmp
+$ wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+$ rpm -ivh mysql57-community-release-el7-11.noarch.rpm
+$ yum install mysql-server
+$ systemctl enable mysqld
+$ systemctl start mysqld
+$ grep 'temporary password' /var/log/mysqld.log
+	//* show the root password
+	//* uDYf5w+ZP<3j
+$ mysql -uroot -p
+	uDYf5w+ZP<3j
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '<Password>';
+mysql> uninstall plugin validate_password;
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '<Password>';
+mysql> CREATE DATABASE WP_database;
+mysql> CREATE USER <Username>@localhost IDENTIFIED BY '<Site>pa$$w0rd1';
+mysql> GRANT ALL PRIVILEGES ON *.* TO "<Username>"@"localhost" WITH GRANT OPTION;
+mysql> CREATE USER <Username>@localhost IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON WP_database.* TO "<Username>"@"localhost";
+mysql> FLUSH PRIVILEGES;
+mysql> EXIT
+
+
+
+Install clamav in centos 7
+yum -y install epel-release
+yum clean all
+yum -y install clamav-server clamav-data clamav-update clamav-filesystem clamav clamav-scanner-systemd clamav-devel clamav-lib clamav-server-systemd
+sed -i -e "s/^Example/#Example/" /etc/clamd.d/scan.conf
+nano /etc/clamd.d/scan.conf
+	LocalSocket /var/run/clamd.scan/clamd.sock
+cp /usr/share/clamav/template/clamd.conf /etc/clamd.d/clamd.conf
+sed -i '/^Example/d' /etc/clamd.d/clamd.conf
+cat /etc/passwd
+	//* identify the clam user: (in my installation it is clamscan)
+nano /etc/clamd.d/clamd.conf
+	User clamscan
+		//* replace clamscan with your user from cat /etc/passwd
+	LocalSocket /var/run/clamd.<SERVICE>/clamd.sock
+cp /etc/freshclam.conf /etc/freshclam.conf.bak
+sed -i '/^Example/d' /etc/freshclam.conf
+nano /usr/lib/systemd/system/clam-freshclam.service
+# Run the freshclam as daemon
+	[Unit]
+	Description = freshclam scanner
+	After = network.target
+	[Service]
+	Type = forking
+	ExecStart = /usr/bin/freshclam -d -c 4
+	Restart = on-failure
+	PrivateTmp = true
+	[Install]
+	WantedBy=multi-user.target
+systemctl enable clam-freshclam.service
+systemctl start clam-freshclam.service
+systemctl status clam-freshclam.service
+	//* check status
+mv /usr/lib/systemd/system/clamd@.service /usr/lib/systemd/system/clamd.service
+nano /usr/lib/systemd/system/clamd@scan.service
+	.include /lib/systemd/system/clamd.service
+nano /usr/lib/systemd/system/clamd.service
+	[Unit]
+	Description = clamd scanner daemon
+	After = syslog.target nss-lookup.target network.target
+	[Service]
+	Type = simple
+	ExecStart = /usr/sbin/clamd -c /etc/clamd.d/clamd.conf --nofork=yes
+	Restart = on-failure
+	PrivateTmp = true
+	[Install]
+	WantedBy=multi-user.target
+cd /usr/lib/systemd/system
+systemctl enable clamd.service
+systemctl enable clamd@scan.service
+systemctl start clamd.service
+systemctl start clamd@scan.service
+
+
+Installing ModSecurity 2.7.3-5 (https://geekflare.com/apache-web-server-hardening-security/#6-Mod-Security)
+$ yum --enablerepo=epel install mod_security mod_evasive
+	main configuration file
+		/etc/httpd/conf.d/mod_security.conf
+		/etc/httpd/conf.d/mod_evasive.conf
+	all other configuration files for the mod_security 
+		/etc/httpd/modsecurity.d/activated_rules
+	Logs debug messages for debugging mod_security rules and other problems.
+		/var/log/httpd/modsec_debug.log
+	Logs All requests that trigger a ModSecurity events (as detected) or a serer error are logged (“RelevantOnly”) 
+		/var/log/httpd/modsec_audit.log
+	
+$ apachectl -M | grep --color sec
+	You should see a module named “security2_module (shared)” which indicates that the module was loaded.
+$ httpd -M | grep evasive
+	You should see a module named “evassive20_module (shared)” which indicates that the module was loaded.
+$ httpd -M | grep security
+	You should see a module named “security2_module (shared)” which indicates that the module was loaded.
+$ nano /etc/httpd/conf.d/mod_security.conf
+	SecRuleEngine On
+$ nano cve-2018-6389.conf
+	SecRule REQUEST_URI "@rx (?i:/<Username>/load-(styles|scripts)\.php\?.*?(load%5B%5D|load\[\]|load%5B\]|load\[%5D)=([^&,]*,){20,})" "id:1,msg:'Potential use of CVE-2018-6389',deny"
+$ curl "http://localhost/<Username>/load-scripts.php?c=1&load%5B%5D=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21&ver=4.9"
+	//* test
+//* Loading the OWASP Rules
+$ cd /tmp
+$ wget https://github.com/SpiderLabs/owasp-modsecurity-crs/zipball/master
+$ mv master master.zip
+$ yum -y install unzip
+$ unzip master.zip
+$ mv /tmp/SpiderLabs-owasp-modsecurity-crs-56cad3a /etc/httpd/
+$ cd /etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a
+$ mv modsecurity_crs_10_setup.conf.example modsecurity_crs_10_setup.conf
+$ nano /etc/httpd/conf.d/mod_security.conf
+	Include SpiderLabs-owasp-modsecurity-crs-56cad3a/modsecurity_crs_10_setup.conf
+		# Mod Security main configuration file 
+	IncludeOptional SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules/*.conf
+		# Mod Security Core Rules to protect web applications
+		# IncludeOptional: it will be silently ignored (instead of causing an error) if wildcards are used and they do not match any file or directory or if a file path does not exist on the file system
+$ cd /etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules
+$ mkdir wrong
+	//* moving rules that crashes httpd 
+$ mv modsecurity_crs_40_generic_attacks.conf ./wrong
+$ mv modsecurity_crs_41_sql_injection_attacks.conf ./wrong
+$ mv modsecurity_crs_41_xss_attacks.conf ./wrong
+$ service httpd restart
+Base Rules – these rules are heavily tested, and probably false alarm ratio is less.
+Experimental Rules – these rules are for an experimental purpose, and you may have the high false alarm. It’s important to configure, test and implement in UAT before using these in a production environment.  
+Optional Rules – these optional rules may not be suitable for the entire environment. Based on your requirement you may use them.
+$ nano /etc/clamd.d/scan.conf
+	//*Excluding directories from clamav
+	ExcludePath /etc/http/modsecurity.d 
+	ExcludePath /etc/http/SpiderLabs-owasp-modsecurity-crs-56cad3a
+	OnAccessExcludePath /etc/http/modsecurity.d
+	OnAccessExcludePath /etc/http/SpiderLabs-owasp-modsecurity-crs-56cad3a
+Monitoring:
+//*Logs location
+$ nano /etc/httpd/conf.d/mod_security.conf
+	SecDebugLog /var/log/httpd/modsec_debug.log
+	SecAuditLog /var/log/httpd/modsec_audit.log
+$ tail -f /var/log/httpd/error_log
+$ tail -f /var/log/httpd/modsec_debug.log
+$ tail -f /var/log/httpd/modsec_audit.log
+
+
+Installing Wordpress
+From https://codex.wordpress.org/Installing_WordPress
+$ wget https://wordpress.org/latest.tar.gz
+$ tar -zxvf latest.tar.gz
+$ cd /tmp/wordpress
+$ mv wp-config-sample.php wp-config.php
+$ nano wp-config.php
+	define('DB_NAME', 'WP_database');
+	define('DB_USER', '<Username>');
+	define('DB_PASSWORD', '<Password>');
+	define('AUTH_KEY',         
+	define('SECURE_AUTH_KEY',  
+	define('LOGGED_IN_KEY',    
+	define('NONCE_KEY',        
+	define('AUTH_SALT',        
+	define('SECURE_AUTH_SALT', 
+	define('LOGGED_IN_SALT',   
+	define('NONCE_SALT',       
+	$table_prefix  = '<Site>wp_';
+
+$ cd /tmp
+$ rsync -avP /tmp/wordpress/ /var/www/html/
+$ rm -rf wordpress
+$ cd /var/www/html
+$ sudo chown -R <Username>:apache *
+$ mv wp-config.php ../
+$ mkdir /var/www/html/wp-content/uploads
+	//* directory for user to upload images and other content
+$ sudo chown -R <Username>:apache *
+DISABLING AUTOMATIC UPDATES
+$ nano /var/www/wp-config.php
+	define( 'WP_AUTO_UPDATE_CORE', false );
+Run the Install Script
+	Go to https://<Site>/<Username>/
+	Site title: <Site>
+	username: <Username>
+	password: <Password>
+	Your email: <Email>
+
+HARDENING WORDPRESS
+$ cd /var/www/
+$ chown root:www-data wp-config.php
+$ chmod 644 wp-config.php
+$ nano /etc/httpd/httpd.conf
+	//* Modify the following lines
+	//* This will allow .htaccess files on directories to work
+	<Directory /var/www/>
+		Options Indexes FollowSymLinks
+		AllowOverride All
+		Require all granted
+	</Directory>
+$ cd /var/www
+$ nano .htaccess
+	//* Add the following lines
+# PROTECT WP-CONFIG
+	<Files wp-config.php>
+	        # Apache < 2.3
+	        <IfModule !mod_authz_core.c>
+	                Order allow,deny
+	                Deny from all
+	                Satisfy All
+	        </IfModule>
+	        # Apache >= 2.3
+	        <IfModule mod_authz_core.c>
+	                Require all denied
+	        </IfModule>
+	</Files>
+	Options All -Indexes -Includes
+	IndexIgnore *
+	# SECURE LOOSE FILES
+	# http://m0n.co/04
+	<IfModule mod_alias.c>
+	        RedirectMatch 403 (?i)(^#.*#|~)$
+	        RedirectMatch 403 (?i)/readme\.(html|txt)
+	        RedirectMatch 403 (?i)\.(ds_store|well-known)
+	        RedirectMatch 403 (?i)/wp-config-sample\.php
+	        RedirectMatch 403 (?i)\.(7z|bak|bz2|com|conf|dist|fla|git|inc|ini|log|old|psd|rar|tar|tgz|save|sh|sql|svn|swo|swp)$
+	</IfModule>
+$ chown <Username>:apache .htaccess
+$ chmod 644 .htaccess
+$ cd /tmp
+Allowing the installation of uploaded plugins
+$ cd /var/www/html/wp-contents/
+$ chmod 771 * -R
+$ service httpd restart
+
+===========12/21/17=================================
+Installing phpmyadmin
+$ sudo yum update
+$ sudo yum install phpmyadmin php-mbstring php-gettext
+$ nano /etc/httpd/conf.d/phpmyadmin.conf
+	<Directory /usr/share/phpmyadmin/>
+	   AddDefaultCharset UTF-8
+	   <IfModule mod_authz_core.c>
+	     # Apache 2.4
+	     <RequireAny>
+	       Require all granted
+	       Require ip 127.0.0.1
+	       Require ip ::1
+	     </RequireAny>
+	   </IfModule>
+	   <IfModule !mod_authz_core.c>
+	     # Apache 2.2
+	     Order Deny,Allow
+	     Deny from All
+	     Allow from All
+	     Allow from 127.0.0.1
+	     Allow from ::1
+	   </IfModule>
+	</Directory>
+$ sudo systemctl restart apache2
+https://<Site>/phpmyadmin
+
+
+Allowed IPs for sshd_config, and phpmyadmin.conf and firewall allowance for ssh port and phpmyadmin port
+$ nano /etc/ssh/sshd_config
+	AllowUsers *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.230 *@XXX.XXX.XXX.186 *@XXX.XXX.XXX.181  <Username>@XXX.XXX.XXX.173
+
+$ service sshd restart
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0/24" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.224/28" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.128/26" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.240/28" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.176/28" port protocol="tcp" port="<PortNumber>" accept'
+
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.173" port protocol="tcp" port="<PortNumber>" accept'
+$ firewall-cmd --permanent --zone=public --remove-port=<PortNumber>/tcp
+$ firewall-cmd --zone=public --remove-service=dhcpv6-client --permanent
+$ firewall-cmd --zone=public --remove-service=ssh --permanent
+$ firewall-cmd --reload
+$ cat /etc/firewalld/zones/public.xml
+$ firewall-cmd --zone=public --list-all
+$ nano /etc/httpd/conf.d/phpmyadmin.conf
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+Listen  <SSHPort>
+<VirtualHost *:<SSHPort>>
+        ServerName <Site>
+        DocumentRoot /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        SSLEngine on
+        SSLCertificateFile      /etc/letsencrypt/live/<Site>/cert.pem
+        SSLCertificateKeyFile   /etc/letsencrypt/live/<Site>/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/<Site>/chain.pem
+        SSLCACertificateFile    /etc/letsencrypt/live/<Site>/fullchain.pem
+        SSLProtocol all -SSLv2 -SSLv3
+        SSLCipher<Phone> HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA:!RC4
+</VirtualHost>
+$ apachectl configtest
+$ service httpd restart
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0/24" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.224/28" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.128/26" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.240/28" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.176/28" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.173" port protocol="tcp" port="<SSHPort>" accept'
+$ firewall-cmd --reload
+Create a nat on the router
+	Nat
+		Firewalled Subnets <Site>-nginx-WAN <Site>-nginx-WAN <Site> phpmyadmin-Opt-Port-<SSHPort> Original Any Any 
+		Any Original <Site>-nginx-WAN <Site> phpmyadmin-Opt-Port-<SSHPort> Original Any Any 
+	Firewall
+		 Any <Site>-nginx-WAN phpmyadmin-Opt-Port-<SSHPort> Allow All 
+
+Install sshpass
+$ yum install sshpass -y
+
+Install sendEmail
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ sudo cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ sudo yum install 'perl(Net::SSLeay)'
+$ sudo yum install 'perl(IO::Socket::SSL)'
+$ nano -c /usr/local/bin/sendEmail
+	on line 1906 remove SSLv3 and leave only tlsv1
+$ /usr/local/bin/sendEmail -o tls=yes -f <Email> -s smtp.gmail.com:587 -u "test1" -m "test1" -t <Email> -xu <Email> -xp <Password>
+Fixing path for all users:
+$ sudo nano /etc/profile.d/addpath.sh
+	export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+
+
+On https://<Site>/<Username>
+	Settings/General/Timezone --> New York
+	Settings/General/Anyone can <Site> --> Uncheck
+	Settings/Users/Add New
+		rick / <Password>
+		Role: <Username>
+install wp plugins
+
+
+
+
+

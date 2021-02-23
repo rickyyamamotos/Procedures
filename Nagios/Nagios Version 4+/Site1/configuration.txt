@@ -1,0 +1,14 @@
+Installation is on ./root/nagios
+
+Objects (host definitions) are in ~/usr/local/nagios/etc/objects/localhost.cfg
+//* All host definitions objects are inside localhost.cfg
+
+Templates
+//* Templates are in ~/usr/local/nagios/etc/objects/templates.cfg
+
+
+
+
+
+
+

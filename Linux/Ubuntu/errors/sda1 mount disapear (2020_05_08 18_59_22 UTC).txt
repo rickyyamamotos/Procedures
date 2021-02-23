@@ -1,0 +1,9 @@
+no operating system when booting
+
+on boot-repair -> terminal
+$ df -h
+	//* shown no sda1
+$ udisksctl mount -b /dev/sda1
+	//* will temporary mount the partion until boot
+
+permanent mount the partition

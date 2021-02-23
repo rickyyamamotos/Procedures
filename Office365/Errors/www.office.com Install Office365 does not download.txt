@@ -1,0 +1,5 @@
+
+
+log into office.com as the user
+open a new tab and go to 
+	https://aka.ms/office-install

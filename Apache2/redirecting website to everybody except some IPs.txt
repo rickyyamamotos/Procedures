@@ -1,0 +1,28 @@
+$ cd /var/www/html
+$ nano .htaccess
+<IfModule mod_rewrite.c>
+	Options +FollowSymLinks
+	RewriteEngine on
+	RewriteCond %{REMOTE_ADDR} !^XXX\.XXX\.XXX\.XXXX|XXX\.XXX\.XXX\.XXXX|XXX\.XXX\.XXX\.XXXX|XXX\.XXX\.XXX\.XXXX|XXX\.XXX\.XXX\.XXXX
+	RewriteRule .* http://<Site>/shop-2 [L,R]
+</IfModule>
+		//* It is important to put the 2 last lines at the end of your .htaccess file inside the last <IfModule mod_rewrite.c>
+		//* It Works!!!
+OR
+	Options +FollowSymlinks
+	RewriteEngine on
+	RewriteCond %{REMOTE_ADDR} !=123.45.67.89
+	RewriteRule index.php$ https://<Site> [R=301,L]
+OR
+	Options +FollowSymlinks
+	RewriteEngine on
+	RewriteCond %{REMOTE_ADDR} !=123.45.67.89
+	RewriteRule .* https://<Site> [R=301,L]
+OR
+	SetEnvIf HOST "<Site>" ACCESS_CONTROL
+	SetEnvIf Remote_Addr "list of full or partia ipadresses separated by |"
+	RewriteEngine on
+	RewriteCond %{ENV:ACCESS_CONTROL} 1
+	RewriteRule .* https://<Site> [L,R]
+OR 
+

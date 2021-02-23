@@ -1,0 +1,2 @@
+log onto moodle
+delete the keys, specifically the one for Edwiser Bridge that connects to a wordpress site

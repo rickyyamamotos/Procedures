@@ -1,0 +1,23 @@
+
+https://community.canvaslms.com/thread/35699-canvas-lti-13-integration-issues
+If this is the same error that your team discussed with me last week ( Nil is not a valid JSON source.), then this would appear to be due to Canvas being unable to retrieve the launch data from cache. You can see the full error report by going to https://canvas.greatriverlearning.com/error_reports/238 as your site<Username> user. We had recommended verifying that redis is set up correctly.
+
+SOlution
+nano /var/canvas/config/dynamic_setting.yml
+//* ensure that production is used, instead of development
+
+
+redis version
+$ redis-server
+	//* Redis version=5.0.7, bits=64
+
+redis configfuration in canvas
+$ cd /var/canvas/config
+$ nano /var/canvas/config/cache_store.yml
+	production:
+	  cache_store: redis_store
+$ nano /var/canvas/config/redis.yml
+	production:
+	  servers:
+	    - redis://localhost
+

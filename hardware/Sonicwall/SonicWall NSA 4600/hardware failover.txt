@@ -1,0 +1,4 @@
+
+2 appliances of the same model and sonicOS are required.
+ref- https://support.sonicwall.com/kb/sw5377
+

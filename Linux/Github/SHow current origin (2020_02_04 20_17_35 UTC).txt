@@ -1,0 +1,5 @@
+
+$ cd /var/www/html
+$ git remote -v
+
+git remote show origin

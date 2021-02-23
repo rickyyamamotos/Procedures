@@ -1,0 +1,2 @@
+$ crontab -e
+@reboot sudo su - <Username> bash -c "sleep 15 ; cd /home/<Username>/lti-app ; rvm use 2.3.5 ; rvm reload ; bundle exec passenger start -d --port 3000 --user <Username> ; date >> /tmp/canvas-autostart.log"

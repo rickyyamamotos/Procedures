@@ -1,0 +1,13 @@
+Create a <Username> user and disable root user
+$ adduser <Username>
+$ passwd <Password>
+$ usermod -aG wheel <Username>
+	//* wheel group are sudoers
+$ visudo
+	//* to be sure add the following line after root ALL=(ALL) ALL
+	//*	<Username> ALL=(ALL) ALL
+	//* save (<ESC>:w, <ESC>:q)
+
+Adding sudo without passwor
+$ visudo
+	<Username>	ALL=NOPASSWD: ALL

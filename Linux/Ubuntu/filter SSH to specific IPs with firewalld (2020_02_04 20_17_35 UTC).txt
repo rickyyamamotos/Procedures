@@ -1,0 +1,22 @@
+ununtu 16.04 with ufw
+
+$ nano /etc/ssh/sshd_config
+	AllowUsers *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.* *@XXX.XXX.XXX.230 *@XXX.XXX.XXX.186 *@XXX.XXX.XXX.181 
+<Username>@XXX.XXX.XXX.66
+$ service sshd restart
+$ ufw allow from XXX.XXX.XXX.0<CIDR> to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.0/24 to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.224/28 to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.128/26 to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.240/28 to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.176/28 to any port <PortNumber> proto tcp
+$ ufw allow from XXX.XXX.XXX.66 to any port <PortNumber> proto tcp
+$ ufw reload
+$ ufw enable
+
+
+
+
+Other commands
+$ ufw status numbered
+$ ufw delete 20

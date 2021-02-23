@@ -1,0 +1,12 @@
+Mahara is a web application. This means it's not just an executable file you can download and run. You need a server to put it on.
+requirements:
+- Linux server
+- Apache web server
+- PostgreSQL server (MySQL is also supported)
+- PHP
+
+Installation on Debian/ubuntu
+using apt-get
+
+
+

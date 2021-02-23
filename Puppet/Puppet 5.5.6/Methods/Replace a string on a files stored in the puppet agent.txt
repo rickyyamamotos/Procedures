@@ -1,0 +1,66 @@
+This procedures copies a file from the puppet master and then edit an existing file on the puppet agent to replace a string
+https://eureka.ykyuen.info/2014/03/06/puppet-add-or-replace-a-string-in-a-file/
+
+Create a new Module
+//* Copy the audit-ssh-access.sh to the puppet-master
+C:\> PSCP -P <PortNumber> c:\tmp\audit-ssh-access.sh rick@XXX.XXX.XXX.160:/tmp/
+//* Log into <Site>
+//*adding the standard library if it is not installed yet
+$ puppet module install puppetlabs-stdlib
+$ cd /etc/puppetlabs/code/environments/production/modules/
+$ mkdir auditssh
+$ cd /etc/puppetlabs/code/environments/production/modules/auditssh/
+$ mkdir manifests
+$ mkdir files
+$ mkdir templates
+$ mkdir tests
+$ mv /tmp/audit-ssh-access.sh ./files
+$ chown root:root ./files/audit-ssh-access.sh
+$ chmod 755 ./files/audit-ssh-access.sh
+$ cd manifests
+//* we want to add the following line: 
+//*    session optional pam_exec.so seteuid /audit-ssh-access.sh
+//* into the /etc/pam.d/sshd file in the puppet-agent
+$ nano /etc/puppetlabs/code/environments/production/modules/auditssh/manifests/init.pp
+	class auditssh {
+	    file { "/audit-ssh-access.sh":
+	        mode => "0711",
+	        owner => 'root',
+	        group => 'root',
+	        source => 'puppet:///modules/auditssh/audit-ssh-access.sh',
+	    }
+	    file { '/etc/pam.d/sshd':
+	        ensure => present,
+	    }->
+
+	    file_line { 'Append a line to /etc/pam.d/sshd':
+	        path => '/etc/pam.d/sshd',
+	        line => 'session optional pam_exec.so seteuid /audit-ssh-access.sh',
+	        match   => "^Session oprtional.*$",
+	    }
+    //* When you to replace the string, make sure the line attribute is also an valid entry in the match regular expression.
+//*Import the module and include the class. This will not overwrite the file being copied
+//*OPTION1: to all nodes
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node default {
+	    include auditssh
+	}
+//*OPTION2: to a single node
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node "<puppet-agent>" {
+	    include auditssh
+	}
+//*    # replace <puppet-agent> witht he hostname of the puppet agent. Do the following on the puppet master: $ /opt/puppetlabs/bin/puppet cert list --all
+//* I.E "<Site>"
+
+
+On the puppet agent:
+$ /opt/puppetlabs/bin/puppet agent --test
+
+
+Error: Failed to apply catalog: Validation of Exec[echo "session optional pam_exec.so seteuid /audit-ssh-access.sh" >> /etc/pam.d/sshd] failed: 'echo "session optional pam_exec.so seteuid /audit-ssh-access.sh" >> /etc/pam.d/sshd' is not qualified and no path was specified. Please qualify the command or specify a path. (file: /etc/puppetlabs/code/environments/production/modules/auditssh/manifests/init.pp, line: 12)
+
+
+
+
+

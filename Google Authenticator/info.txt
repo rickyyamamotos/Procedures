@@ -1,0 +1,74 @@
+Google Authenticator
+	https://wiki.archlinux.org/index.php/Google_Authenticator
+How To Set Up Multi-Factor Authentication for SSH on Ubuntu 16.04
+	https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-16-04
+How To Set Up Multi-Factor Authentication for SSH on CentOS 7
+	https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-centos-7
+
+
+google-autheticator test 
+
+Hosted in vm host XXX.XXX.XXX.54
+
+IP XXX.XXX.XXX.170	
+SSH port: <PortNumber>
+
+
+Install PAM
+$ sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+$ sudo yum update -y
+$ sudo yum install google-authenticator
+
+generate a TOTP key for the user you want to add a second factor to. This key is generated on a user-by-user basis
+$ sudo su 
+FOR ROOT
+$ google-authenticator
+	https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/root@localhost.localdomain%3Fsecret%<key>%26issuer%3Dlocalhost.localdomain
+	Your new secret key is: 
+	Your verification code is <Key>
+	Your emergency scratch codes are:
+
+$ su rick
+FOR RICK
+	https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/rick@localhost.localdomain%3Fsecret%<key>%26issuer%3Dlocalhost.localdomain
+	Your new secret key is: 
+	Your verification code is <Key>
+	Your emergency scratch codes are:
+	
+
+Configuring OpenSSH
+$ sudo nano /etc/pam.d/sshd
+	auth required pam_google_authenticator.so nullok
+	# The nullok word at the end of the last line tells the PAM that this authentication method is optional.
+	# This allow some user to use 1 factor and others to use 2 factors authentication
+$ sudo nano /etc/ssh/sshd_config
+	ChallengeResponseAuthentication yes
+$ sudo systemctl restart sshd.service
+
+In the user android/iphone
+1) Install the app named FreeOPT
+2) Click on the scan buton
+3) Open the link that was showed when executing "google-authenticator" at the server for this specific user.
+	I.E. for user Rick it is: https://www.google.com/chart?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/rick@localhost.localdomain%3Fsecret%<key>%26issuer%3Dlocalhost.localdomain
+4) Scan and save OPT. Name it after the server's name
+
+Connect to the server via SSH or SFTP
+1) Open SSH and connect as usual
+2) If the user had a key installed, ssh will ask for a Verification code.
+3) In the user phone, open FreeOPT, Select the name created in the previous step, and get the verification code
+4) For SFTP, select Logon Type = Interactive
+
+
+
+
+
+USING THE SAME KEY FOR MULTIPLE SERVERS
+1) Install google-authenticator in one of the server (server1)
+2) install google-authenticationr on the other servers (server2, server3)
+3) Copy server1:/home/<Username>/.google_authenticator to server2:/home/<Username>/.google_authenticator
+5) chmod 400 server2:/home/<Username>/.google_authenticator
+4) restart the ssh in server2
+5) Repeat steps 3 and 4 for server3
+
+
+

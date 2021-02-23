@@ -1,0 +1,2 @@
+In 3cx Q-manager its showing abandoned,serviced,AVG Call waiting and talking time.
+The calculation depends on the settings you have under the specific queue, under Advanced > Schedule Queue Statistics Reset.

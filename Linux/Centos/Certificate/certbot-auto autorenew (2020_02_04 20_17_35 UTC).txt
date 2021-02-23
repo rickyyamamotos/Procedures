@@ -1,0 +1,9 @@
+sudo su
+which certbot-auto
+	//* get path
+crontab -e
+0 3 1 * * /bin/certbot-auto renew
+	//* replce path
+30 3 1 * * service httpd restart
+	for ubuntu use apache2 instead of http
+

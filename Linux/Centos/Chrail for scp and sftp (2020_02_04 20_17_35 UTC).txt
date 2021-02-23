@@ -1,0 +1,42 @@
+SFTP, SCP jail for a group or user
+https://www.linode.com/docs/tools-reference/tools/limiting-access-with-sftp-jails-on-debian-and-ubuntu/
+
+
+useradd -m -d /home/<Username> <Username>
+passwd <Username>
+	<Password>
+nano /etc/ssh/sshd_config
+	//* modify the following line
+	Subsystem sftp internal-sftp
+	//* append the following lines
+	Match Group filetransfer
+	    ChrootDirectory %h
+	    X11Forwarding no
+	    AllowTcpForwarding no
+	    ForceCommand internal-sftp
+service ssh restart
+addgroup --system filetransfer
+usermod -G filetransfer <Username>
+chown root:root /home/<Username>
+chmod 755 /home/<Username>
+cd /home/<Username>
+mkdir documents
+chown <Username>:filetransfer *
+
+Mount the drobo800i
+$  sudo mount -t  cifs //XXX.XXX.XXX.19/v /mnt/shares/drobo800i -o user=<Username>,pass=<Password>,dir_mode=0777,file_mode=0777
+To maket he mount permanent
+
+Temporaty mount bind the directory
+	mount --bind /mnt/shares/drobo800i/<Site>/ /home/<Username>/documents/
+Permanently mount the bind directory
+	nano /etc/fstab
+		//* append
+		//XXX.XXX.XXX.19/v /mnt/shares/drobo800i cifs username=<Username>,password=<Password>,uid=<Username>,iocharset=utf8,sec=ntlm 0 0
+		/mnt/shares/drobo800i/<Site>/ /home/<Username>/documents/ auto defaults,nofail,nobootwait,bind 0 2
+	mount -a
+
+
+Ftp to server using credentials
+username: <Username>
+password: <Password>

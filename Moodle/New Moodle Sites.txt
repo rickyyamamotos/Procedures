@@ -1,0 +1,2 @@
+add crontab to every moodle site
+	*/5 * * * * /usr/bin/php /var/www/html/<Username>/cli/cron.php > /dev/null

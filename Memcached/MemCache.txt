@@ -1,0 +1,10 @@
+
+Memcache is a service that provide persistent http sessions and cache of some http content. 
+
+To install Memcache on Moodle, install the Memcache service, then configure Moodle to use it (via a plugin) 
+It can be installed on the moodle app server or in a different server. 
+Depending on the implementation, sometimes is better to have Memcache to use local folders. 
+It can provide cache for a single server or a cluster. 
+It also can be implement witihin a NLB (Network Load Balancing) architecture
+
+

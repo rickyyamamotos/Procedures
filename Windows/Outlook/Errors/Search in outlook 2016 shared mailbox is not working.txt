@@ -1,0 +1,10 @@
+Search in outlook 2016 shared mailbox is not working
+
+reindex the folders in outlook
+https://faqs.aber.ac.uk/1117
+	-Click on File then Options
+	-Select Search on the left then click Indexing Options
+	-Click Advanced
+	-Click the Rebuild button
+This will cause Outlook to rebuild its entire search index. This can take a long time to complete but you can continue to use Outlook and it will do this in the background.
+

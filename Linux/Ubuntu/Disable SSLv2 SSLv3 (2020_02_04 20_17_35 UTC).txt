@@ -1,0 +1,3 @@
+$ nano /etc/apache2/mods-enabled/ssl.conf
+	SSLProtocol ALL -SSLv3 -SSLv3
+	SSLCipher<Phone> !3DES:!RC4

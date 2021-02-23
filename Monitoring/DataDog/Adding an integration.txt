@@ -1,0 +1,34 @@
+Integration:
+Integration are datadog packages of metrics for certain services.
+For example, if your server runs apache, you can add the apache integration which will add 12 or more additional metrics to monitor apache
+
+
+Installaing an Integration
+It is a 2 step process, we need to add the integration in datadoghq.com, then follow the instructions that this step shows during the adding, and set up the agent (server side step)
+Installing the Apache integration
+1) Log into datadoghq.com
+2) Click Integrations on the left pane
+3) Click on "+Available" over the "Apache" integration package
+4) Click on the "Configuration" tab
+5) Take note of the intructions to install/activate the agent
+6) Scroll down and click on "Install Integration"
+7) SSH to the server where apache and the datadog agent is installed
+8) Follow the the instructions gathered from step 5
+	$ cd /etc/dd-agent/conf.d
+	$ cp apache.yaml.example apache.yaml
+	$ vi apache.yaml
+		init_config:
+		instances:
+		    -   apache_status_url: http://example.com/server-status?auto
+		        # apache_user: example_user
+		        # apache_password: example_password
+		        tags:
+		            -   instance:foo
+	$ /etc/init.d/datadog-agent restart
+		//* Restart the Agent
+	$ etc/init.d/datadog-agent info
+		//* Verification that Datadog-Mysql Integration is working
+		//* //* It should show Apache, instance #0 [OK], collected # metrics
+
+9) 
+

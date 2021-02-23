@@ -1,0 +1,10 @@
+Define a command with the following (see defining a command)
+	command_name check_http_port1
+	command_line $<Username>$/check_http -I $HOSTADDRESS$ -p $ARG1$ -u $ARG2$ <other options you use>
+
+Define a host template with the following (see defining a command)
+	check_command check_http_port1!443!'https://www.mypage.com/list/index.html'
+
+
+
+

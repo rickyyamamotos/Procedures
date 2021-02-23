@@ -1,0 +1,15 @@
+Download Alfresco Community v6.07
+https://sourceforge.net/projects/alfresco/files/Alfresco%20201806-GA%20Community/alfresco-content-services-community-distribution-6.0.7-ga.zip/download
+https://sourceforge.net/projects/alfresco/files/Alfresco%20201806-GA%20Community/alfresco-file-transfer-receiver-6.2.1.zip/download
+
+Requirements
+A server with Tomcat
+
+
+
+Installation
+http://docs.alfresco.com/community/concepts/install-community-intro.html
+1) Distribution zip for manual install into an existing Tomcat application server or for upgrades to 
+   existing installations. This distribution zip also contains the Module Management Tool (MMT) and 
+   the sample extension files, such as alfresco-global.properties.
+

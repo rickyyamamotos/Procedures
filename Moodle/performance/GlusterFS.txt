@@ -1,0 +1,7 @@
+You should setup GlusterFS for moodledata, Unison is not fast enough. You also need to make sure, important, that you configure each Moodle Cache ( MUC ) into memcache/d.
+
+You can also go the NFS route for moodledata, but the same goes for the MUC as above. If you disregard the MUC settings then your site will be slow.
+
+If you are using multimaster in a active/active scenario I would move away from it, use Galera http://galeracluster.com/ . Version 3 of Galera added some really nice features and supports MySQL 5.6 GTID's, this is especially good for a situation like ours, using WAN replication.
+
+On a side note, we use GlusterFS+Galera+Memcache/d for cross datacenter DR/Failover. No issues or complaints from our end-users so far.

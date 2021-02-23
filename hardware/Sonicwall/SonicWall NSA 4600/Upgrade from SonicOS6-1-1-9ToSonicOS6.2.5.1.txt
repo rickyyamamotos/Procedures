@@ -1,0 +1,23 @@
+in SonicOS 6.2.5.0, all SonicOS default certificates are updated to 2048-bit/SHA-256 encryption, except the Default SonicWall DPI-SSL CA certificate which is updated starting in SonicOS 6.2.5.1.
+After upgrading your appliance to 6.2.5 or higher, do one or both of the following to replace the older 1024-bit certificates with the new ones
+	1) Navigate to the System > <Site> page, scroll down to Web Management Settings, and click the 		Regenerate certificate button. This regenerates the self-signed HTTPS management certificate.
+	2) Navigate to the System > Settings page, click Export Settings to save a copy of your configuration settings, 
+		and then click the Boot icon for Current Firmware with Factory Default Settings. This will regenerate 
+		all default certificates. After the restart, click the Import Settings button to import your settings 
+		and return to your previous configuration.
+
+Creating a System Backup and Exporting Your Settings
+
+
+
+
+
+
+
+
+
+
+
+
+
+

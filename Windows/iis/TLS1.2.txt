@@ -1,0 +1,149 @@
+requirements
+Apache version 2.2.23+
+OpenSSL 1.0.1+
+
+ENABLING TLS 1.2 ON LINUX:
+=========================
+nano /etc/httpd/conf.d/ssl.conf
+	SSLProtocol TLSv1.1
+nano /etc/apache2/sites-enabled/xxx.conf
+	<VirtualHost *:443>
+		SSLProtocol -all +TLSv1 +TLSv1.1 +TLSv1.2
+		SSLCipher<Phone> EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GC$
+			Optionally SSLCipher<Phone>
+
+Test if TLS 1.2+ works in Linux:
+===============================
+	openssl s_client -connect google.com:443 -tls1_2
+		To check if your system supports TLS 1.2 or not you can use below command :
+
+
+Upgrading openssl in Linux
+==========================
+	Ubuntu
+		sudo apt-get update && sudo apt-get install --only-upgrade openssl
+		sudo apt-get update && sudo apt-get install --only-upgrade libssl-dev
+	Centos
+		sudo yum update openssl libcurl
+
+
+ENABLING TLS 1.2 IN WINDOWS IIS:
+===============================
+
+WEBSITES:
+========
+
+<ServerName> (XXX.XXX.XXX.133)
+	Windows 2008 SP2 x 64 ver 6 Enterprise, IIS 7
+	vm hosted on XXX.XXX.XXX.188
+	IIS Hosts:
+		https://<Site>
+		http://<Site>
+	TLS 1.3	No
+	TLS 1.2	No
+	TLS 1.1	No
+	TLS 1.0	Yes
+Procedure for windows 2008 SP2 x64
+	1) Intalled KB4019276 for x64 based systems from http://www.catalog.update.microsoft.com/search.aspx?q=kb4019276
+	2) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+		create DWORD: DisabledByDefault with value 0
+	3) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+		create DWORD: Enabled with value 1
+	4) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+		create DWORD: DisabledByDefault with value 0
+	5) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+		create DWORD: Enabled with value 1
+	6) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+		create DWORD: DisabledByDefault with value 0
+	7) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+		create DWORD: Enabled with value 1
+	6) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+		create DWORD: DisabledByDefault with value 0
+	7) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+		create DWORD: Enabled with value 1
+	8) schedule a reboot
+
+
+https://www.<Site>
+	Windows IIS, <Server> -> XXX.XXX.XXX.137 (<ServerName>, IIS 7, Server 2008 Standard v6 SP2, <Site>, <Site>)
+See https://support.microsoft.com/en-us/help/4019276/update-to-add-support-for-tls-1-1-and-tls-1-2-in-windows
+	vm hosted on XXX.XXX.XXX.16
+	IIS hosts:
+	TLS 1.3	No
+	TLS 1.2	No
+	TLS 1.1	No
+	TLS 1.0	Yes
+Procedure for windows 2008 SP2 x64
+	1) Intalled KB4019276 for x64 based systems from http://www.catalog.update.microsoft.com/search.aspx?q=kb4019276
+	2) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+		create DWORD: DisabledByDefault with value 0
+	3) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client
+		create DWORD: Enabled with value 1
+	4) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+		create DWORD: DisabledByDefault with value 0
+	5) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server
+		create DWORD: Enabled with value 1
+	6) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+		create DWORD: DisabledByDefault with value 0
+	7) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client
+		create DWORD: Enabled with value 1
+	6) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+		create DWORD: DisabledByDefault with value 0
+	7) HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server
+		create DWORD: Enabled with value 1
+	8) schedule a reboot
+
+https://<Site> (Ithink we need to secure this w/GoDaddy)  
+"""""""NEEDS REBOOTING""""""""
+	VM hosted on XXX.XXX.XXX.188
+	WIndows IIS, <Server> -> XXX.XXX.XXX.209 (<ServerName>) (IIS7, 2008R2, <Site>, <Site>.c
+	TLS 1.3	No
+	TLS 1.2	No
+	TLS 1.1	No
+	TLS 1.0	Yes
+
+https://<Site> (GOOD)
+	XXX.XXX.XXX.216
+	TLS 1.3	No
+	TLS 1.2	Yes
+	TLS 1.1	Yes
+	TLS 1.0	Yes
+
+https://<Site> (Good)
+	Unable to resolve domain name on SSLLabs
+	Protocols enabled from Cryptoreport Symantec:
+		TLS1.2
+		TLS1.1
+		TLS1.0
+
+https://<<Site>  (Good) (I think we need to secure this w/GoDaddy)
+	Unable to resolve domain name on SSLLabs
+	Protocols enabled from Cryptoreport Symantec:
+		TLS1.2
+		TLS1.1
+		TLS1.0
+
+https://<Site> (GOOD)
+	TLS 1.3	No
+	TLS 1.2	Yes
+	TLS 1.1	Yes
+	TLS 1.0	Yes
+
+https://<Site> (GOOD)
+	TLS 1.3	No
+	TLS 1.2	Yes
+	TLS 1.1	Yes
+	TLS 1.0	Yes
+
+https://<Site> (GOOD)
+	TLS 1.3	No
+	TLS 1.2	Yes
+	TLS 1.1	Yes
+	TLS 1.0	Yes
+
+After applying kb4019276, Windows Server 2008 Services won't start.
+Server stucks on "Configuring updates stage 3 of 3 0% complete"
+https://serverfault.com/questions/83806/windows-server-2008-services-wont-start-after-patch
+Run http://files.think.io/random/svchost.reg
+Create reg_multi_sz record: HKLM\System\CurrentControlSet\Serivces\HTTP\DependOnService
+	set value to: CryptSvc 

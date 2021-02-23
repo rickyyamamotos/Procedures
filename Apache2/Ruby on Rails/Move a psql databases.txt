@@ -1,0 +1,8 @@
+Dumping the whole database would mean we’d carry over the schema_migrations table as well. schema_migrations 
+   consists of a list of identifiers which match up to an app’s migration files - it’s what Rails uses to 
+   track which migrations have been run, which is important for e.g. rake db commands, so we don’t want to 
+   modify it.
+
+
+
+See C:\Users\rick.yamamoto\Desktop\Training\Postgresql\Backup and Restore a Postgress database

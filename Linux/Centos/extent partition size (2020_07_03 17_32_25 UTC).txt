@@ -1,0 +1,90 @@
+lvm is a disk pool, you can add up to 4 disk to a pool sdb1, sdb2, sdb3, sdb4
+
+Max partition size
+ext2	2-32 Tb
+ext3	2-32 Tb
+ext4	16 Tb
+
+
+Procedure to increase the size of a bootable partition in centos (Not for LVM partitions)
+	determine the type of partition
+		$ df -Th
+			//* shows partition types
+		$ fdisk -l
+			//* this will show if the partition is a linux partition (bootable) or not
+	Go to the vm host and increase disk size
+	take a snapshot
+	If the partition is not bootable
+		turn on the VM and see if it shows the increased space
+		$ echo "- - -" > /sys/class/scsi_host/host0/scan
+		$ fdisk -l
+		if the partition still showing the old size then do "Extending a boot partition (linux partition)"
+	Extending a boot partition (linux partition):
+		download "GParted live CD ISO"
+		Upload "GParted live CD ISO" into the vmhost
+		set the vm to boot to cd-rom into "GParted live CD ISO"
+		boot the vm to gparted iso
+		expand the partition
+
+Procedure to increase the size of a bootable partition in centos (for LVM partitions)
+	determine the type of partition
+		$ df -Th
+			//* shows partition types
+		$ fdisk -l
+			//* this will show if the partition is a linux partition (bootable) or not
+	Go to the vm host and increase disk size
+	take a snapshot
+	$ reboot
+	$ df -h
+		/dev/mapper/VolGroup-lv_root	 60G   56G  1.3G  98% /
+					 	200G  116G   75G  61%
+	$ pvdisplay
+		//* it will show which partition is lv
+		//* verify that the target partition is lv_root	
+			PV Name               /dev/sdb1
+			PV Size               90.00 GiB / not usable 2.94 MiB
+						203.86 GiB / not usable 4.00 MiB
+	$ lvscan
+		//* show the full path for the lv_root partition
+			  ACTIVE            '/dev/VolGroup/lv_root' [60.00 GiB] inherit
+							/dev/VolGroup/lv_root' [200.00 GiB] inherit
+			  ACTIVE            '/dev/VolGroup/lv_swap' [3.86 GiB] inherit
+	$ lvextend -r -L +20G /dev/mapper/VolGroup-lv_root /dev/sdb1
+		//* get "/dev/mapper/VolGroup-lv_root" from df -h
+		//* get "/dev/sdb1" from  pvdisplay
+
+Error: insufficiwent free space after running lvextend -r -L +20G /dev/mapper/VolGroup-lv_root /dev/sdb1
+http://www.uptimemadeeasy.com/vmware/grow-an-ext4-filesystem-on-a-vmware-esxi-virtual-machine/
+	See also https://www.linuxquestions.org/questions/linux-newbie-8/lvextend-question-834999/
+fdisk /dev/sdb
+	n
+	p
+	2	creates sdb2
+	<enter>
+	<enter>
+	p
+	t
+	2
+	L
+	8e
+	p
+	w
+vgdisplay
+pvcreate /dev/sdb2
+	Error: Device /dev/sdb2 not found (or ignored by filtering).
+	yum install parted
+	partprobe sdb2
+		Error No found
+			reboot
+	partprobe sdb2
+	pvcreate /dev/sdb2
+vgdisplay VolGroup | grep "Free"
+vgdisplay
+	Error: shows sdb2 with a blank vg
+		vgextend VolGroup /dev/sdb2
+lvextend -r -L +20G /dev/mapper/VolGroup-lv_root
+
+
+
+
+

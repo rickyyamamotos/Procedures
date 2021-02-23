@@ -1,0 +1,30 @@
+
+$ mysql -u ndoutils -p "<Password>"
+//* Show size of all tables
+SELECT table_name AS "Table",
+ROUND(((data_length + index_length) / 1024 / 1024), 2) AS "Size (MB)"
+FROM information_schema.TABLES
+WHERE table_schema = "ndoutils"
+ORDER BY (data_length + index_length) DESC;
+
+cd /etc/nagios3
+ndo2db -c /etc/nagios3/ndo2db.cfg
+
+
+
+Reinstalling ndoutils
+=====================
+apt-get install build-essential
+wget https://downloads.sourceforge.net/project/nagios/ndoutils-2.x/ndoutils-2.1.3/ndoutils-2.1.3.tar.gz
+tar zxf ndoutils-2.1.3.tar.gz
+cd ndoutils-2.1.3
+./configure
+	 NDO2DB user:      nagios
+	 NDO2DB group:     nagios
+	 NDO2DB tcp port:  5668
+make all
+
+
+
+
+

@@ -1,0 +1,6 @@
+$cfg->dbtype   = 'postgres';
+$cfg->dbhost   = 'localhost';
+$cfg->dbport   = null; // Change if you are using a non-standard port number for your database
+$cfg->dbname   = '<DBName>';
+$cfg->dbuser   = '<Username>';
+$cfg->dbpass   = 'mahara';

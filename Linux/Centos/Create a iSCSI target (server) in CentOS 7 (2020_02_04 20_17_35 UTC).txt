@@ -1,0 +1,111 @@
+Install CentOS 7
+Hostname: <Site>-iscsitarget1
+IP address: XXX.XXX.XXX.164
+
+Purpose
+This is a baremetal old server, where ESXi 5+ is not supported
+This server will share storage via iSCSI
+
+Memory:	
+Storage: 
+	Total 2000 Gb
+	Boot Partition: 20 Gb
+	Additional Partition: 1980 Gb
+CPU:	
+MODEL: PE-1950
+Service Code: DYHQXH!
+
+
+CentOS Credentials
+	<Username> / <Username><Password>123$
+
+Firewall
+firewall-cmd --zone=public --add-port=3260/tcp
+firewall-cmd --zone=public --add-port=<PortNumber>/tcp
+firewall-cmd --reload
+
+SSH
+nano /etc/ssh/sshd_config
+
+
+Creating a Partition of 1980 Gb
+https://www.itzgeek.com/how-tos/linux/centos-how-tos/configure-iscsi-target-initiator-on-centos-7-rhel7.html
+$ fdisk -l | grep -i sd
+	//* sda has the free space of 1999.8 Gb, free 1980 Gb
+$ fdisk /dev/sda
+	n
+	p
+	3
+	<Enter>
+	<Enter>
+	t
+	3
+	8e
+	w
+$ reboot now
+$ fdisk -l | grep -i sd
+	//* sda3 is our new partition of 1980 Gb
+
+Create a LVM with /dev/sdb3
+$ pvcreate /dev/sda3
+$ vgcreate vg_iscsi /dev/sda3
+$ lvcreate -l 100%FREE -n lv_iscsi vg_iscsi
+	
+Configure iSCSI target
+$ yum update -y
+$ yum install targetcli -y
+$ targetcli
+	//* get an iSCSI CLI for an interactive prompt
+/> cd backstores/block
+/backstores/block> create scsi_disk1_server /dev/vg_iscsi/lv_iscsi
+	//* Creates a block storage object scsi_disk1_server using /dev/vg_iscsi/lv_iscsi.
+/backstores/block> cd /iscsi
+/iscsi> create iqn.2018-11.local.<Site>-iscsitarget1:disk1
+	//* creates a target named iqn.2018-11.local.<Site>-iscsitarget1:disk1
+
+Optional
+	/iscsi> cd /iscsi/iqn.2018-11.local.<Site>-iscsitarget1:disk1/tpg1/acls
+	/iscsi/iqn.20...sk1/tpg1/acls> create iqn.2018-11.local.<Site>-iscsitarget1:node1node2
+		//* creates an ACl for node1node2
+
+/iscsi> cd /iscsi/iqn.2018-11.local.<Site>-iscsitarget1:disk1/tpg1/luns
+/iscsi/iqn.20...sk1/tpg1/luns> create /backstores/block/scsi_disk1_server 
+	//* Create a LUN under the target. The LUN should use the previously mentioned backing storage object named “scsi_disk1_server“.
+
+/> cd /iscsi/iqn.2018-11.local.<Site>-iscsitarget1:disk1/tpg1/portals
+/iscsi/iqn.20.../tpg1/portals> delete 0.0.0.0 3260
+/iscsi/iqn.20.../tpg1/portals> create XXX.XXX.XXX.164
+	//* Set  ip   adres   of the target under  Portals folder
+/iscsi/iqn.20.../tpg1/portals> ls
+
+/iscsi/iqn.20.../tpg1/portals> cd /iscsi/iqn.2018-11.local.<Site>-iscsitarget1:disk1/tpg1
+/iscsi/iqn.20...target00/tpg1> set attribute authentication=0
+/iscsi/iqn.20...target00/tpg1> set attribute generate_node_acls=1
+/iscsi/iqn.20...target00/tpg1> set attribute demo_mode_write_protect=0
+	//* allow any client to connect
+/iscsi> cd /
+/> ls
+	//* Verify the target server configuration.
+/> exit
+
+
+Check Service
+$ netstat   -an  |  grep -i    3260 
+
+
+Connect  from the Client (another CentOS 7 server)
+$ yum install iscsi-initiator-utils.x86_64
+$ iscsiadm   --mode discoverydb --type sendtargets --portal
+	//* This will search for the iSCSI target (server)
+$ iscsiadm   --mode node --targetname  iqn.2018-11.local.<Site>-iscsitarget1:disk1 --portal XXX.XXX.XXX.164 --login
+	//* Adds the disk
+$ fdisk -l
+
+
+
+
+
+
+
+
+

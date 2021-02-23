@@ -1,0 +1,23 @@
+linux boots to grub and boot-repair-disk cant fix it
+
+in grub
+grub> ls
+grub> ls (hd0,1)/ -l
+set prefix=(hd0,1)/grub2
+set root=(hd0,1)
+insmod linux
+insmod normal
+boot
+
+$ update-grub
+	or
+  $ sudo grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg 
+
+If the issue persist after rebooting (the issue may be that there is another grub.cfg that we need to replace)
+1) repeat step above
+2) after boot
+   $ cd /boot
+   $ find -name "*.cfg"
+	I.E. /boot/grub2/grub.cfg
+   $ cp /boot/efi/EFI/centos/grub.cfg /boot/grub2/
+   $ reboot now

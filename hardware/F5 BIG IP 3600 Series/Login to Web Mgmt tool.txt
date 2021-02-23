@@ -1,0 +1,6 @@
+connect a PC to the MGMT PORT
+change IP of PC to XXX.XXX.XXX.139
+go to https://XXX.XXX.XXX.245
+username: rick
+password: <Password>
+

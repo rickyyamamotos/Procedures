@@ -1,0 +1,2 @@
+Connect a screen, keyboard to the VM Host
+Press <ALT> F11

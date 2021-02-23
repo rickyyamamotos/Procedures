@@ -1,0 +1,4 @@
+su username
+   //* launch shell as username
+su - username
+   //* launch shell as username and loads username's enviroment including path and var

@@ -1,0 +1,6 @@
+Blocked  190.144.29.126 via .htaccess on 11/27/2018
+$ nano /var/www/html/.htaccess
+	Order Deny,Allow
+	Deny from 190.144.29.126
+
+$ service httpd restart

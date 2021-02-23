@@ -1,0 +1,19 @@
+local PC IP is XXX.XXX.XXX.198
+
+create a port redirection on local PC, This is persistent
+netsh interface portproxy add v4tov4 listenport=3389 listenaddress=0.0.0.0 connectport=3582 connectaddress=0.0.0.0
+
+create a firewall rule to allow port
+netsh advfirewall firewall add rule name=”forwarded_RDPport_3389” protocol=TCP dir=in localip=XXX.XXX.XXX.198  localport=3582 action=allow
+
+show port redirection
+netsh interface portproxy show all
+
+delete port redirection
+netsh interface portproxy delete v4tov4 listenport=3389 listenaddress=XXX.XXX.XXX.198
+
+clear port redirections until next reboot
+netsh interface portproxy reset
+
+
+

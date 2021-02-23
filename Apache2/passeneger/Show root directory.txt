@@ -1,0 +1,4 @@
+$ /usr/sbin/passenger-status
+	//* App root: /home/<Username>/<Site>
+$ cd /var/www/
+$ find . -mtime -1 -type f -exec ls -l {} \;

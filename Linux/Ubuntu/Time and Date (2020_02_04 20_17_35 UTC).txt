@@ -1,0 +1,53 @@
+$ date
+	//* shows date, time
+$ cat /etc/sysconfig/clock
+	//* shows timezone
+$ sudo hwclock --show
+	//* shows hardware clock
+
+
+Sync time/date with NTP server (manually)
+$ ntpdate time-a.nist.gov
+	//* update time/date 1 time
+
+
+Sync time/date with NTP server (automatically)
+$ service ntp status
+$ apt install ntp
+$ sudo ntpq -p
+$ nano /etc/ntp.conf
+	pool 0.ubuntu.pool.ntp.org iburst
+	pool 1.ubuntu.pool.ntp.org iburst
+	pool 2.ubuntu.pool.ntp.org iburst
+	pool 3.ubuntu.pool.ntp.org iburst
+$ timedatectl list-timezones | grep New_York
+$ sudo timedatectl set-timezone America/New_York
+$ sudo timedatectl set-ntp on
+$ sudo systemctl enable ntp
+	//* if chkconfig not found run: $ apt-get install sysv-rc-conf && sysv-rc-conf ntp on
+$ sudo systemctl restart ntp
+
+
+
+
+Changing timezone
+$ nano /etc/sysconfig/clock
+
+manually change the date
+$ sudo date --set "15 MAY 2011 1:40 PM"
+
+
+If time changes on every reboot
+$ sudo  timedatectl set-timezone Etc/UTC
+
+
+$ date
+	//* get current time
+$ timedatectl list-timezones | grep New_York
+	//* America/New_York
+$ sudo timedatectl set-timezone America/New_York
+$ timedatectl
+	//* verify that timezone was set
+
+
+

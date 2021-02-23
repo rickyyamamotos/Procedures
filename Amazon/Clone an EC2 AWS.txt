@@ -1,0 +1,80 @@
+Clone an AWS EC2 instance into another EC2 instance in the same AWS account
+	1) Create a snapshot of the Ec2 instance
+	2) Create a new instances from the snapshot.
+
+Clone an AWS EC2 instance into another EC2 instance in a different AWS account without Copying Data
+	Ref- https://aws.amazon.com/premiumsupport/knowledge-center/account-transfer-ec2-instance/
+	1) create an Amazon Machine Image (AMI) based on the original EC2 instance from the source account.
+	2) Share the AMI with the target account
+	3) Launch a new instance based on that AMI from the target account.
+	4) Create your own copy of the AMI on the target account to begin using it on the different account or
+	   to use as a backup.
+
+
+Clone an AWS EC2 instance into another EC2 instance in a different AWS account with Copying Data
+	OLD: https://gmusumeci.medium.com/how-to-move-an-ec2-instance-to-another-aws-account-e5a8f04cef21
+Sharing and Copying a EC2 snapshot
+	https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modifying-snapshot-permissions.html
+	https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-restoring-volume.html
+Free App
+	https://n2ws.com/blog/how-to-guides/how-to-copy-data-to-another-aws-account
+	https://n2ws.com/trial
+
+
+Create a snapshot of the EC2 volume
+	Ensure the following settings on the source EC2 instance
+		networking is DHCP
+	Create snapshot on the source aws account
+		AWS console of source account -> EC2 instance -> Snapshots from the left pane -> create snapshot -> volume
+			volume to copy:	vol-<ID>	/dev/sda1	30
+	If the target account is in a different region than th source aws account, then copy the snapshot to the target region
+		AWS console of source account -> top menu -> see region (I.E. Ohio)
+		AWS console of target account -> top menu -> see region (I.E. N. Virginia)
+		AWS console of source account -> EC2 instance -> Snapshots from the left pane -> Select snapshot -> Actions -> Copy -> Destination Region
+			the target AWS account's region (I.E. N. Virginia)
+			description: [Copied snap-<ID> from us-east-2] test-volume-snapshot-12082020
+	Give access to the target account over the snapshot	
+		AWS console of source account -> EC2 instance -> Snapshots from the left pane -> Select snapshot -> Actions -> Change Permissions -> Private -> Account: 
+			<Account>		<Site> AWS (<Site>@<Site>)
+			Note- if different regions, change permission to the copied snapshot
+	Create a volume on the target account
+		AWS console of target account -> top menu -> drop-down menu -> select the source's region (I.E. Ohio)
+		AWS console of target account -> EC2 instance -> Snapshots from the left pane -> Drop-down menu -> Private snapshots
+		//* snap-<ID> 30 GiB <Site>1-12082020  
+			-> Select Snaposhot -> Create Volume -> select size, region, etc
+	See if volume was created
+		AWS console of target account -> top menu -> drop-down menu -> select the target's region (I.E. N. Ohio)
+		AWS console of target account -> EC2 instance -> volumes
+			vol-<ID> 30 GiB gp2 100 
+	Create a new EC2 instance with the required resources and only 8 Gb of storage
+	Mount the target volume to the new instance
+		Stop the instance.
+		Detach the currebt root EBS volume (8 Gb) mounted on the instance
+			AWS console of target account -> EC2 instance -> volumes -> select the 8 Gb volume -> Actions -> Detach
+		Attach the alternate (target) EBS volume (30 Gb) as the root: /dev/sda1
+			AWS console of target account -> EC2 instance -> volumes -> select the 30 Gb volume -> Actions -> Attach -> select the new EC2
+			instance -> /dev/sda1
+		Start the instance.
+	Create a Public DNS record to point to the new EC2 instance IP address
+		new EC2 instance IP address:	XXX.XXX.XXX.184
+		godaddy CN records
+			<Site>	<ID>.us-east-2.compute.amazonaws.com
+			www.<Site>	<ID>.us-east-2.compute.amazonaws.com
+	Allow HTTP/HTTPS to the site
+		modify the EC2 instance security group to add inbound HTTP and HTTPS
+	Change the root address of wordpress
+		ssh to the instance -> nano /var/www/html/wp-content/themes/*/function/php
+			update_option( 'siteurl', 'https://<Site>' );
+			update_option( 'home', 'https://<Site>' );
+		change ServerName <Site> on
+			/etc/apache2/sites-enabled/000-default-le-ssl.conf
+			/etc/apache2/sites-enabled/000-default.conf
+			/etc/apache2/conf-enabled/phpmyadmin.conf
+		change /etc/hostname
+			<Site>
+		change /etc/hosts
+			127.0.0.1 localhost <Site>
+		service apache2 restart
+
+
+			

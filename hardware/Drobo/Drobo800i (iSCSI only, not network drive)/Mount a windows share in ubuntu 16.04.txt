@@ -1,0 +1,55 @@
+1) in a windows server, create a share named "XXXX" and give all permissions to the windows user <Username> / <Password>
+2) in the ubuntu server
+	create a directory to hold the mount
+		$ mkdir /mnt/shares/drobo800i
+		$ chmod 777 /mnt/shares/drobo800i
+	Mount the drive
+		$ mount -t  cifs //XXX.XXX.XXX.19/XXXX /mnt/shares/drobo800i -o user=<Username>,pass=<Password>,dir_mode=0777,file_mode=0777
+			I.E.
+				$  sudo mount -t  cifs //XXX.XXX.XXX.19/v /mnt/shares/drobo800i -o user=<Username>,pass=<Password>,dir_mode=0777,file_mode=0777
+
+
+
+
+<Site>:
+========================================================================================================================================================================
+$ mkdir /mnt/shares/drobo800i
+$ chmod 777 /mnt/shares/drobo800i
+$ mkdir /home/<Username>/documents
+$ chmod 777 /home/<Username>/documents
+$ nano /etc/fstab
+	//XXX.XXX.XXX.19/backupserver /mnt/shares/drobo cifs username=<Username>,password=<Password>,uid=<Username>,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+	//XXX.XXX.XXX.19/v /mnt/shares/drobo800i cifs username=<Username>,password=<Password>,uid=<Username>,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+	/mnt/shares/drobo800i/<Site>/ /home/<Username>/documents/ auto defaults,nofail,nobootwait,bind,file_mode=0777,dir_mode=0777 0 2
+$ reboot now
+
+
+OLD
+=====
+Temporary Mounting v share (drobo 800i) hosted <Site> (XXX.XXX.XXX.19) on backupserver
+$ mkdir /mnt/shares/drobo800i
+$ chmod 777 /mnt/shares/drobo800i
+$ mount -t  cifs //XXX.XXX.XXX.19/v /mnt/shares/drobo800i -o user=<Username>,pass=<Password>,dir_mode=0777,file_mode=0777
+$ mkdir /home/<Username>/documents
+$ chmod 777 /home/<Username>/documents
+$ mount --bind /mnt/shares/drobo800i/<Site>/ /home/<Username>/documents -o dir_mode=0777,file_mode=0777
+
+
+Temporary Mounting <Server> share (usb drive) hosted <Site> (XXX.XXX.XXX.5-9) on backupserver
+$ mkdir /mnt/shares/<Site>
+$ chmod 777 /mnt/shares/<Site>
+$ mount -t  cifs //XXX.XXX.XXX.5/<Site> /mnt/shares/<Site> -o user=<Username>,pass=<Password>,dir_mode=0777,file_mode=0777
+$ mkdir /home/<Username>/<Site>
+$ chmod 777 /home/<Username>/<Site>
+$ mount --bind /mnt/shares/<Site>/ /home/<Username>/<Site> -o dir_mode=0777,file_mode=0777
+
+
+Permanently (boot) Mounting v share (drobo 800i) hosted <Site> (XXX.XXX.XXX.19) on backupserver
+$ nano /etc/fstab
+	//XXX.XXX.XXX.19/v /mnt/shares/drobo800i cifs username=<Username>,password=<Password>,uid=<Username>,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+	/mnt/shares/drobo800i/<Site>/ /home/<Username>/documents/ auto defaults,nofail,nobootwait,bind,file_mode=0777,dir_mode=0777 0 2
+
+Permanently (boot) Mounting <Server> share (usb drive) hosted <Site> (XXX.XXX.XXX.5-9) on backupserver
+$ nano /etc/fstab
+	//XXX.XXX.XXX.5/<Site> /mnt/shares/<Site> cifs username=<Username>,password=<Password>,uid=<Username>,iocharset=utf8,sec=ntlm,file_mode=0777,dir_mode=0777 0 0
+	/mnt/shares/<Site> /home/<Username>/<Site>/ auto defaults,nofail,nobootwait,bind,file_mode=0777,dir_mode=0777 0 2

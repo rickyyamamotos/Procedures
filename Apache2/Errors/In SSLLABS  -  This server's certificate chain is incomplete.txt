@@ -1,0 +1,8 @@
+Fix
+1) go to https://whatsmychaincert.com/
+2) test the server
+3) Download the ca cert into the server, and named it ca.pem
+4) Modify the apache conf (ssl.conf, 000-default-ssl, etc) 
+	SSLCACertificateFile /etc/letsencrypt/live/lti-clean.<Domain>/ca.pem
+5) service httpd (or apache2) restart
+

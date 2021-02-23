@@ -1,0 +1,34 @@
+Elasticsearch makes differentials repositories only. To make a monthly full snapshot, you will need to create a new repository as full snapsjhots are made on new repositories
+
+The idea of creating a full backup once a month is to create a new repository and make a snapshot on the repository. We better dont delete old repositories if you will need to restore from previous months
+
+Creating a new repository
+//* we get the year-month numbers
+//* we create a directory: /elasticsearch-backup/year-month
+PUT /_snapshot/year-month
+   1) using kibana
+	{
+	  "type": "fs",
+	  "settings": {
+	    "location": "/elasticsearch-backup/year-month"
+	  }
+	}
+   2) Using curl
+	curl -X PUT "localhost:9200/_snapshot/my_backup?pretty" -H 'Content-Type: application/json' -d'
+	{
+	  "type": "fs",
+	  "settings": {
+	    "location": "my_backup_location"
+	  }
+	}
+
+Deleting a repo
+When a repository is un<Site>ed, Elasticsearch only removes the reference to the location where the repository is storing the snapshots. The snapshots themselves are left untouched and in place.
+   1) using kibana
+	DELETE /_snapshot/my_backup
+   2) Using curl
+	 curl -X DELETE "localhost:9200/_snapshot/my_backup?pretty"
+
+
+
+

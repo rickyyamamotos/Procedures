@@ -1,0 +1,27 @@
+1) copy and save the crashed mysql's binlogs
+2) Restore the most curret dump backup
+3) start the restore database
+4) Get the binlog file's name and position (optionally 
+	mysql> SHOW BINARY LOGS;
+		//* lists of all binary log files, use this statement:
+ 	mysql> SHOW MASTER STATUS;
+		//* shows the name of the current binary log file
+5) determine event times or positions to select partial log contents prior to executing events
+	$ mysqlbinlog <binlog_file> | more
+6) Save the output in a file is useful as a preliminary to executing the log contents with certain
+   events removed, such as an accidental DROP DATABASE
+	$ find -name "<binlog_file>"
+		//* /var/log/mysql/<binlog_file>
+	$ mysqlbinlog <binlog_file> > /tmp/tmpfile
+7) modify the tmpfile to remove any log content as needed, delete from the file any statements not
+   to be executed in the restore
+	$ nano \tmp\tmpfile
+8) Execute the tmpfile in the dump restored database
+	$ mysql -u root -p < tmpfile
+
+Note- If you have more than one binary log to execute on the MySQL server, the safe method is to
+      process them all using a single connection to the server. First perform steps 6-8 in the first /
+      older binlog file, the continue with the next one
+
+
+mysqlbinlog /var/log/mysql/mysql-bin.000002 > /tmp/tmpfile

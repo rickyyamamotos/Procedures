@@ -1,0 +1,59 @@
+<Domain> (Procedure to Restore a MYSQL Dump back onto the database's server)
+===========================================================================================================================================
+Grab information from the SOURCE MYSQL SERVER
+On the SOURCE MYSQL SERVER
+	The "SOURCE MYSQL SERVER" is the server that holds the database
+	you need the mysql root user and password
+	you need the mysql user used by moodle: "MOODLE-MYSQL-USE"
+		//* you can get this info by nano /var/www/html/config.php 
+	you need the "DATABASENAME"
+		//* you can get this info by nano /var/www/html/config.php 
+	you need the DATABASEDUMP (backup) file
+If you are restoring the database to the same server you will need to Drop(delete) the old database
+On the SOURCE MYSQL SERVER
+	$ mysql -f -uroot -p -e "drop database DATABASENAME;"
+		//* replace DATABASENAME with the actual database name
+if you are moving/restoring the database to a new mysql server
+On the new MYSQL SERVER
+	$ myssql -u root -p
+		//* Enter password
+	mysql> CREATE USER 'MMODLE-MYSQL-USER'@'localhost' IDENTIFIED BY 'password';
+		//* replace MOODLE-MYSQL-USER and password with the mysql user credentials used by moodle
+	mysql> GRANT ALL PRIVILEGES ON `%`.* TO 'MOODLE-MYSQL-USER'@'localhost' WITH GRANT OPTION;
+Create database
+After dropping the database, do the following
+	$ mysql -f -uroot -p -e "create database DATABASENAME default character set utf8 default collate  utf8_general_ci;"
+		//* replace DATABASENAME with the actual database name
+	$ mysql -f -uroot -p -e "GRANT ALL PRIVILEGES ON DATABASENAME.* TO 'MOODLE-MYSQL-USER'@'localhost' WITH GRANT OPTION;"
+		//* replace DATABASENAME with the actual database name
+		//* replace MOODLE-MYSQL-USER and password with the mysql user credentials used by moodle
+Copy the Database backup dump to /tmp and restore the database
+After creating the database, copy the backup dump (backup) file that you want to restore to the mysql server "/tmp"" directory
+	$ cd /tmp
+	$ ls *.sql
+		//* GRAB THE DATABASEDUMPFILE
+	$ tar -xvf /tmp/DATABASEDUMP.tar.gz
+		//* replace DATABASEDUMP with the actual file name of the backup
+	$ mysql -uroot -p DATABASENAME < /tmp/DATABASEDUMPFILE.sql
+		//* replace DATABASEDUMPFILE with the actual file name of the backup
+	$ rm DATABASEDUMP
+		//* replace DATABASEDUMP with the actual file name of the backup
+	$ rm DATABASEDUMPFILE
+		//* replace DATABASEDUMPFILE with the actual file name of the backup
+Test the restore
+	$ mysql -proot -p
+	mysql> use DATABASENAME
+	mysql> show tables;
+	mysql> select * from ANYTABLE;
+		//* replace ANYTABLE from the results of "show tables"
+	mysql> quit
+
+SOCIAL.<Site> (Procedure to Restore a MYSQL Dump back onto the database's server)
+===========================================================================================================================================
+The process is similar to the above <Domain> (Procedure to Restore a MYSQL Dump back onto the database's server)
+with the difference that social.<Site> used postgres instead of mysql, and the wwwdata directory is on /srv/data/
+On the target server:
+	tar -xvf /tmp/<DBName>-backup-date.tar.gz 
+	postgres -c "createdb -O '<Username> -EUTF8 <DBName>"
+	postgres -c "pg_restore -d <DBName> -Fc -U '<Username>' -O -x -f <DBName>.pgdump
+	tar -xvf /tmp/mahara-wwwdata-backup-date.tar.gz /srv/data/

@@ -1,0 +1,211 @@
+Check the installed git vesion
+$ git --version
+	//* last vesion is 2.1.92, installed 1.8.3
+
+Upgrade the git
+$ git clone https://github.com/git/git
+or
+https://stackoverflow.com/questions/21820715/how-to-install-latest-version-of-git-on-centos-7-x-6-x
+
+THis is to create a online repository in github for a server named $HOSTNAME
+
+Setup a new server / repository			
+	log into the github.com		
+		<Site> -> New (Customize pinned repository) -> name: <Site>.<Domain> -> private -> create repository	
+
+
+Last process
+//* create gitbub/repositoryname
+sudo su
+mkdir /home/<Username>/.ssh
+ssh-keygen -t rsa
+cp ~/.ssh/* /home/<Username>/.ssh/
+cat ~/.ssh/id_rsa.pub			# upload key on gitbub/repository/ -> setting -> Deploy keys -> New
+cd /home/<Username>
+chown <Username>:<Username> * -R
+chown <Username>:<Username> .* -R
+su <Username>
+var1="/var/www/html"
+cd $var1			        # or the wwwroot directory instead of /var/www/html
+rm .git -rf
+git init
+yum install git or apt-get install git
+nano $var1/.git/.gitignore		# or the wwwroot directory instead of /var/www/html
+!.gitignore
+~*
+.*
+*.bak
+*.[Bb]in
+*.cache
+*.copy
+*.db
+*.gz
+*.iso
+*.jar
+*.key
+*.log
+*.o
+*.old
+*.rar
+*.sql
+*.so
+*.swp
+*.tar
+*.tgz
+*.zip
+# Ignored files in Moodle Servers #
+*.xml
+/config.php
+# Ignored files in Wordpress Servers #
+*.xml
+*.wpress
+wp-config.php
+composer.phar
+wp-content/updraft/
+wp-content/uploads/
+wp-content/advanced-cache.php
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/uploads/
+wp-content/mu-plugins/
+wp-content/wp-cache-config.php
+wp-content/plugins/hello.php
+
+
+git config --global core.excludesFile $var1/.git/.gitignore
+	//* or the wwwroot directory instead of /var/www/html
+
+git remote rm origin
+	//* IF ERROR: fatal: remote origin already exists.
+git remote add origin git@github.com:<Site>/repositoryname
+	//* IE. git remote add origin git@github.com:<Site>/06jul2020.<Domain>.git
+	//* get this from https://github.com/<Site>/repositoryname
+
+git add .
+git config --global user.email "<Email>"
+git config --global user.name "<Email>"
+
+
+git commit -m "first commit"
+
+git push -u origin master
+
+curl https://s3-ats-migration-test.s3.eu-west-3.amazonaws.com/test.jpg
+
+
+
+
+
+Configuring SSH key to connect to github.com
+	1) Determine if any existing key exists in the server $HOSTNAME
+		$ sudo su
+		$ ls -al ~/.ssh
+			//* if id_rsa and id_rsa.pub dont exist, then we will create new ssh keys. ~/.ssh equals /root/.ssh
+	2) if not key exists, then we create new ssh keys
+		$ sudo su
+		$ ssh-keygen -t rsa
+			//* accept the default for all questions
+	3) copy the public key to clipboard
+		$ sudo su
+		$ cat ~/.ssh/id_rsa.pub
+			//* copy the content into the clipboard
+	4) log into the github.com using a <Username> account
+	5) go to "Account" icon -> Settings -> SSH and GPG keys -> "New SSH key" -> name the key using the $HOSTNAME of this server, and paste the clipboard into the key box -> "Add SSH key"
+	6) Ensure that the remote origin is using SSH instead of HTTP in the server $HOSTNAME
+		$ cd /$vdir1
+			//* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)
+			//* I.E. cd /var/www/html
+		$ echo "# $HOSTNAME" >> README.md
+			//* Replace $HOSTNAME
+		$ git init
+		$ git add README.md
+		$ git remote rm origin
+		$ git remote add origin git+ssh://git@github.com/<Site>/$HOSTNAME.git
+			//* replace $HOSTNAME with the hostname of this server
+			//* I.E. git remote add origin git+ssh://git@github.com/<Site>/<Site>.<Domain>.git
+
+Create an explicit Explicit repository excludes	
+	list of rules for ignoring files in every Git repository on your computer.
+	$ cd /$vdir1
+		//* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)
+		//* I.E. cd /var/www/html
+	$ cd .git
+	$ nano .gitignore
+		//* Add any files and directories to exclude from sync from the server $HOSTNAME to the online repository github.com
+		//* See below for standards
+		//* Any rule you add here will not be checked in, and will only ignore files for your local repository.
+		//* one rule per line
+	$ cd /$vdir1
+		//* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)
+		//* I.E. cd /var/www/html
+	$ git config --global core.excludesFile /$vdir1/.git/.gitignore	
+		//* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)
+		//* I.E. cd /var/www/html
+
+Create a commit, after ignored file are set	
+	$ cd /$vdir1
+		//* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)
+		//* I.E. cd /var/www/html
+	$ git add .
+	$ git commit -m "first commit"
+	$ git push -u origin master
+
+
+
+Files to exclude in the online github.com repository
+$ nano /$vdir1/.git/.gitignore
+#Ignored files in any server #
+!.gitignore
+~*
+.*
+*.bak
+*.[Bb]in
+*.cache
+*.copy
+*.db
+*.gz
+*.iso
+*.jar
+*.log
+*.o
+*.old
+*.rar
+*.sql
+*.so
+*.swp
+*.tar
+*.tgz
+*.zip
+# Ignored files in Moodle Servers #
+*.xml
+/config.php
+# Ignored files in Wordpress Servers #
+*.xml
+wp-config.php
+composer.phar
+wp-content/updraft/
+wp-content/uploads/
+wp-content/advanced-cache.php
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/uploads/
+wp-content/mu-plugins/
+wp-content/wp-cache-config.php
+wp-content/plugins/hello.php
+
+
+
+
+
+Refresh git cache after changing gitignore
+$ cd /$vdir1
+$ git rm -r --cached .
+$ git add -A
+$ git commit -m "Removing ignored files commit"
+$ git push -u origin master

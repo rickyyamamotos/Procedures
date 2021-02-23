@@ -1,0 +1,12 @@
+linux boots to grub and boot-repair-disk cant fix it
+
+in grub
+grub> ls
+grub> ls (hd0,1)/ -l
+set prefix=(hd0,1)/grub2
+set root=(hd0,1)
+insmod linux
+insmod normal
+boot
+
+$ update-grub

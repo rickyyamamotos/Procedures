@@ -1,0 +1,7 @@
+https://www.dell.com/community/Systems-Management-General/Configure-IDRAC-settings-without-rebooting-the-server/td-p/4421843
+
+
+
+install OpenManage Server <Username> (OMSA) 
+OMSA has an iDRAC section where you can change the IP address of the iDRAC.
+System => Main System Chassis => Remote Access => Configuration Tab

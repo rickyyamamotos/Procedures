@@ -1,0 +1,7 @@
+Network Bridge
+Adapters: 	Wi-Fi
+Items:		Microsoft Mac Bridge
+		Microsoft LLDP Protocol Driver
+		Hyper-V Extensible Virtual Switch
+		
+

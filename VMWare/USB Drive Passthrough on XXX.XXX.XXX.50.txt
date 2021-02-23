@@ -1,0 +1,16 @@
+The virtual machine that you connect the USB 3.0 device to must be configured with an xHCI controller and have a Windows 8 or later, Windows Server 2012 and later, or a Linux guest operating system with a 2.6.35 or later kernel.
+	Set it up with wmware workstation, for some reason it does not work with exsi client
+just edit the vm settings and add a usb device (the usb drive)
+
+Set o:
+	WD Elements 9TB installed on <Site> (in the same vmhost XXX.XXX.XXX.50 as <Site>) because it cant be installed on 
+	   <Site> (windows 2008r2)
+	Elements 10Tb
+	USBSTOR\DiskWD______Elements_25A3___1021
+	 (\\XXX.XXX.XXX.30\elements9tb)
+
+WD Elements 9TB installed on <Site>ddc (in the vmhost XXX.XXX.XXX.54)
+	Elements 10Tb
+	USBSTOR\DiskWD______Elements_25A3___1030
+	(\\XXX.XXX.XXX.20\elements9tb)
+

@@ -1,0 +1,69 @@
+CDIR usando una formula
+1) CDIR esta compuesto por IP ADDRESS / PREFIX
+	//* Por ejemplo: CDIR = XXX.XXX.XXX.10 / 28
+	//* donde XXX.XXX.XXX.10 es el IP address y 28 es el prefix
+	//* El CDIR se usa para definir subnets o nombrar un rango de IP address
+2) Primero determinamos los digitos pertenecientes a la network
+	NetworkDigits = PREFIX // 8
+		//** Donde // es division entera. Por ejemplo 5//2 = 2, 4//2 = 2, 6 // 2 = 3
+3) Determinamos la subnet mask con los digitos pertenecientes a la network
+	si NetworkDigits es 4 entonces la subnet mask es 255.255.255.255
+	si NetworkDigits es 3 entonces la subnet mask es 255.255.255.xxx
+	si NetworkDigits es 3 entonces la subnet mask es 255.255.xxx.000
+	si NetworkDigits es 3 entonces la subnet mask es 255.xxx.000.000
+	si NetworkDigits es 3 entonces la subnet mask es xxx.000.000.000
+4) Ahora determinamos el valor de xxx
+	xxx = 256 - ( 2 ^ { [ [(PREFIX-1) // 8 ] *8 ] - PREFIX + 8)} )
+	Por ejemplo, si prefix es 32, entonces xxx=255
+	Por ejemplo, si prefix es 31, entonces xxx=254
+	Por ejemplo, si prefix es 11, entonces xxx=224
+5) Armanos la subnet mask, reemplazando el valor de xxx en el paso 3)
+
+
+CDIR usando una tabla
+1) Vamos a utilizar una lista.
+2) En la columna 1 ponemos numeros del 32 al 1 
+3) En la columna 2 ponemos la suguiente last 4 veces
+	1,2,4,8,16,32,64,128
+4) Entonces la columna 1 es el PREFIX, y la columna 2 es el valor de xxx
+	PREFIX	Y	256-Y		SUBNET MASK
+============================================================
+	32	1	255		255.255.255.255
+	31	2	254		255.255.255.254
+	30	4	252		255.255.255.252
+	29	8	248		255.255.255.248
+	28	16	240		255.255.255.240
+	27	32	224		<Subnet>
+	26	64	192		255.255.255.192
+	25	128	128		255.255.255.128
+	24	1	255		<Subnet>
+	23	2	254		255.255.254.0
+	22	4	252		<Subnet>
+	21	8	248		255.255.248.0
+	20	16	240		255.255.240.0
+	19	32	224		255.255.224.0
+	18	64	192		255.255.192.0
+	17	128	128		255.255.128.0
+	16	1	255		255.255.0.0
+	15	2	254		255.254.0.0
+	14	4	252		255.252.0.0
+	13	8	248		255.248.0.0
+	12	16	240		255.240.0.0
+	11	32	224		255.224.0.0
+	10	64	192		255.192.0.0
+	9	128	128		255.128.0.0
+	8	1	255		255.0.0.0
+	7	2	254		254.0.0.0
+	6	4	252		252.0.0.0
+	5	8	248		248.0.0.0
+	4	16	240		240.0.0.0
+	3	32	224		224.0.0.0
+	2	64	192		192.0.0.0
+	1	128	128		128.0.0.0
+
+
+
+
+	
+
+

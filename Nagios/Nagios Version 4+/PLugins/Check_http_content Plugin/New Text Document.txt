@@ -1,0 +1,9 @@
+
+https://exchange.nagios.org/components/com_mtree/attachment.php?link_id=1386&cf_id=24
+
+Checks a URL for specific text.
+It retrieves an URL through http or https and looks in its output for a given text. If the text is found returns OK, if not found returns CRITICAL plus the last line of text received (and the full text as additional output data), and UNKNOWN otherwise (connection error,...) plus a brief error description. 
+It has no other dependencies than PERL itself and some libraries (Getopt::Std and LWP::UserAgent, latter with optional SSL support).
+
+
+

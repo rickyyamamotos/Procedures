@@ -1,0 +1,23 @@
+Terms:
+- Virtual Machine Monitor (VMM): aka hypervisor. 
+- Type 1 hypervisor: aka “bare-metal” hypervisor. HYpervisor runs directly on top of the physical machine as opposed to within an operating system.
+- domain: Guest virtual machines running on a Xen Project Hypervisor. Composed by dom0 and domUs.
+- dom0: domain responsible for controlling the hypervisor and starting other guest operating systems. Privileged domain that can control the hypervisor or start/stop 
+  other domains.
+- domUs: other guest operating system. Unprivileged domain.
+- enlightened guests: custom or modified guest operating systems. These operating systems are aware that they are being virtualized and as such don’t require virtual 
+  “hardware” devices, instead they make special calls to the hypervisor that allow them to access CPUs, storage and network resources.
+- Hardware virtual machine (HVM):  aka “full virtualization”.  guests need not be modified as the hypervisor will create a fully virtual set of hardware devices for 
+  this machine that resemble a physical x86 computer. It requires special CPU extensions - VT-x for Intel processors and AMD-V for AMD based machines.
+- Para-virtualisation on HVM (PVHVM): it is a HVM domain with paravirtualized storage, network and other devices. This provides the best of both worlds by reducing 
+  expensive emulation but providing hardware accelerated CPU and memory access.
+
+XenProject
+it is a Type 1 Hypervisor.
+
+Types of virtualization supported by XenProject:
+1) Para-virtualization: Hosts enlightened guests.
+2) Hardware virtual machine (HVM):  aka “full virtualization”. 
+3) Para-virtualisation on HVM (PVHVM):
+
+

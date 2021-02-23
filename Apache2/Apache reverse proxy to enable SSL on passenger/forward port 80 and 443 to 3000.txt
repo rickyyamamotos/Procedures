@@ -1,0 +1,57 @@
+WORKED! with rails
+(https://gist.github.com/abachman/851492)
+nano /etc/apache2/000-default-le-ssl.conf
+	IfModule mod_ssl.c>
+	<VirtualHost *:443>
+	        ServerAdmin webmaster@localhost
+	        DocumentRoot /var/www/html
+	        ErrorLog ${APACHE_LOG_DIR}/error.log
+	        CustomLog ${APACHE_LOG_DIR}/access.log combined
+	
+		ServerName <Site>.<Domain>
+		SSLCertificateFile /etc/letsencrypt/live/<Site>.<Domain>/fullchain.pem
+		SSLCertificateKeyFile /etc/letsencrypt/live/<Site>.<Domain>/privkey.pem
+		Include /etc/letsencrypt/options-ssl-apache.conf
+	
+		SSLProxyEngine on
+		RequestHeader set X-Forwarded-Proto expr="%{REQUEST_SCHEME}e"
+		ProxyPass / http://localhost:3000/
+		ProxyPassReverse / http://localhost:3000/
+	</VirtualHost>
+	</IfModule>
+
+
+
+
+Others:
+====================================================================================
+The following throws an ssl error:
+nano /etc/apache2/sites-enabled/000-default.conf
+	<VirtualHost *:80>
+	        ProxyPreserveHost On
+	        ProxyPass / http://127.0.0.1:3000/
+	        ProxyPassReverse / http://127.0.0.1:3000/
+nano /etc/apache2/sites-enabled/default-ssl.conf
+	<IfModule mod_ssl.c>
+                ProxyPreserveHost On
+                ProxyPass / http://127.0.0.1:3000/
+                ProxyPassReverse / http://127.0.0.1:3000/
+
+
+The following throws an ssl error:
+Try https://community.octoprint.org/t/reverse-proxy-configuration-examples/1107
+	<Location />
+		RequestHeader set X-SCHEME https
+		ProxyPass http://127.0.0.1:3000/
+		ProxyPassReverse http://127.0.0.1:3000/
+		RewriteEngine on
+		RewriteCond %{HTTP:UPGRADE} =websocket [NC]
+		RewriteRule .* ws://127.0.0.1%{REQUEST_URI} [P,L]
+	</Location>
+	
+
+Others:
+		RequestHeader set X-Forwarded-Proto expr=%{REQUEST_SCHEME}
+		RequestHeader set X-Forwarded-SSL expr=%{HTTPS}
+			# If it doesn't work, you may need to install and enable the module mod_headers.
+

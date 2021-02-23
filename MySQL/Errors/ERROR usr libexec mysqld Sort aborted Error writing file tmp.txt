@@ -1,0 +1,58 @@
+[ERROR] /usr/libexec/mysqld: Sort aborted: Error writing file /tmp
+
+cause
+	when traffic is high, and lot of sort happens in mysql of the db server (stor1 ) of <Domain>
+	when mysql cant process all isntructions at a time, it save unprocessed ones on a tmp file, which
+           will be processed when the server catch up
+	The normally error occurs when the tmp file fills the disk, it this happens mysql may delete the 
+	   tmp files.
+
+Solutions
+	attach a new disk to store1
+		mount the disk as partition
+		change /etc/my.conf
+			from 
+				tmpdir = /tmp/
+			to
+				tmpdir = /partition/
+		this will increase the availble space for tmp files, and provide more cache before the db crashes again
+	disable bin logs
+	disable slow query logs
+
+
+
+
+Troubleshooting
+	show which is the tmpdir used
+		mysql> SHOW VARIABLES LIKE 'tmpdir';
+			/tmp
+	Show if /tmp is a mounted partition or not
+		$ df -h
+	Check the size of mysql tmp files when the problem occurs
+		fuser 3306/tcp
+			//* PID1
+		lsof PID1
+			mysqld  14733 mysql   32u   REG               8,18 9705619456 30147474 /tmp/MYck8vf4 (deleted)
+				//* the tmp file may be already deleted, you can see "(delete)" on the results
+				    from lsof
+		ls /proc//fd
+			
+
+
+To investigate
+	For xampp users: on my experience, the problem was caused by a file, named '0' and located in the 
+	   'mysql' folder. The size was tooooo huge (mine exploded to about 256 Gb). Its removal fixed the 
+	   problem.
+	MYSQL MAX_SORT_LENGTH
+		ref: https://fromdual.com/beware-of-large-mysql-max-sort-length-parameter
+		nano /etc/my.cnf
+			[mysqld]
+			max_sort_length  = 1K
+	
+
+
+
+
+
+
+	

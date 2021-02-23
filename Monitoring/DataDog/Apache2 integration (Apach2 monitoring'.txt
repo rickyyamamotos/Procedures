@@ -1,0 +1,55 @@
+datadog v6
+
+1) Install the agent in the server with apache2
+2) Enable "mod_status" with "ExtendedStatus" set to "on"
+	2.1) $ vi /etc/httpd/conf/httpd.conf   //* For CentOS  
+	     $ vi /etc/apache2/mods-enabled/status.conf    //* For Ubuntu
+	     $ vi /var/www/html/apache2/conf/httpd.conf    //* For Dreamfactory (didnt try yet)
+		<Location /server-status>
+		SetHandler server-status
+		Order deny,allow
+		Deny from all
+		Allow from localhost
+		</Location>
+		ExtendedStatus on
+	$  /etc/init.d/httpd restart or service httpd restart or service apache2 restart
+3) Configure the agent to connect to Apache
+	$ cp /etc/datadog-agent/conf.d/apache.d/conf.yaml.example /etc/datadog-agent/conf.d/apache.d/conf.yaml
+	$ vi /etc/datadog-agent/conf.d/apache.d/apache.yaml
+		init_config:
+		instances:
+		  - apache_status_url: http://localhost/server-status?auto
+		disable_ssl_validation: false
+	$ restart datadog-agent
+4) Metrics	
+The following metrics are collected by default with the Apache integration:	
+	apache.net.bytes		The total number of bytes served.
+	(gauge)				shown as byte
+
+	apache.net.bytes_per_s		The number of bytes served per second.
+	(gauge)				shown as byte/second
+
+	apache.net.hits			The total number of requests performed.
+	(gauge)				shown as request
+
+	apache.net.request_per_s	The number of requests performed per second.
+	(gauge)				shown as request/second
+
+	apache.performance.cpu_load	The percent of CPU used.
+	(gauge)				shown as percent
+
+	apache.performance.busy_workers	The number of workers serving requests.
+	(gauge)				shown as thread
+
+	apache.performance.idle_workers	The number of idle workers.
+	(gauge)				shown as thread
+
+	apache.performance.uptime	The amount of time the server has been running.
+	(gauge)				shown as second
+5) Verification that Datadog-Apache Integration is working
+	$ datadog-agent status
+		//* It should show  apache, -instance #0 [OK], collected # metrics
+6) Log into datadog
+7) You will see the new metrics for apache
+
+

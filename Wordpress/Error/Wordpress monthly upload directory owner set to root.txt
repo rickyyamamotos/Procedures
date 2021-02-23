@@ -1,0 +1,7 @@
+https://wordpress.stackexchange.com/questions/231523/wordpress-monthly-upload-directory-owner-set-to-root
+
+
+
+I've had the same problem, and in my case it was the Wordpress cronjob. I was calling the wp-cron.php as a root cron job, and this script also generates the monthly upload folder.
+
+If you call wp-cron.php via cronjob you need to do this as the web server user (or i.e. in Plesk the site user and group psacln). The owner of the created monthly folder is always the user the wp-cron.php is called from.

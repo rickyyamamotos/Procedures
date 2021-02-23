@@ -1,0 +1,27 @@
+https://medium.com/@devyashsanghai/disable-windows-update-on-windows-server-2019-2016-or-windows-10-bcbcb3b1b11f
+
+
+Powershell method to disable windows update service to start at startup
+Set-Service wuauserv -Startup Disabled
+Stop-Service wuauserv -Force
+
+Powershell method to change the registry keys to disable windows update
+$key = ‘HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate’
+if((Test-Path $key) -ne $TRUE)
+{
+ New-Item -path $key -Force -Verbose
+}
+New-ItemProperty -Path $key -Name “DisableWindowsUpdateAccess” -Value 1 -propertyType “DWord” -Force -Verbose
+New-ItemProperty -Path $key -Name “SetDisableUXWUAccess” -Value 1 -propertyType “DWord” -Force -Verbose
+New-ItemProperty -Path $key -Name “DoNotConnectToWindowsUpdateInternetLocations” -Value 1 -propertyType “DWord” -Force -Verbose
+New-ItemProperty -Path $key -Name “DisableOSUpgrade” -Value 1 -propertyType “DWord” -Force -Verbose
+
+Forcing an update of the above registry keys on the target computer
+gpupdate /force /target:computer
+
+Disable-ScheduledTask StartComponentCleanUp
+
+You can go ahead and disable TrustedInstaller but it is not recommended as you will now be able to add Roles or Features
+
+Set-Service trustedinstaller -Startup Disabled
+Stop-Service trustedinstaller -Force

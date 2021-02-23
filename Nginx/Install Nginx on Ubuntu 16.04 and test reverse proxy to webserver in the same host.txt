@@ -1,0 +1,117 @@
+$ sudo apt-get update
+$ sudo apt-get install nginx
+$ sudo ufw status
+$ sudo ufw allow 'Nginx Full'
+	//* opens both port 80 (normal, unencrypted web traffic) and port 443 (TLS/SSL encrypted traffic)
+$ systemctl status nginx
+http://LocalIPAddressOfServer/
+https://LocalIPAddressOfServer/
+$ sudo systemctl enable nginx
+	//*  re-enable the service to start up at boot
+
+Configuring the sonicwall router
+- Add XXX.XXX.XXX.42 as an address object in LAN Zone
+- Add XXX.XXX.XXX.248 as an address object in WAN Zone
+- Add a NAT Policy to forward 1 to XXX.XXX.XXX.42
+	Any Original <Site>-nginx-WAN <Site>-nginx-lan HTTPS Original X1 Any 
+	Any Original <Site>-nginx-WAN <Site>-nginx-lan HTTP  Original X1 Any 
+	Firewalled Subnets <Site>-nginx-WAN <Site>-nginx-WAN <Site>-nginx-lan HTTPS Original Any Any  
+	Firewalled Subnets <Site>-nginx-WAN <Site>-nginx-WAN <Site>-nginx-lan HTTP  Original Any Any 
+- Add a firewall roule to allow port 80 and 443 from the public to the private IP
+	WAN > LAN 1 Any <Site>-nginx-WAN HTTPS Allow All   
+	WAN > LAN 2 Any <Site>-nginx-WAN HTTP  Allow All   
+
+Enable an A records in <ServerName>\DNS for
+	test1.<Site> to XXX.XXX.XXX.248
+	test2.<Site> to XXX.XXX.XXX.248
+
+Enabling HTTPS: """""(This does not work for HTTPS reverse proxy)"""""
+Note- There is no consistent way to host more than one site using SSL on a single IP. If you need to host more than one site with SSL, you will need to have separate IP addresses for each site. The following example illustrates how each site can listen on its own IP address:
+$ mkdir /srv/ssl/
+$ cd /srv/ssl/
+$ openssl req -new -x509 -sha256 -days 365 -nodes -out /srv/ssl/nginx.pem -keyout /srv/ssl/nginx.key
+	Note- The Common Name for your certificate must match the host name that you want to generate a valid certificate for
+$ nano /etc/nginx/sites-enabled/default
+	server {
+	    listen 443;
+	    server_name <Site>-nginx.<Site>;
+	    ssl_certificate           /srv/ssl/nginx.crt;
+	    ssl_certificate_key       /srv/ssl/nginx.key;
+	    ssl on;
+	    ssl_session_cache  builtin:1000  shared:SSL:10m;
+	    ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+	    ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+	    ssl_prefer_server_ciphers on;
+	    access_log            /var/log/nginx/<Site>-nginx.<Site>.log;
+	    location / {
+	      proxy_set_header        Host $host;
+	      proxy_set_header        X-Real-IP $remote_addr;
+	      proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+	      proxy_set_header        X-Forwarded-Proto $scheme;
+	      # Fix the “It appears that your reverse proxy set up is broken" error.
+	      proxy_pass          http://localhost:8080;
+	      proxy_read_timeout  90;
+	      proxy_redirect      http://localhost:8080 https://jenkins.domain.com;
+	      }
+	}
+
+
+
+Creating 2 sample websites (for testing)
+$ sudo mkdir -p /var/www/test1.<Site>/html
+$ sudo mkdir -p /var/www/test2.<Site>/html
+$ sudo chmod -R 755 /var/www/test1.<Site>
+$ sudo chmod -R 755 /var/www/test2.<Site>
+$ nano /var/www/example.com/html/index.html
+	<h1>Success!  The test1.<Site> server block is working!</h1>
+$ nano /var/www/test.com/html/index.html
+	<h1>Success!  The test2.<Site> server block is working!</h1>
+
+Create the first Server Block file (OPTIONAL)
+$ sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/test1.com
+$ sudo nano /etc/nginx/sites-available/example.com
+	server {
+	        listen 80 default_server;
+	        listen [::]:80;
+	        root /var/www/test1.<Site>/html;
+	        index index.html index.htm index.nginx-debian.html;
+	        server_name test1.<Site>;
+	        location / {
+	                try_files $uri $uri/ =404;
+	        	}
+		}
+
+Create the second Server Block file (OPTIONAL)
+$ sudo cp /etc/nginx/sites-available/example.com /etc/nginx/sites-available/test.com
+$ sudo nano /etc/nginx/sites-available/test.com
+	server {
+	        listen 80;
+	        listen [::]:80;
+	        root /var/www/test2.<Site>/html;
+	        index index.html index.htm index.nginx-debian.html;
+	        server_name test2.<Site>;
+	        location / {
+	                try_files $uri $uri/ =404;
+	        	}
+		}
+
+Enable your Server Blocks (for test)
+$ sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/
+$ sudo ln -s /etc/nginx/sites-available/test.com /etc/nginx/sites-enabled/
+$ sudo nano /etc/nginx/nginx.conf
+	//* replace #server_names_hash_bucket_size 64;
+	//* with     server_names_hash_bucket_size 64; 
+	//* Uncommenting
+$ sudo nginx -t
+	//* test nginx configuration
+$ sudo systemctl restart nginx
+
+Final test:
+$ curl test1.<Site>
+	//* <h1>Success!  The test1.<Site> server block is working!</h1> 
+$ curl test2.<Site>
+	//* <h1>Success!  The test2.<Site> server block is working!</h1>
+
+
+
+

@@ -1,0 +1,9 @@
+The B1200i does not support use of LACP (Link Aggregation Control Protocol) and/or NIC Teaming/binding.
+ref.- http://support.drobo.com/app/answers/detail/a_id/648/~/b1200i%3A-enhancing-performance-and-stability
+
+But it supports MPIO
+enables the use of multiple iSCSI ports on a Drobo SAN to provide fault tolerance and boost performance of an application by load balancing traffic across multiple ports.
+Only Available for Windows Server
+
+
+

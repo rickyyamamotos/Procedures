@@ -1,0 +1,2 @@
+/sbin/shutdown -r 3:00 "rebooting at 3:00 A.M."
+	//* one time reboot

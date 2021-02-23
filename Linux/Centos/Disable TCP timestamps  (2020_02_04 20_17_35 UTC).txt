@@ -1,0 +1,14 @@
+NOTE: THIS WILL SLOW DOWN THE SERVERS
+
+TCP timestamps
+The remote host implements TCP timestamps and therefore allows to compute the uptime.
+A side effect of this feature is that the uptime of the remote host can sometimes be computed.
+
+
+$ nano /etc/sysctl.conf
+	net.ipv4.tcp_timestamps = 0
+$ echo 0 > /proc/sys/net/ipv4/tcp_timestamps
+
+Optionally set firewall to drop timestamps for icmp
+iptables -A INPUT -p icmp --icmp-type timestamp-request -j DROP
+iptables -A OUTPUT -p icmp --icmp-type timestamp-reply -j DROP

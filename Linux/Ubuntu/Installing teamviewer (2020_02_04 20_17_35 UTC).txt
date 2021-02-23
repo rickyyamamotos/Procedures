@@ -1,0 +1,79 @@
+Install teamviewer in ubuntu 18.04 and 16.04 (WORKS!)
+$ sudo apt install gdebi-core
+$ wget https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
+$ ufw allow from any to any port 5938 proto tcp
+$ ufw allow from any to any port 5938 proto udp
+$ ufw reload
+$ sudo gdebi teamviewer_amd64.deb
+$ teamviewer
+If you see the warning message Wayland Detected your TeamViewer version does not fully support Wayland display server yet. As message also suggests, this is only troublesome in case you need to establish incoming connection from another TeamViewer client. If this is your case you need to disable wayland and enable Xorg display server before you can accept incoming transmissions.
+$ sudo systemctl start teamviewerd
+$ sudo systemctl enable teamviewerd
+
+
+Install teamviewer in ubuntu 16.04
+download and run http://download.teamviewer.com/download/version_12x/teamviewer_amd64.deb?ml_count=&pid=-ml_count--ml_acc--ml_eg--lae_eg--lae_vid-
+
+
+Install Teamviewer(did not work)
+==================
+If a VM you need to connect to the VM Webserver, and launch the VM console from there
+If Ubuntu minimal then Adding GUI  
+	$ apt-get "GNOME Desktop" -y
+	$ startx
+	$ echo "exec gnome-session" >> ~/.xinitrc
+	$ startx 
+	$ systemctl set-default graphical.target
+		//* set the system graphical login
+	$ shutdown -r t0
+$ cd /tmp/
+$ wget https://download.teamviewer.com/download/teamviewer_i386.deb
+$ sudo dpkg --add-architecture i386
+$ sudo apt-get update
+$ sudo apt-get install libdbus-1-3:i386 libasound2:i386 libexpat1:i386 libfontconfig1:i386 libfreetype6:i386 libjpeg62:i386 libpng12-0:i386 libsm6:i386 libxdamage1:i386 libxext6:i386 libxfixes3:i386 libxinerama1:i386 libxrandr2:i386 libxrender1:i386 libxtst6:i386 zlib1g:i386 libc6:i386
+$ sudo dpkg -i teamviewer*.deb
+//* Start teamviewer from the GUI menu
+	//* Optionally you can start teamviewer from $ teamviewer
+//*setup teamviewer unattended
+
+
+Troubleshooting
+Cheking library dependencies
+	$ suod ./tv-setup checklibs
+		//* this will check that teamviewer dependencies are avaialble
+Removing startup settings:
+	$ cd ~/.config
+	# rm -rf teamviewer
+	$ sudo teamviewer daemon restar
+
+
+
+Install from SSH
+//** optionale $ sudo # yum install glibc alsa-lib freetype libICE libSM libX11 libXau libXdamage libXext libXfixes libXi libXrandr libXrender libXtst libgcc libuuid libxcb zlib
+$ wget http://download.teamviewer.com/download/version_9x/teamviewer_linux.deb
+$ dpkg -i teamviewer_linux.deb
+$ teamviewer --passwd <Password>
+$ teamviewer --daemon enable
+$ teamviewer --license
+$ teamviewer --daemon restart
+$ teamviewer --info
+$firewall-cmd --add-port 5940/tcp --permanent
+$firewall-cmd --add-port 5940/udp --permanent
+$firewall-cmd --add-port 5942/tcp --permanent
+$firewall-cmd --add-port 5942/udp --permanent
+$ teamviewer --daemon restart
+
+
+ERROR (PID file /var/run/teamviewerd.pid not readable (yet?) after start.)
+$ teamviewer --info
+./run/teamviewerd.pid
+./opt/teamviewer9/config/teamviewerd.pid
+
+
+
+$ teamviewer
+	//* starts teamviewer
+
+
+
+

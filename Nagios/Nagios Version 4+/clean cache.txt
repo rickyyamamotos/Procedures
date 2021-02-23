@@ -1,0 +1,5 @@
+clears cache
+$ rm /usr/local/nagios/var/objects.cache
+
+clears saved hosts metrics (make all hosts to be rescaned like new)
+$ rm /usr/local/nagios/var/retention.dat

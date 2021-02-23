@@ -1,0 +1,23 @@
+CREATE A PERSONAL CERTIFICATE
+=============================
+On the PC hosting SpiceWorks do the following:
+PS:> New-SelfSignedCertificate -DnsName <Site> -CertStoreLocation cert:\LocalMachine\My
+	----------                                -------
+	<key>  CN=<Site>
+PS:> $CertPassword = ConvertTo-SecureString -String “<Password>” -Force –AsPlainText
+PS:> Export-PfxCertificate -Cert cert:\LocalMachine\My\<key>  -FilePath C:\test.pfx -Password $CertPassword
+PS:> Export-Certificate -Cert Cert:\LocalMachine\My\<key> -FilePath C:\tstcert.cer
+
+CONFIGURE YOUR PERSONAL CERTIFICATE FOR APACHE:
+==============================================
+SpiceWorks works on Apache.
+Install http://www.cygwin.com/
+It's important to note that only .PFX files are supported (PFX extensions indicate that the certificate contains a private key embedded).
+
+1) Backup Existing Spiceworks Certificate & Key
+1.1) Navigate to C:\Program Files (x86)\Spiceworks\httpd\ssl and copy the PEM files located there as a backup in case everything goes horribly wrong
+2) Export Your Certificate & Private Key
+
+
+
+

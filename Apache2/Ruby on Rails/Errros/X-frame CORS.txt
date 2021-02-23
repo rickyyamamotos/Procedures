@@ -1,0 +1,3 @@
+X-frame
+
+https://stackoverflow.com/questions/17542511/cannot-display-my-rails-4-app-in-iframe-even-if-x-frame-options-is-allowall/29811391

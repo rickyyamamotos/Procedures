@@ -1,0 +1,31 @@
+Can't connect to local MySQL server through socket 'varrunmysqldmysqld.sock' (2)
+
+nano /etc/my.conf
+	bind-address = *
+service mysqld restart
+
+
+removing and reinstalling mysql-server did not fix the issue
+
+
+See if more than 1 myqsld is running and stop it
+service mysqld stop
+service mysqld status
+ps aux | grep mysql
+kill -9 PID
+service mysqld status
+
+
+
+solution
+yum remove mysql-server mysql
+rm /var/lib/mysql/ -rf
+	//* this will remove all databases
+rm /etc/my.cnf
+yum install mysql-server -y
+/usr/bin/mysqladmin -u root password <Password>
+mysql -u root -p
+
+
+
+mysqld --initialize

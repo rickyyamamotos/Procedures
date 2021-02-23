@@ -1,0 +1,9 @@
+https://github.com/orgs/<Site>/teams/<Site>
+username: rickyamamoto
+email: <Email>
+password: <Password>
+
+
+https://github.com/
+username: <Username>
+password: <Password>

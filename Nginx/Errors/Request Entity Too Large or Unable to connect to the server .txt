@@ -1,0 +1,15 @@
+after uploading a file into the server via http
+	i.e uloading a scorm file into moodle
+	you get an error "unable to connect to the server"
+	and chrome console shows "Request Entity Too Large"
+It is fixed by modifying the active php.ini file
+	 max_input_time = 6000
+	 max_execution_time = 6000
+	 upload_max_filesize = 4096M
+	 post_max_size = 4096M
+	 memory_limit = 4096M
+If the server is using nginx as reverse proxy, we need to set nginx to allow bing file
+	on the nginx server
+		$ nano /etc/nginx/nginx.conf
+			add the following line inside the http {} paragraph
+				client_max_body_size 4096M

@@ -1,0 +1,15 @@
+Automated Data-Aware Tiering
+provides greater performance with a multi-tiered storage solution
+This faster tier allows transactional data, which is the most frequently used, to be accelerated by the added performance that SSDs provide
+
+Requirement
+Firmware 1.1.1 or later must be installed.
+For Automated Data-Aware Tiering to be enabled, and for a transactional tier to be created, the Drobo B1200i needs to have a minimum of three SSDs for Dual Disk Redundancy or two SSDs for Single Disk Redundancy. If there are an insufficient number of SSDs, this feature is disabled and all the drives (HDDs and SSDs) exist in a single tier.
+It is recommended the following configurations for optimal performance with your Drobo B1200i for Automated Data-Aware Tiering and Dual_Disk Redundancy:
+         6 HDDs + 3 SSDs
+         7 HDDs + 3 SSDs
+         8 HDDs + 3 SSDs
+         9 HDDs + 3 SSDs
+not compatible with Sandforce-based SSDs such as Intel 330, Intel 520, Corsair Force 3. 
+
+Note-  You can mix SATA and SAS drives at the same time in the same disk pack with your Drobo B1200i. However, we recommend that you use drives with the same RPM rating. 

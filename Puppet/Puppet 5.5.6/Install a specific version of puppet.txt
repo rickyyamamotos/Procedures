@@ -1,0 +1,17 @@
+
+
+Ubuntu
+	apt-get purge puppet-agent
+	rm /etc/puppetlabs -rf
+	apt-cache showpkg puppet-agent
+		//* if the repository is already installed
+		//* The output should give something like 
+		//* 	5.5.7-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.6-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+		//* 	5.5.4-1xenial (/var/lib/apt/lists/apt.puppetlabs.com_dists_xenial_puppet5_binary-amd64_Packages)
+	apt-get install puppet-agent=5.5.6-1xenial
+
+CentOS
+	yum list puppet-agent --showduplicates
+	sudo yum install puppet-agent-5.5.6-1.el6
+

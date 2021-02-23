@@ -1,0 +1,11 @@
+//* ssh to nagios3 server
+$ putty <Username>@XXX.XXX.XXX.47 -p <PortNumber>
+//* Upload image
+$ cd /usr/share/nagios3/htdocs/map_files
+C:\> pscp -P <PortNumber> C:\temp\<Site>.<Domain>-NetworkMap.jpg <Username>@XXX.XXX.XXX.47:/tmp
+$ cp /tmp/*.jpg ./
+$ cd ..
+$ clear
+$ nano /usr/share/nagios3/htdocs/side.php
+   //* modify as needed
+	<li><a href=".http://XXX.XXX.XXX.47/cgi-bin/nagios3/status.cgi?hostgroup=website_ssl&style=hostdetail" target="<?php echo $link_target;?>">SSL Certificates Monitoring</a></li>

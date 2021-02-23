@@ -1,0 +1,21 @@
+On the F5
+You can configure the BIG-IP ASM system to use the secure and HttpOnly cookie attributes to enhance the security of BIG-IP ASM cookies.Using an iRule to set the secure attribute for one or multiple HTTP cookies
+use the HTTP::cookie secure iRule command to set the secure attribute for one or multiple HTTP cookies that the BIG-IP system returns to the client.
+In addition, your virtual server may reference a BIG-IP cookie persistence profile, which iframes an additional BIG-IP cookie in the response to the client.
+The system adds the secure attribute only when the traffic protocol is HTTPS. The secure cookie attribute directs a web browser to only use cookies on secure or encrypted sessions. The HttpOnly attribute directs browsers to use cookies by way of the HTTP and HTTPS protocols only, ensuring that the cookie is not available by other means, such as JavaScript function calls.
+
+iRule:
+\Local Traffic\iRules\Create, name it SecureAndHttponlyCookies
+	when HTTP_RESPONSE {
+	set COOKIE_VAL [HTTP::header values "Set-Cookie"]
+	HTTP::header remove "Set-Cookie"
+	foreach COOKIE_NAME $COOKIE_VAL {
+	HTTP::header insert "Set-Cookie" "${COOKIE_NAME}; Secure; HttpOnly"
+	}
+	}
+
+Applying the iRule to the virtual server along with the default "cookie" persistence profile.
+	-Set "\Local Traffic\Virtual Servers\<Site>.<Domain>-HTTPS-VS\HTTP Profile" to http or aby other
+	-Set "\Local Traffic\Virtual Servers\<Site>.<Domain>-HTTPS-VS\Resources\iRules\Manage\Enable" to SecureAndHttponlyCookies
+	-Update
+

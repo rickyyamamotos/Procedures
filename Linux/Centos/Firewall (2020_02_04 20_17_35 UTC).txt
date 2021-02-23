@@ -1,0 +1,40 @@
+ex
+FOR CENTOS 7 (firewall-cmd)
+$ sudo systemctl start firewalld.service
+	//* starts firewall
+$ firewall-cmd --state
+
+$ firewall-cmd --get-default-zone
+	//* see which zone is currently selected
+$ firewall-cmd --get-active-zones
+	//* show interface for zone
+$ firewall-cmd --list-all
+	//* shows what rules are associated with the public zone
+$ firewall-cmd --get-services
+	//* a list of the available services 
+$ firewall-cmd --zone=public --add-service=http
+$ firewall-cmd --zone=public --permanent --add-service=http
+$ firewall-cmd --zone=public --add-port=5000/tcp
+$ firewall-cmd --zone=public --permanent --add-port=5000/tcp
+$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0/24" port protocol="tcp" port="4567" accept'
+
+
+$ firewall-cmd --list-ports
+
+$ firewall-cmd --reload
+
+
+
+FOR CENTOS 6 (iptables)
+$ nano /etc/sysconfig/iptables
+	//* add the following line before the first REJECT all
+	-A INPUT -p tcp -m state --state NEW -m tcp --dport <PortNumber> -j ACCEPT
+$ service iptables restart
+$ service iptables status
+
+Enable iptables on boot
+$ chkconfig iptables on
+
+Disable iptables on boot
+$ chkconfig iptables off
+

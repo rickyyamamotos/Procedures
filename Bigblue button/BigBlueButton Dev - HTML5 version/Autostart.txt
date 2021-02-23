@@ -1,0 +1,13 @@
+$ sudo <Username>
+$ nano \home\<Username>\start-bigbluebutton-html5.sh
+	#!/bin/bash
+	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/<Username>
+	if [[ ! $(pgrep -f npm) ]]; then
+	    echo "npm not runnubg"
+	    echo "stating NODE_ENV=production npm start"
+	    NODE_ENV=production npm start
+	else
+	    echo "npm is running"
+	fi
+$ crontab -5
+	*/15 * * * * /home/<Username>/start-bigbluebutton-html5/sh

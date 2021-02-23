@@ -1,0 +1,15 @@
+Some issues were found during the addition of new host
+
+webmail.<Site> does not have a MX record on the Public DNS
+	It does not point anywhere
+<Site> point to XXX.XXX.XXX.162
+	It does not respond to root http
+<Site> point to XXX.XXX.XXX.56
+	It does not respond to root http
+
+
+sandbox-clean.<Domain> responds to https only
+
+
+Some servers did not respond to http testing from Nagios
+

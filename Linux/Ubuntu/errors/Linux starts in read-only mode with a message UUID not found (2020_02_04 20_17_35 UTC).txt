@@ -1,0 +1,15 @@
+When booting, the OS may come in readonlu mode, if so, do the following
+reboot the vm to the linux Boot Repair ISO and boot
+On the linux Boot Repair ISO and open the terminal
+$ sudo su
+$ blkid
+	//* take note of the sdx drive and type (ext4, etc)
+	//* take note of the UUID of this drive
+$ mkdir /mnt/temp
+$ mount -t ext4 sda1 /mnt/temp
+$ cd /mnt/temp
+$ nano /mnt/temp/etc/fstab
+replace the UUID in fstab with the correct UUID from the step above (blkid)
+//*DO the same steps for the SWAP partition
+$ update-grub
+$ reboot now

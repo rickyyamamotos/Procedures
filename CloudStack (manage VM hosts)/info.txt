@@ -1,0 +1,19 @@
+<Site>:8080
+XXX.XXX.XXX.178:8080
+
+vm hosted in vmhost XXX.XXX.XXX.54
+
+
+XXX.XXX.XXX.178:8080/client/
+	<Username> / <Password>
+
+SSH
+XXX.XXX.XXX.178:<PortNumber>
+	<Username> / <Password>
+	rick / <Password>
+
+
+
+mysql
+	root / <Password>
+	cloud / <Password>

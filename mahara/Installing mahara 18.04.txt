@@ -1,0 +1,157 @@
+Installing mahara last version 18.04 in 
+https://www.howtoforge.com/tutorial/how-to-install-mahara-eportfolio-system-on-centos-7/
+
+Install Cent OS 7
+
+Configure Centos during installation
+	IP	XXX.XXX.XXX.83
+	hostname	<Site>.<Domain>
+	credentials	<Username>	/	<Password>
+
+Create A records in godaddy for <Site>.<Domain> to point to 
+	XXX.XXX.XXX.248		nginx main internet
+	XXX.XXX.XXX.184		nginx backup internet
+Get a certificate from godaddy for <Site>.<Site>
+
+
+IN THE nginx SERVER:
+===================
+nginx server (we are using a reverse proxy to forward any request to <Site>.<Domain> on
+ 	XXX.XXX.XXX.248		nginx main internet
+	XXX.XXX.XXX.184		nginx backup internet
+	to XXX.XXX.XXX.42 
+ssh to XXX.XXX.XXX.42
+$ nano /etc/nginx/sites-available/<Site>.<Domain>
+	server {
+	        listen 80;
+	        listen [::]:80;
+	        server_name <Site>.<Domain>;
+	        location ^~ /.well-known {
+	                   allow all;
+	                   auth_basic off;
+	                   alias /var/www/html/.well-known;
+	                   }
+	        location ~ {
+	                   proxy_pass  http://XXX.XXX.XXX.83;
+	                   proxy_http_version 1.1;
+	                   proxy_set_header        Host $host;
+	                   proxy_set_header        X-Real-IP $remote_addr;
+	                   proxy_redirect          off;
+                  }
+	}
+	server {
+	        listen 443;
+	        ssl on;
+	        ssl_certificate         /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.crt;
+	        ssl_certificate_key     /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.key;
+	        server_name <Site>.<Domain>;
+	        location ~ {
+	                   proxy_pass  https://XXX.XXX.XXX.83;
+	                   proxy_http_version 1.1;
+	                   proxy_set_header        Host $host;
+	                   proxy_set_header        X-Real-IP $remote_addr;
+	                   proxy_redirect          off;
+	                  }
+	}
+$ ln -s /etc/nginx/sites-available/<Site>.<Domain> /etc/nginx/sites-enable/
+$ service nginx restart
+$ cd /etc/ssl
+$ mkdir <Site>.<Domain>
+$ cd <Site>.<Domain>
+$ openssl req -new -newkey rsa:2048 -nodes -keyout <Site>.<Domain>.key -out <Site>.<Domain>.csr
+Get the certificates from godaddy an copy them to /etc/ssl/<Site>.<Domain>/
+$ nano /etc/nginx/sites-available/<Site>.<Domain>
+	        ssl_certificate         /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.crt;
+	        ssl_certificate_key     /etc/ssl/<Site>.<Domain>/<Site>.<Domain>.key;
+$ service nginx restart
+
+
+
+IN THE <Site>.<Domain> SERVER:
+=======================================
+$ nano /etc/selinux/config
+	SELINUX=disable
+$ nano /etc/ssh/sshd_config
+	port <PortNumber>
+	Permitrootlogin=no
+$ firewall-cmd --zone=public --permanent --add-port=80/tcp
+$ firewall-cmd --zone=public --permanent --add-port=443/tcp
+$ firewall-cmd --zone=public --permanent --add-port=<PortNumber>/tcp
+$ firewall-cmd --reload
+$ reboot now
+
+$ yum update -y
+$ yum install curl wget nano yum-utils -y
+$ yum -y install httpd
+$ systemctl start httpd
+$ systemctl enable httpd
+$ yum -y install epel-release
+$ yum -y update
+$ rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+$ yum -y update
+$ yum -y install php71w php71w-mysqli php71w-gd php71w-cli php71w-mcrypt php71w-mbstring php71w-dom
+$ nano /etc/php.ini
+	date.timezone = "US/Eastern"
+	session.entropy_length = 32
+	post_max_size = 999M
+
+$ sudo yum install mod_ssl
+$ sudo mkdir /etc/ssl/private
+$ sudo chmod 700 /etc/ssl/private
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+$ sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+$ cat /etc/ssl/certs/dhparam.pem | sudo tee -a /etc/ssl/certs/apache-selfsigned.crt
+$ service httpd restart
+
+$ yum -y install mariadb mariadb-server
+$ systemctl start mysql
+$ systemctl start mariadb
+$ systemctl enable mariadb
+$ mysql_secure_installation
+	root / <Password>
+mysql -uroot -p
+mysql> CREATE DATABASE <DBName> CHARACTER SET UTF8;
+mysql> CREATE USER '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON <DBName>.* TO '<Username>'@'localhost';
+mysql> FLUSH PRIVILEGES;
+mysql> quit;
+$ cd /var/www
+$ wget https://launchpad.net/mahara/18.04/18.04.2/+download/mahara-18.04.2.tar.gz
+$ tar -xvf mahara-18.04.2.tar.gz
+$ cd mahara-18.04.2/htdocs
+$ mv * /var/www/html
+$ cd /var/www
+$ chown root:apache mahara-data
+$ chmod 775 mahara-data
+$ chown root:apache html
+$ chmod 775 html
+$ cd html
+$ chown root:apache * -R
+$ cp config-dist.php config.php
+$ nano config.php
+	$cfg->dbtype   = 'mysql';
+	$cfg->dbhost   = 'localhost';
+	$cfg->dbport   = null; // Change if you are using a non-standard port number for your database
+	$cfg->dbname   = '<DBName>';
+	$cfg->dbuser   = '<Username>';
+	$cfg->dbpass   = '<Password>';
+
+	$cfg->dataroot = '/var/www/mahara-data';
+	$cfg->passwordsaltmain = '<Password>';
+	$cfg->urlsecret = null;
+$ service httpd restart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

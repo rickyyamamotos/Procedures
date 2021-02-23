@@ -1,0 +1,41 @@
+MaxClients (Default: MaxClients 150     Recommended value: Depends)
+	//* 150 will probably crash the server or use swap memory
+	1) Determine how many apache process are currently running and the "APACHE PROCESS SIZE"
+		$ ps aux | grep apache | grep -v "\(root\|grep\)" | awk '{sum+=$6; ++n} END {print "Total RAM="sum"\tNumber of processes="n"" "\tAverage="sum/n/1024"MB"}'
+			//* Total RAM=452280        Number of processes=9   Average=49.0755MB
+	2) Determine how much "FREE MEMORY" is available for apache
+		$ sudo service apache2 restart
+		$ sudo service mysql restart
+		$ free && sync && echo 3 > /proc/sys/vm/drop_caches && free
+			//* free = 62,920,924 KB
+		$ free -m
+			//* free = 61,383 MB
+	3) calculate the value for MaxClients and modify
+		//* MaxClientsValue = [FREE MEMORY*80%]/APACHE PROCESS SIZE
+			//* MaxClientValue = 61383 MB*0.8/(49 MB) = 1002
+	 	$ sudo nano /etc/apache2/apache2.conf
+			<IfModule npm_prefork_module>
+				MaxClients	MaxClientsValue	//* replace MaxClientsValue with the calculated number
+		$ service apache2 restart
+MaxRequestsPerChild (Default value: 0     Recommended value: 30)
+	//* recommended by moodle
+	1) Modify apache.conf
+	 	$ sudo nano /etc/apache2/apache2.conf
+			<IfModule npm_prefork_module>
+				MaxRequestsPerChild 30
+		$ service apache2 restart
+KeepAlive Timeout (Default value: 5     Recommended value: 2)
+	//* in seconds, an apache process is keep alive consuming memory	
+	1) Modify apache.conf
+	 	$ nano /etc/httpd/conf/httpd.conf				(For Ubuntu: sudo nano /etc/apache2/apache2.conf)
+			KeepAlive On
+			KeepAlive Timeout 2
+		$ service apache2 restart
+Timeout	(Default value: 300     Recommended value: 30)
+	//* to serve a particular request and Apache will wait a pre-defined amount of time before ‘giving up’,
+	1) Modify apache.conf
+	 	$ sudo nano /etc/apache2/apache2.conf
+			Timeout 30
+		$ service apache2 restart
+	
+	

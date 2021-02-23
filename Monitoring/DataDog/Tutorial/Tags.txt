@@ -1,0 +1,6 @@
+A tag can be assigned to any metric
+
+The tag can be used to run the same tagged among multiple servers (agents)
+
+It is specially useful for dockers images, where you can use previous created tag for new images.
+

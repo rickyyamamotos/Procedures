@@ -1,0 +1,50 @@
+https://askubuntu.com/questions/90015/how-to-copy-files-to-all-machines-using-puppet-master
+
+Create a new Module
+//* Copy the audit-ssh-access.sh to the puppet-master
+C:\> PSCP -P <PortNumber> c:\tmp\audit-ssh-access.sh rick@XXX.XXX.XXX.160:/tmp/
+//* Log into <Site>
+$ cd /etc/puppetlabs/code/environments/production/modules/
+$ mkdir auditssh
+$ cd /etc/puppetlabs/code/environments/production/modules/auditssh/
+$ mkdir manifests
+$ mkdir files
+$ mkdir templates
+$ mkdir tests
+$ mv /tmp/audit-ssh-access.sh ./files
+$ chown root:root ./files/audit-ssh-access.sh
+$ chmod 755 ./files/audit-ssh-access.sh
+$ cd manifests
+$ nano /etc/puppetlabs/code/environments/production/modules/auditssh/manifests/init.pp
+	class auditssh {
+	    file { "/audit-ssh-access.sh":
+	        mode => "0711",
+	        owner => 'root',
+	        group => 'root',
+	        source => 'puppet:///modules/auditssh/audit-ssh-access.sh',
+	    }
+	}
+//*Import the module and include the class. This will not overwrite the file being copied
+//*OPTION1: to all nodes
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node default {
+	    include auditssh
+	}
+//*OPTION2: to a single node
+$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+	node "<puppet-agent>" {
+	    include auditssh
+	}
+//*    # replace <puppet-agent> witht he hostname of the puppet agent. Do the following on the puppet master: $ /opt/puppetlabs/bin/puppet cert list --all
+//* I.E "<Site>"
+
+
+On the puppet agent:
+$ /opt/puppetlabs/bin/puppet agent --test
+
+
+
+Error: Error: Could not retrieve catalog from remote server: Error 500 on SERVER: Server Error: Evaluation Error: Use of 'import' has been discontinued in favor of a manifest directory. See http://links.puppet.com/puppet-import-deprecation (file: /etc/puppetlabs/code/environments/production/manifests/site.pp, line: 11, column: 1) on node <Site>
+Warning: Not using cache on failed catalog
+Error: Could not retrieve catalog; skipping run
+

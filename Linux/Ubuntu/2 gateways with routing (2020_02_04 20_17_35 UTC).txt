@@ -1,0 +1,52 @@
+https://www.thomas-krenn.com/en/wiki/Two_Default_Gateways_on_One_System
+it was implemented on <Site>-nginx
+
+Scenario:
+	ens160 is the main internet and provides gateway
+	ens192 is the backup internet
+	We want ens160 to use XXX.XXX.XXX.1 as gateway
+	We want ens912 to use XXX.XXX.XXX.1 as gateway
+
+$ nano /etc/network/interfaces
+	auto lo
+	iface lo inet loopback
+	auto ens160
+	iface ens160 inet static
+	address XXX.XXX.XXX.42			192.168.0.10
+	netmask <Subnet>
+	network XXX.XXX.XXX.0
+	broadcast XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.1
+	dns-nameserver XXX.XXX.XXX.19
+	dns-nameserver XXX.XXX.XXX.3
+	dns-nameserver 8.8.8.8
+	auto ens192
+	iface ens192 inet static
+	address XXX.XXX.XXX.252			XXX.XXX.XXX.10
+	netmask <Subnet>
+	network XXX.XXX.XXX.0
+	broadcast XXX.XXX.XXX.255
+	# gateway XXX.XXX.XXX.1
+	dns-nameserver XXX.XXX.XXX.1
+	dns-nameserver XXX.XXX.XXX.1
+	dns-nameserver 8.8.8.8
+$ nano /etc/iproute2/rt_tables
+	//* append the following line
+	1 rt2
+$ nano /etc/network/interfaces
+	//* Add the following 4 lines inside ens912
+	post-up ip route add XXX.XXX.XXX.0/24 dev ens192 src XXX.XXX.XXX.252 table rt2
+	post-up ip route add default via XXX.XXX.XXX.1 dev ens192 table rt2
+	post-up ip rule add from XXX.XXX.XXX.252/32 table rt2
+	post-up ip rule add to XXX.XXX.XXX.252/32 table rt2
+$ service networking restart
+$ ip route list table rt2
+$ ip rule show
+
+
+
+
+
+
+
+

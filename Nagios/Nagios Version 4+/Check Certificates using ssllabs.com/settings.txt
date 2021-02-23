@@ -1,0 +1,35 @@
+nano /usr/local/nagios/etc/objects/ssllabs_hosts.cfg
+define host {
+       use t_webserver_ssllabs
+       host_name ssllabs_<Site>
+       address <Site>
+       parents                 ssllabs_hostslist
+        icon_image              ssl-small.png
+        statusmap_image         ssl-small.gd2
+        }
+
+nano /usr/local/nagios/etc/objects/t_templates.cfg
+define host{
+        name                    t_webserver_ssllabs
+        use                     t_<Site>-WEB
+        check_interval          10
+        retry_interval          1
+        max_check_attempts      10
+        check_command           c_check_ssllabs!$HOSTADDRESS
+        notification_period     24x7
+        notification_interval   0
+        notification_options    d,u,r,f
+        contact_groups          <Username>
+        <Site>                0
+}
+
+nano /usr/local/nagios/etc/objects/c_commands.cfg
+define command{
+        command_name c_check_ssllabs
+        command_line /usr/lib64/nagios/plugins/check_ssl.py -H $HOSTADDRESS$ -c C+,C-,C,D+,D,D-,E+,E,E-,F+,F,F-,T,M -d 10
+#       ; Checks if Hostname SSL certificate will expire on the next 7 days
+        }
+
+
+test from shell:
+/usr/lib64/nagios/plugins/check_ssl.py -H <Site> -c C+,C-,C,D+,D,D-,E+,E,E-,F+,F,F-,T,M -d 10

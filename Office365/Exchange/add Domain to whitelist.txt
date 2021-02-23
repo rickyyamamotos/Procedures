@@ -1,0 +1,5 @@
+
+1) go to https://outlook.office365.com/ecp/Antispam/SpamContentFilter.slab
+2) edit default filter
+3) add domain name to the allow list box
+

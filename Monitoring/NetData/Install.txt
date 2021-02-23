@@ -1,0 +1,245 @@
+Installing netdata
+bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh)
+	//* for Ubuntu and CentOs
+	//* press Y
+
+Netdata wwwroot
+/etc/netdata/
+	or
+/opt/netdata/etc/netdata/netdata.conf
+
+Netdata Config file
+/etc/netdata/netdata.conf
+
+Configuring Netdata's Memory Usage
+sudo nano /etc/netdata/netdata.conf
+	Locate the history option in the [global] section
+	history = 14400
+		3600 seconds (1 hour of chart data retention) uses 15 MB of RAM
+		7200 seconds (2 hours of chart data retention) uses 30 MB of RAM
+		14400 seconds (4 hours of chart data retention) uses 60 MB of RAM
+		28800 seconds (8 hours of chart data retention) uses 120 MB of RAM
+		43200 seconds (12 hours of chart data retention) uses 180 MB of RAM
+		86400 seconds (24 hours of chart data retention) uses 360 MB of RAM
+
+Enabling Kernel Same-page Merging
+this reduces Netdata's memory usage by 40-60%.
+sudo nano /etc/rc.local
+	//* add the following 2 lines before the last exit 0
+	echo 1 > /sys/kernel/mm/ksm/run
+	echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+sudo systemctl restart netdata
+
+Setting on NGIX reverse proxy
+https://github.com/firehol/netdata/wiki/Running-behind-nginx
+nano /etc/nginx/sites-enabled/<Site>
+	//* add the following at the top
+	upstream netdata-backend {
+	    server XXX.XXX.XXX.52:19999;
+		//* replace XXX.XXX.XXX.52 with the server IP
+	    keepalive 64;
+	}
+	//* add the following before anything inside the server block (before the server { ) after server_name and before any "location="
+	//* see /etc/nginx/sites-enabled/<Site> for example
+        location = /netdata {
+                return 301 /netdata/;
+                }
+        location ~ /netdata/(?<ndpath>.*) {
+                proxy_redirect off;
+                proxy_set_header Host $host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+                proxy_pass_request_headers on;
+                proxy_set_header Connection "keep-alive";
+                proxy_store off;
+                proxy_pass http://netdata-backend/$ndpath$is_args$args;
+                gzip on;
+                gzip_proxied any;
+                gzip_types *;
+            }
+service nginx restart
+
+
+Accessing Netdata
+http://127.0.0.1:19999/
+
+Showing Netdata config
+http://127.0.0.1:19999/netdata.conf
+
+Update Netdata
+cd /path/to/git/downloaded/netdata
+./netdata-updater.sh
+
+Uninstalling netdata
+cd /path/to/netdata.git
+./netdata-uninstaller.sh --force
+
+
+
+
+
+
+frontendportal.<Site>:19999
+For Ubuntu
+=========================================================================================================
+$ apt-get update
+$ apt-get install zlib1g-dev uuid-dev libmnl-dev gcc make autoconf autoconf-archive autogen automake pkg-config curl
+$ apt-get install python python-yaml python-mysqldb python-psycopg2 nodejs lm-sensors netcat
+$ git clone https://github.com/firehol/netdata.git --depth=1 ~/netdata
+$ cd ~/netdata
+$ ./netdata-installer.sh
+$ ufw allow 19999/tcp
+go to http://localhost:19999/
+	//* show metrics
+go to http://localhost:19999/netdata.conf
+	//* Show default configuration. Everything commented out is using the default value
+Configuring Netdata's Max Memory Usage:
+	$ vi /etc/netdata/netdata.conf
+		//* In the history option in the [global] section.
+		history = 3600
+			Values:
+				3600 seconds (1 hour of chart data retention) uses 15 MB of RAM
+				7200 seconds (2 hours of chart data retention) uses 30 MB of RAM
+				14400 seconds (4 hours of chart data retention) uses 60 MB of RAM
+				28800 seconds (8 hours of chart data retention) uses 120 MB of RAM
+				43200 seconds (12 hours of chart data retention) uses 180 MB of RAM
+				86400 seconds (24 hours of chart data retention) uses 360 MB of RAM
+Enabling Kernel Same-page Merging (this reduces Netdata's memory usage by 40-60%)
+	$ vi /etc/rc.local
+		//* Add the two commands highlighted below to the end of the file, before the last exit 0 line,
+			echo 1 > /sys/kernel/mm/ksm/run
+			echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+	$ sudo -s
+	$ echo 1 > /sys/kernel/mm/ksm/run
+	$ echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+	$ exit
+$ systemctl restart netdata
+
+
+For CentOs
+=========================================================================================================
+$ yum update -y
+$ yum -y install zlib-devel libuuid-devel libmnl-devel gcc make git autoconf autogen automake pkgconfig
+$ yum -y install curl jq nodejs
+$ git clone https://github.com/firehol/netdata.git --depth=1 ~/netdata
+$ cd ~/netdata
+$ sudo ./netdata-installer.sh
+$ For CentOs 7
+	firewall-cmd --permanent --zone=public --add-port=19999/tcp
+	firewall-cmd --reload
+  For CentOs 6
+	$ vi /etc/sysconfig/iptables
+		//* add the following line before the first REJECT all
+		-A INPUT -p tcp -m state --state NEW -m tcp --dport 19999 -j ACCEPT
+	$ service iptables restart
+Setup systemd service unit for netdata
+	$ yum install psmisc
+	$ killall netdata
+	$ cp ~/netdata/system/netdata.service /etc/systemd/system/
+	$ systemctl daemon-reload
+	$ systemctl start netdata.service
+	$ systemctl enable netdata.service
+go to http://localhost:19999/
+	//* show metrics
+go to http://localhost:19999/netdata.conf
+	//* Show default configuration. Everything commented out is using the default value
+Configuring Netdata's Max Memory Usage:
+	$ vi /etc/netdata/netdata.conf
+		//* In the history option in the [global] section.
+		history = 3600
+			Values:
+				3600 seconds (1 hour of chart data retention) uses 15 MB of RAM
+				7200 seconds (2 hours of chart data retention) uses 30 MB of RAM
+				14400 seconds (4 hours of chart data retention) uses 60 MB of RAM
+				28800 seconds (8 hours of chart data retention) uses 120 MB of RAM
+				43200 seconds (12 hours of chart data retention) uses 180 MB of RAM
+				86400 seconds (24 hours of chart data retention) uses 360 MB of RAM
+Enabling Kernel Same-page Merging (this reduces Netdata's memory usage by 40-60%)
+	$ vi /etc/rc.local
+		//* Add the two commands highlighted below to the end of the file, before the last exit 0 line,
+			echo 1 > /sys/kernel/mm/ksm/run
+			echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+	$ sudo -s
+	$ echo 1 > /sys/kernel/mm/ksm/run
+	$ echo 1000 > /sys/kernel/mm/ksm/sleep_millisecs
+	$ exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+OLD DATA
+=======
+# $ bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh) 
+$ curl -Ss 'https://raw.githubusercontent.com/firehol/netdata-demo-site/master/install-required-packages.sh' >/tmp/kickstart.sh && bash /tmp/kickstart.sh -i netdata-all
+$ git clone https://github.com/firehol/netdata.git --depth=1
+$ cd netdata
+$ sudo ./netdata-installer.sh
+
+
+Start the service:
+The installer already installs netdata.service if it detects a systemd system.
+But To install netdata.service by hand, run:
+# stop netdata
+killall netdata
+# copy netdata.service to systemd
+cp system/netdata.service /etc/systemd/system/
+# let systemd know there is a new service
+systemctl daemon-reload
+# enable netdata at boot
+systemctl enable netdata
+# start netdata
+systemctl start netdata
+
+
+Autostart at boot (Centos)
+# copy the netdata startup file to /etc/init.d
+cp system/netdata-init-d /etc/init.d/netdata
+# make sure it is executable
+chmod +x /etc/init.d/netdata
+# enable it
+chkconfig --add netdata
+
+
+Autostart at boot (Ubuntu)
+# copy the netdata startup file to /etc/init.d
+cp system/netdata-lsb /etc/init.d/netdata
+# make sure it is executable
+chmod +x /etc/init.d/netdata
+# enable it
+update-rc.d netdata defaults
+
+
+Updating netdata after its installation
+crontab -e
+# add a cron-job at the bottom. This one will update netdata every day at 6:00AM:
+# update netdata
+0 6 * * * /path/to/git/downloaded/netdata/netdata-updater.sh
+
+
+Working with netdata
+/usr/sbin/netdata
+	//* Starts the service
+http://127.0.0.1:19999/
+
+Uninstalling netdata
+cd /path/to/netdata.git
+./netdata-uninstaller.sh --force
+
+
+
+
+
+
+
+

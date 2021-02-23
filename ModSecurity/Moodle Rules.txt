@@ -1,0 +1,34 @@
+Modsecurity is an app firewall.
+
+ModSecurity does not come with rules, you need to add OWASP ModSecurity Core Rule Set
+After installing the set, you will have many error (false positives). To fix this you can run modsecurity in learning mode.
+Alternantive you can set modsecurity on enable mode and check for error on the apache log.
+(https://moodle.org/mod/forum/discuss.php?d=95086)
+$ nano /etc/apache2/error_log
+	//* check the apache log for errors 
+        //* Inside the log search for": ModSecurity
+	//* get the id and the file path. In the example below they are: 950004 and /moodledirectory/course/modedit.php
+		[Date] [error] [client IP Address] ModSecurity: Warning. Pattern match "(?:\\\\b(?sad?:type\\\\b\\\\W*?\\\\b(?:text\\\\b\\\\W*?\\\\b(?:j(?:ava)?|
+		ecma|vb)|application\\\\b\\\\W*?\\\\bx-(?:java|vb))script|c(?:opyparentfolder|reatetextrange)|get(?:special|parent)folder)\\\\b|on(?sad?:mo(?:use
+		(?:o(?:ver|ut)|down|move|up)|ve)|key(?:press|down|up)|c(?: ..." at ARGS:alltext. [id "950004"] [msg "Cross-site Scripting (XSS) Attack. Matched
+		signature <src=\\"http:>"] [severity "CRITICAL"] [hostname "yourhost"] [uri "/moodledirectory/course/modedit.php"] [unique_id "<key>
+		QAAAAT"]
+$ nano modsecurity conf
+	//* if you want to apply the whitelist rule to everything
+		<Directory "/WhateverYourMoodleDirectoryIs">
+			<IfModule mod_security2.c>
+				SecRuleRemoveById 990011
+				SecRuleRemoveById 950004
+			</IfModule>
+		</Directory>
+	//* if you want to apply the whitelist rule to just the affected file
+		<LocationMatch "/grade/edit/tree/grade.php">
+			SecRuleRemoveById 340147
+		</LocationMatch>
+		<LocationMatch "/course/modedit.php">
+			SecRuleRemoveById 340147
+			SecRuleRemoveById 340148
+			SecRuleRemoveById 340149
+		</LocationMatch>
+
+

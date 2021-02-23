@@ -1,0 +1,33 @@
+
+//* previously we create a mysql user name:<Username> with privileges usage *.*@%
+								      select,lock tables on 'v'
+//* but for an unexplicable f%$#ing reason that user cant log into mysql
+$ myssql -u root -p
+	//* <Password>
+mysql> CREATE USER 'rick'@'localhost' IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'rick'@'localhost' WITH GRANT OPTION;
+
+
+
+$ nano /mysql-local-restore.sh
+	mysql -f -urick -p<Password> -e "drop database v;"
+	mysql -f -urick -p<Password> -e "create database v default character set utf8 default collate  utf8_general_ci;"
+	mysql -f -urick -p<Password> -e "GRANT ALL PRIVILEGES ON v.* TO 'DBName'@'localhost' WITH GRANT OPTION;"
+	cd /tmp
+	rm -rf /tmp/tmp/*
+	tar -xvf /tmp/v*.tar.gz
+	mysql -urick -p<Password> v < /tmp/tmp/v-backup.sql
+	mv /tmp/v*.tar.gz /home/<Username>/backups/
+$ chmod +x /mysql-local-restore.sh
+
+Adding the script to cron to start it everyday at 5:01 am
+$ crontab -e
+	01 05 * * * /bin/bash /mysql-local-restore.sh
+//*     f1 f2 f3f4f5  command
+//*     f1=Minutes (0-59)
+//*	f2=Hours (0-23)
+//*	f3=Day of Month(1-31)
+//*	f4=Month(1-12)
+//*	f5=Day of Week (0-6, 0 = Sunday)
+//*	Command= command to run
+

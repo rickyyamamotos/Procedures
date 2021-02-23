@@ -1,0 +1,10 @@
+Turn on Switch
+Push for 7 seconds the Factory Reset button with a paper clip
+The switch will reboot
+
+
+Factory Default Settings
+	IP: 192.168.0.239	/	<Subnet> 
+	username: 
+	password: password 
+

@@ -1,0 +1,14 @@
+Error validating Solr schema: field itemid does not exist
+https://moodle.org/mod/forum/discuss.php?d=334466&parent=1481063
+
+
+Issue moodle 3.5- does not support solr 7+
+
+Manuallu patch the following files as shown in https://github.com/moodle/moodle/commit/895e005989841e8219b477365caa0abe511e5aef
+	/var/www/html/search/engine/solr/search/engine/solr/classes/engine.php 
+	/var/www/html/search/engine/solr/search/engine/solr/classes/schema.php 
+	//var/www/html/search/engine/solrsearch/engine/solr/version.php 
+
+or replace the above files
+
+

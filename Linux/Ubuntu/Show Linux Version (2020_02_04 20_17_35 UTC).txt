@@ -1,0 +1,5 @@
+$ cat /etc/*-release
+	//* show if centos, ubuntu, etc
+$ lsb_release -a
+$ uname -mrs
+$ cat /proc/version

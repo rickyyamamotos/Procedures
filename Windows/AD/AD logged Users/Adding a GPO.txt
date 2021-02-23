@@ -1,0 +1,14 @@
+In the ADDS
+1) copy logon.bat to \\<Site>\SysVol\<Site>\Policies\{<Key>}\User\Scripts\Logon\
+2) copy logoff.bat to \\<Site>\SysVol\<Site>\Policies\{<Key>}\User\Scripts\Logoff\
+3) Add a GPO Object
+4) Edit the GPO Object
+3) Group Policy Object Editor\User Configuration\Policies\Windows Settings\Scripts\
+4) Edit Logon
+5) Add \\<Site>\SysVol\<Site>\Policies\{<Key>}\User\Scripts\Logon\logon.bat
+6) Edit Logoff
+7) Add \\<Site>\SysVol\<Site>\Policies\{<Key>}\User\Scripts\Logoff\logoff.bat
+8) Link the GPO Object to the domain
+
+
+In windows 2003 you need to copy the batch file into \\<ServerName>\$C\WINDOWS\sysvol\sysvol\<Site>\scripts

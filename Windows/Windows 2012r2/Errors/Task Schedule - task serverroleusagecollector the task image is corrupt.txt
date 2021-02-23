@@ -1,0 +1,51 @@
+When Task Scheduler is opened, an error is shown
+	task serverroleusagecollector the task image is corrupt
+
+Solution
+1) Open Task Scheduler
+2) on the left pane, search for the name of the corrupted task: serverroleusagecollector
+3) Get the location of the task, Highlight the ask and look on the General tab for location
+	\Microsoft\Windows\Customer Experience Improvement Program\Server
+4) Locate the registry sub-key that corresponds to the corrupted task in one of the following registry sub-key. 
+   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\
+   You can locate the subkey by searching for the name of the task:
+	HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\Microsoft\Windows\Customer Experience Improvement Program\Server\ServerRoleUsageCollector
+5) Click the registry sub-key that corresponds to the corrupted task, and then make a note of the GUID value in the "Id" entry. 
+   For example, {69110D7B-41DC-4E9D-BDD3-C826C7DB613B}. You will need this information in the next step of this procedure.
+	{69110D7B-41DC-4E9D-BDD3-C826C7DB613B}
+6) Locate the registry sub-key that corresponds to the corrupted task in one of the following registry three sub-keys. 
+   To locate this sub-key, search for the GUID value that you noted in the previous step. 
+   For example, {69110D7B-41DC-4E9D-BDD3-C826C7DB613B}. The task will exist in only one of the three locations:
+   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Plain
+   Or:
+   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Logon
+   Or:
+   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Boot
+7) Make a note of the registry location of the corrupted task. You will need this information later in this procedure.
+	HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Plain\{69110D7B-41DC-4E9D-BDD3-C826C7DB613B}
+8) Open the following folder in Windows Explorer:
+   %SYSTEMDRIVE%\Windows\System32\Tasks\<Corrupted_Task_Name>
+	C:\Windows\System32\Tasks\Microsoft\Windows\Customer Experience Improvement Program\Server\ServerRoleUsageCollector
+9) copy the task file that corresponds to the corrupted task to a temporary location.
+	C:\temp\ServerRoleUsageCollector
+10) Delete the task file that corresponds to the corrupted task from the Tasks folder
+	del C:\Windows\System32\Tasks\Microsoft\Windows\Customer Experience Improvement Program\Server\ServerRoleUsageCollector
+11) Delete the registry sub-key that corresponds to the corrupted task from the following registry sub-key:
+    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree
+	del HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree\Microsoft\Windows\Customer Experience Improvement Program\Server\ServerRoleUsageCollector
+12) Delete the registry sub-key that corresponds to the corrupted task from the following registry sub-key. 
+    The task will be in GUID format. Note Refer to the note that you made earlier in this procedure to locate the registry folder.
+    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks
+	del HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{69110D7B-41DC-4E9D-BDD3-C826C7DB613B}
+13) Delete the registry sub-key that corresponds to the corrupted task from one of the following registry three sub-keys.
+    The task will exist in only one of the three locations and will be in GUID format. For example, {2911FBBD-A0AA-4A79-A8EE-84EF7555A71B}.
+	del HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Plain\{69110D7B-41DC-4E9D-BDD3-C826C7DB613B}
+14) Open Task Scheduler
+15) Expand Task Scheduler Library tree in the left pane, and open the folder that previously contained the corrupted task.
+	\Microsoft\Windows\Customer Experience Improvement Program\Server
+16) Right-click the folder that previously contained the corrupted task, and then click Import Task.
+17) In the Open dialog box, select All files (*.*). 
+    Browse to the temporary folder that contains the backed up task file, and then select the task file.
+    Click Open. The new task is created and is visible in Task Scheduler.
+	C:\temp\ServerRoleUsageCollector
+

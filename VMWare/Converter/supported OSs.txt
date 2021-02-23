@@ -1,0 +1,25 @@
+VMware vCenter Converter Standalone 6.2.0.1
+use the following OS for VM
+Windows Vista SP2 (32-bit and 64-bit)
+Windows Server 2008 SP2 (32-bit and 64-bit)
+Windows 7 (32-bit and 64-bit)
+Windows Server 2008 R2 (64-bit)
+Windows 8 (32-bit and 64-bit)
+Windows Server 2012 (64-bit)
+Windows 8.1 (32-bit and 64-bit)
+Windows Server 2012 R2 (64-bit)
+Windows 10 (32-bit and 64-bit)
+Windows Server 2016 (64-bit)
+CentOS 6.x (32-bit and 64-bit)
+CentOS 7.0, 7.1, 7.2, 7.3, 7.4, 7.5 (64-bit)
+Red Hat Enterprise Linux 4.x (32-bit and 64-bit)
+Red Hat Enterprise Linux 5.x (32-bit and 64-bit)
+Red Hat Enterprise Linux 6.x (32-bit and 64-bit)
+Red Hat Enterprise Linux 7.0, 7.1, 7.2, 7.3, 7.4, 7.5 (64-bit)
+SUSE Linux Enterprise Server 10.x (32-bit and 64-bit)
+SUSE Linux Enterprise Server 11.x (32-bit and 64-bit)
+Ubuntu 12.04 LTS (32-bit and 64-bit)
+Ubuntu 14.04 LTS (32-bit and 64-bit)
+Ubuntu 16.04 LTS (32-bit and 64-bit)
+
+Dont use ubuntu 18+ as they can live converted

@@ -1,0 +1,142 @@
+
+CENTOS
+$ nano /etc/httpd/conf.d/phpmyadmin.conf
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+Listen  <SSHPort>
+<VirtualHost *:<SSHPort>>
+        ServerName 
+		//*type server name
+        DocumentRoot /var/www/html
+        Alias /phpmyadmin /usr/share/phpmyadmin
+		//* CHECK THAT DIRECTORY NAME IS CORRECT, C<Site>TALS
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        SSLEngine on
+        SSLCertificateFile      /etc/letsencrypt/live/<Site>/cert.pem
+        SSLCertificateKeyFile   /etc/letsencrypt/live/<Site>/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/<Site>/chain.pem
+        SSLCACertificateFile    /etc/letsencrypt/live/<Site>/fullchain.pem
+        SSLProtocol all -SSLv2 -SSLv3
+        SSLCipher<Phone> HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA:!RC4
+</VirtualHost>
+$ apachectl configtest
+$ service httpd restart
+CENTOS 7+
+	$ firewall-cmd --permanent --zone=public --add-rich-rule='rule family="ipv4" source address="XXX.XXX.XXX.0<CIDR>" port protocol="tcp" port="<SSHPort>" accept'
+CENTOS 6.9-
+	$ nano /etc/sysconfig/iptables
+	//* add the following line before the first REJECT all
+		-A INPUT -p tcp -m state --state NEW -m tcp --dport <SSHPort> -j ACCEPT
+	$ service iptables restart
+
+
+UBUNTU
+nano /etc/apache2/conf-enabled/phpmyadmin.conf
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+	# Alias /phpmyadmin /usr/share/phpmyadmin
+Listen  <SSHPort>
+<VirtualHost *:<SSHPort>>
+        ServerName  
+		//*type server name
+        DocumentRoot /var/www/html
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        Alias /phpmyadmin /usr/share/phpmyadmin
+        SSLEngine on
+        SSLCertificateFile      /etc/letsencrypt/live/<Site>/cert.pem
+        SSLCertificateKeyFile   /etc/letsencrypt/live/<Site>/privkey.pem
+        SSLCertificateChainFile /etc/letsencrypt/live/<Site>/chain.pem
+        SSLCACertificateFile    /etc/letsencrypt/live/<Site>/fullchain.pem
+        SSLProtocol all -SSLv2 -SSLv3
+        SSLCipher<Phone> HIGH:MEDIUM:!aNULL:!MD5:!SEED:!IDEA:!RC4
+</VirtualHost>
+$ service apache2 restart
+$ ufw allow from any to any port <SSHPort>
+$ ufw reload
+
+
+Bitnami Dreamfactory
+if dreamfactory root is /var/www/html
+	You can finf the dreamfactory root by
+		$  find -name ctlscript.sh
+$ cd /var/www/html
+$ cd apache2
+$ cd bitnami
+$ nano  /var/www/html/apache2/conf/bitnami/bitnami.conf
+	//* Modify the following
+		<IfVersion < 2.3 >
+		  NameVirtualHost *:80
+		  NameVirtualHost *:443
+		  NameVirtualHost *.<SSHPort>
+		</IfVersion>
+	//* Add the following after the last </VirtualHost>
+		Listen <SSHPort>
+		SSLProtocol all -SSLv2 -SSLv3
+		SSLHonorCipherOrder on
+		SSLCipher<Phone> "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !EDH !RC4"
+		SSLPassPhraseDialog  builtin
+		SSLSessionCache "shmcb:/var/www/html/apache2/logs/ssl_scache(512000)"
+		SSLSessionCacheTimeout  300
+		<VirtualHost _default_:<SSHPort>>
+		SSLEngine on
+		SSLCertificateFile "/etc/lego/certificates/<Site>.crt"
+		SSLCertificateKeyFile "/etc/lego/certificates/<Site>.key"
+		SSLCACertificateFile "/etc/lego/certificates/<Site>.issuer.crt"
+		  # Error Documents
+		  ErrorDocument 503 /503.html
+		  # phpmyadmin applications installed with a prefix URL (default)
+		  Include "/var/www/html/apps/phpmyadmin/conf/httpd-prefix.conf"
+		# the following 3 lines were added to remove the SSLabs error: This server does not support 		Forward Secrecy with the reference browsers
+		        SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+		        SSLHonorCipherOrder on
+		#       SSLCipher<Phone> "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4"
+		SSLCipher<Phone> "ECDHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256"
+		</VirtualHost>
+$  nano /var/www/html/apache2/conf/bitnami/bitnami-apps-prefix.conf
+	//* Comment out the following line (It is already being called in /var/www/html/apache2/conf/bitnami/bitnami.conf : <VirtualHost _default_:<SSHPort>>
+		#Include "/var/www/html/apps/phpmyadmin/conf/httpd-prefix.conf"
+$ cd /var/www/html
+$ ./ctlscript.sh restart
+
+
+
+SONICWALL
+Open the port <SSHPort> for the "<Site>-IT-All" group
+
+
+Error: Forbidden "You don't have permission to access /phppgmyadmin/ on this server."
+nano /etc/apache2/conf-enable/phpmyadmin.conf
+	//* The following did not work
+			#Require local
+		//* Add the following
+			Allow from all
+	Add "Require all granted"
+	   <IfModule mod_authz_core.c>
+	     # Apache 2.4
+	     <RequireAny>
+	       Require ip 127.0.0.1
+	       Require ip ::1
+	       Require all granted
+	     </RequireAny>
+
+ERROR
+	AFter login it convers the url from <SSHPort> to 80/443
+	Workaround
+		cd /var/www/html
+
+		ln -s /usr/share/phpmyadmin ./phpmyadmin
+		ln -s /usr/share/phpmyadmin ./phpmyadmin
+		ln -s /usr/share/phpmyadmin ./phpmyadmin
+		ln -s /usr/share/phpmyadmin ./phpmyadmin
+	Fix (works!)
+		nano /etc/phpmyadmin/config.inc.php
+			//* Append
+			$cfg['PmaAbsoluteUri'] = 'https://<Site>:<SSHPort>/phpmyadmin/';
+		service httpd restart
+
+
+
+find -type f -exec grep -H "phpmyadmin" {} \;

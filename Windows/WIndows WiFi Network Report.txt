@@ -1,0 +1,2 @@
+C:\> netsh wlan show wlanreport
+C:\> edit C:\ProgramData\Microsoft\Windows\WlanReport\wlan-report-lastest.html

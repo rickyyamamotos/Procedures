@@ -1,0 +1,4 @@
+ConnectionError HTTPConnectionPool(host='ocsp.int-x3.letsencrypt.org', port=80) Max retries exceeded with url  (Caused by NewConnectionError('urllib3.connection.HTTPConnection object at 0x7f58060a5d50 Failed to establish a new connection [Errno -2] Name or service not known',))
+
+
+check dns servers used by the host

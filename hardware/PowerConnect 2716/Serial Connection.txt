@@ -1,0 +1,16 @@
+putty to comm1: 9600, 8, no parity, 1 stop bit, no flow control.
+
+enable
+configure
+ip address XXX.XXX.XXX.3 <Subnet>
+ip default-gateway XXX.XXX.XXX.1
+ip name-server XXX.XXX.XXX.3
+ip name-server 8.8.8.8
+ip http server
+ip https server
+user "<Username>" password <Password> level 15
+exit
+copy running-config startup-config
+Y
+
+

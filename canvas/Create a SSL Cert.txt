@@ -1,0 +1,3 @@
+THis is for the bitnami canvas VM
+create dns a records for the host and the www.host
+sudo /opt/bitnami/bncert-tool

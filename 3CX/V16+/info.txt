@@ -1,0 +1,65 @@
+
+UPGRADE 3CX FROM 15.5 TO 16
+
+IP XXX.XXX.XXX.30		or XXX.XXX.XXX.253 (backup internet)
+windows 2012 r2 trial
+
+
+https://XXX.XXX.XXX.30:5001/#/login
+http://XXX.XXX.XXX.30:5000/#/login
+http://<Site>-voip1.3cx.us:5000/#/login
+https://<Site>-voip1.3cx.us:5001/#/login
+	username: 	password: 
+	username: 	password:
+
+
+SIP Trunks
+XXX.XXX.XXX.31
+	<Username>
+	<Username>		or password
+LINE1: 703-
+LINE2: 703-
+LINE3: 703-
+LINE4: 571-
+
+XXX.XXX.XXX.32
+	<Username>
+	<Username>		or password
+LINE1: 571-
+LINE2: 571-
+LINE3: N/A
+LINE4: N/A
+
+FAX: 571-
+ALARAM: 703-
+
+
+https://cloudcom.nexvortex.com
+username: 
+password:
+1-8XXXXXXXX
+
+
+
+Product Professional Perpetual  
+	Version Number 
+	 
+	License Expires   
+	Maintenance  02/28/2020 9:35:37 PM   
+	Number of Simultaneous Calls 8 
+	Number of G729 Channels 8 
+	Number of Simultaneous Meeting Participants 100 
+	3CX Phone System Pro Edition features  Yes  
+	License Key 
+	Product owned by <Organization> 
+	Registration Details  
+	<Username>
+	+1 703-XXXXXXX
+	License status  Activated  
+
+https://login.3cx.com/Account/Login
+
+	
+
+https://customer.3cx.com/prm/myprofile.aspx
+

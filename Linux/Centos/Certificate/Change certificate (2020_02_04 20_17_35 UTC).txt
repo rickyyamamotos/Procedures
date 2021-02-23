@@ -1,0 +1,5 @@
+vi /etc/http/conf.d/ssl.conf
+	<VirtualHost _defaul_:443>
+	SSLCertificateFile /etc/httpd/ssl/<Site>_<Domain>.crt
+	SSLCertificateKeyFile /etc/httpd/ssl/<Site>_<Domain>.key
+	SSLCACertificateFile /etc/httpd/ssl/<Site>_ca.crt

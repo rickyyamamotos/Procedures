@@ -1,0 +1,42 @@
+http://www.iteachwithmoodle.com/2014/01/21/how-to-optimize-a-moodle-server-part-2-mysql/
+
+
+SHOW ENGINE INNODB STATUS;
+
+Calculate Moodle database size
+	$ mysql - u root -p
+	mysql> SELECT table_schema "DB", sum(data_length + index_length)/1024/1024 "DB size in MB" FROM information_schema.TABLES GROUP BY table_schema;
+		//* I.E.: "MOODLE DATABASE SIZE": v | 32,731 MB
+Calculate innodb_buffer_pool_size value and Modify
+	//* innodb_buffer_poolValue = 1.10 * "MOODLE DATABASE SIZE"
+	//* a further 10%. You would be better off checking your database size every few months and adjust innodb_buffer_pool_size 
+		//* I.E.: innodb_buffer_poolValue = 1.10 * 32,731 Mb = 36004 M
+	$ nano /etc/my.conf
+		innodb_buffer_pool_size = XXX M   //* replace XXX with the value of "innodb_buffer_poolValue"
+	$ service mysqld restart
+
+Other settings
+	$ nano /etc/my.conf
+		connect_timeout = 3600
+		wait_timeout = 3600
+		interactive_timeout = 3600
+		innodb_stats_on_metadata = 0
+		tmp_table_size = 256M
+		max_heap_table_size = 256M
+		key_buffer = 128M
+		table_cache = 16K
+		table_definition_cache = 64K
+		#open_files_limit = 16K
+		#slow_query_log
+		#local-infile=0
+		#query_cache_size = 128M
+		#query_cache_type = 1
+		#query_cache_limit = 148M
+		#join_buffer_size = 256M
+		#thread_cache_size = 16K
+		innodb_buffer_pool_size = 36004M
+		#innodb_log_file_size = 128M
+		#low_priority_updates=1
+		#concurrent_insert=ALWAYS
+
+

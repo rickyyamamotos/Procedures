@@ -1,0 +1,9 @@
+//** show hostname
+$ hostname
+
+//** change hostname
+sudo nano /etc/hostname
+	//** change the name to a new one
+sudo nano /etc/hosts
+	//** in the 2nd line change the host name next to 127.0.0.1 to the new one
+sudo shutdown -r now

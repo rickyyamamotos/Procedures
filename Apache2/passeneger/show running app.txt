@@ -1,0 +1,3 @@
+$ su $RAIL_USER
+	//* replace $RAIL_USER with the user of rails
+$ passenger-config list-instances

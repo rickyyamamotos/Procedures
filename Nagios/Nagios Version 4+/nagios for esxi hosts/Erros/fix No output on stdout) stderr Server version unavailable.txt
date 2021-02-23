@@ -1,0 +1,8 @@
+on nagios
+nano /usr/share/perl5/VMware/VICommon.pm -c
+	//* see line number 735
+	//* replace
+	//*	die "Server version unavailable at '$url'";
+	//* with
+	//*	die "Critical: Server down or monitoring service off because  version unavailable at '$url'";
+

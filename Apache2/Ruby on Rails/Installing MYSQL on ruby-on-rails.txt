@@ -1,0 +1,68 @@
+https://www.digitalocean.com/community/tutorials/how-to-use-mysql-with-your-ruby-on-rails-application-on-ubuntu-14-04
+https://www.tutorialspoint.com/ruby-on-rails/rails-database-setup.htm
+
+Note- some versions of ruby-on-rails only support PostgreSQL
+see database.yml in yoru ruby installation for details
+
+
+Install MYSQL onto the linux server
+$ sudo apt-get update -y
+$ sudo apt-get install mysql-server mysql-client libmysqlclient-dev -y
+	//* password = <Password>
+$ mysql_secure_installation
+$ mysqld --initialize
+	//* only if OS is not debian, or not ubuntu. However it is safe to run it anyways, if the directory is already initialized it will show an error and abort.
+$ systemctl enable mysql
+	//* for CentOS user mysqld instead of mysql
+$ systemctl start mysql
+	//* for CentOS user mysqld instead of mysql
+$ mysqladmin -p -u root version
+	//* shows mysql version. It should be 5.7
+
+Create a MYSQL databases and user for access by ruby-on-rails
+$ mysql -uroot -p
+	//* <Password>
+//* Ruby on Rails recommends to create three databases - a database each for development, testing, and production environment.
+mysql> create database library_development;
+mysql> create database library_production;
+mysql> create database library_test;
+mysql> CREATE USER '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON *.* TO '<Username>'@'localhost' WITH GRANT OPTION;
+mysql> GRANT RELOAD,PROCESS ON *.* TO '<Username>'@'localhost';
+mysql> FLUSH PRIVILEGES;
+
+
+Install MySQL Gem
+//* install the MySQL adapter. The mysql2 gem provides this functionality.
+$ gem install mysql2
+//*Error:
+	Error installing mysql2: ERROR: Failed to build gem native extension.
+	Solution: run the command using the user that runs rbuy-on-rails. Dont use root or sudo
+
+Configuring database.yml
+sudo su
+cd /
+find -name database.yml
+nano database.yml
+	development:
+	   adapter: mysql
+	   database: library_development
+	   username: root
+	   password: [password]
+	   host: localhost
+	test:
+	   adapter: mysql
+	   database: library_test
+	   username: root
+	   password: [password]
+	   host: localhost
+	production:
+	   adapter: mysql
+	   database: library_production
+	   username: root
+	   password: [password]
+	   host: localhost
+
+
+
+	

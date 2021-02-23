@@ -1,0 +1,15 @@
+On nagios web -> hosts
+	WARNING 1 health issue(s) found in 53 checks 1) [Warning] [Type Memory] [Name Memory] [Label Unknown] [Summary All functionality is available but some might be degraded]
+
+References
+	https://communities.vmware.com/thread/454183
+
+Solution
+1) SSH to the exsi
+2) Restart the sfcbd service. by running the command "services.sh restart" on the Host.
+3) open the esxi host using the "VMWare Vsphere Client"
+4) Configuration -> Security Profile -> Services -> Properties
+5) Start "CIM Server"
+6) Give it 5 minutes
+7) re-check, on nagios
+	 /usr/lib64/nagios/plugins/check_vmware_esx.pl --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX0.21 -S runtime -s health

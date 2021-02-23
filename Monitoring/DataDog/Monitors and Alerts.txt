@@ -1,0 +1,19 @@
+
+Creating a Monitoring:
+=====================
+//* Monitor are used to track metrics, create events and alerts based on the metric's limits,
+-Login\Monitors in the left pane\Manage Monitors on the Top Menu\New Monitor
+-Select Metrics
+	//* we are creating a metrics monitor in the example
+-In the Get box, select "system.disk.free" and "Device:dev.sda1
+-In the from box, you can select a specific agent or everywhere (all agents)
+-In the Trigger box, select "Multi Alert"
+	# A simple alert aggregates over all reporting sources. You will get one alert when the aggregated value meets the conditions set below. This works best to monitor a metric from a single host, like avg of system.cpu.iowait over host:bits, or for an aggregate metric across many hosts like sum of nginx.bytes.net over region:us-east.
+	# A multi alert applies the alert to each source, according to your group parameters. E.g. to alert on disk space you might group by host and device, creating the query:
+-Set alert conditions and thresholds
+
+
+
+
+
+

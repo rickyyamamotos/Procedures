@@ -1,0 +1,6 @@
+install php-curl
+
+Ubuntu
+	$ sudo apt-get install php-curl
+Centos
+	$ sudo yum install php-curl

@@ -1,0 +1,16 @@
+
+Cisco									|	D-Link
+--------------------------------------------------------------------------------------	+	--------------------------------------------------------------------------------------------------
+Link with only 1 VLAN:							|	Link with only 1 VLAN:
+access port: "switchport mode access" + "switch port access vlan X"	|	set port to be member of VLAN X untagged (for egress) and
+(valid for ingress and egress)						|	set port's PVID to be X (for ingress) either
+-------------------------------------------------------------------------------------	+	--------------------------------------------------------------------------------------------------
+Link with only multiple VLANs and PVID:					|	Link with only multiple VLANs and PVID:
+trunk port (VLANs X,Y,...) with native VLAN N:				|	set port to be member of VLANs X,Y,... tagged and
+"switchport mode trunk" + "switchport trunk allowed vlan X,Y,...,N"	|	set port to be member of VLAN N untagged (for egress) and
++ "switchport trunk native vlan N"					|	set port's PVID to be N (for ingress) either
+-------------------------------------------------------------------------------------	+	--------------------------------------------------------------------------------------------------
+Link with only multiple VLANs and no PVID:				|	Link with only multiple VLANs and no PVID:
+trunk port (VLANs X,X,...), no native VLAN				|	set port to be member of VLANs X,Y,... tagged and set port's PVID
+"switchport mode trunk" +						|	to be a DUMMY value (for ingress); for other ports don't use this DUMMY
+"switchport trunk allowed vlan X,Y,..." 				|	value for any purpose other than to be a DUMMY PVID (data sink to nowhere)

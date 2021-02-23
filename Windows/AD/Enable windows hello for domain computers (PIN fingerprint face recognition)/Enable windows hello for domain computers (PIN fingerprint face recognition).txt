@@ -1,0 +1,18 @@
+Enable windows hello for domain computers (PIN fingerprint face recognition)
+
+Manually on local pc
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System]
+"AllowDomainPINLogon"=dword:00000001
+
+Via Script on GPO
+create a gpo object with \User Configuration\Policies\WIndows Settings\Scripts\Logon
+create a script and save it on a network share containing the following:
+	REG ADD HKLM\SOFTWARE\Policies\Microsoft\Windows\System /v AllowDomainPINLogon /t REG_DWORD /d 1 /f
+
+
+Via GPO Regedit
+GPO -> Computer COnfiguration\Preferences\WIndows Settings\Registy
+Collection: Registry Wizard Values
+	/HKEY_LOCAL_MACHINE/SOFTWARE/Policies/Microsoft/Windows/System
+		AllowDomainPinLogon 1	REG_WORD
+

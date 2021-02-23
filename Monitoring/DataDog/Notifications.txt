@@ -1,0 +1,6 @@
+Notifications are done via a monitor, the monitor creates an event if the metrics complies with a value defined by the user, then a notification can be set 
+
+Integrations for Notification
+Datadog has instegrations designed for notifications
+-Pagerduty (add phone and SMS alerts) - (Just create a free pagerduty account)
+-

@@ -1,0 +1,36 @@
+from /var/logs/httpd/ssl_erros
+PHP Warning  mysqliquery() MySQL server has gone away in varwwwhtmllibdmlmysqli_native_moodle_database.php 
+
+additional issues
+	users are disconnected from the databases
+
+solution
+https://moodle.org/mod/forum/discuss.php?d=320964
+
+Increase the "max_execution_time" in PHP
+	$ php -i | grep php.ini
+		//* Loaded Configuration File => /etc/php.ini
+	$ nano /etc/php.ini
+		max_execution_time = 300
+	$ service httpd restart
+
+Increaseing the max_allowed_packet in my.cnf
+	$ mysql --verbose --help | grep ".cnf"
+		/etc/my.cnf /etc/mysql/my.cnf /usr/etc/my.cnf ~/.my.cnf
+	$ nano /etc/my.cnf
+		max_allowed_packet=500M
+
+Disablin db sessions
+	$ nano /var/www/html/config.php
+		$CFG->dbsessions='false"
+
+
+More findinds
+	there is a relation between mysql.log errors showing that mysqld restarted and ssl_error_log showing :
+		Exception ignored in shutdown function array (\n  0 => \n  tool_log\\log\\manager::__set_state(array(\n     'readers' => \n    array (\n      'logstore_standard' => \n      logsto$
+	the ssl_error_log event happened seconds before the mysql.log events
+Possible cause
+	database corruption
+possible fix
+	$ mysqlcheck -u root -p --auto-repair v
+

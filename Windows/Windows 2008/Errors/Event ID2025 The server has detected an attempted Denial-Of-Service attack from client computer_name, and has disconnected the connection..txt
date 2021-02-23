@@ -1,0 +1,5 @@
+Event: ID2025 "The server has detected an attempted Denial-Of-Service attack from client \\computer_name, and has disconnected the connection."
+
+
+https://social.technet.microsoft.com/Forums/en-US/7a4c804d-b61f-45ea-b691-08a6677f4705/error-2025-the-server-has-detected-an-attempted-denialofservice-attack-from-client?forum=smallbusinessserver
+As per this posting I disable the IPv4 and IPv6 Large Send Offload setting on the Advanced tab in the NIC's properties. And also CheckSum Offload to None and the TCP Connection Offload settings to Disable. After these settings the problem was resolved. This is my third day I am running without errors of SRV 2012 and SRV 2025 in the server.

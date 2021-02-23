@@ -1,0 +1,29 @@
+1) Set the source server in "Maintenance Mode" to avoid writting/modifying to the database
+	<Username> are unaffected by the "Maintenance Mode". Avoid them modifiying the DB
+2) Backup the Moodle Database from the source server
+3) Restore the Moodle Database to the target server
+4) Copy the MoodleData directory from the source to the target server
+	see "$CFG->dataroot" in /var/www/html/config.php
+5) Copy the Moodle code from the old server to the new server
+	/var/www/moodle
+6) Update config.php with the URL of the new serve
+	replace the value of "$CFG->wwwroot" in /var/www/html/config.php
+	add: $CFG->reverseproxy = true;
+		//* if server is reverse proxied by nginx
+7) Update links containing wwwroot in the database
+	{wwwroot}/<Username>/tool/replace/index.php				(i.e. <Site>/<Username>/tool/replace/index.php)
+		Search whole database for:	oldwwwwroot		(i.e. <Site>.<Domain>)
+		Replace with this string: 	newwwwroot		(i.e. <Site>.<Domain>)
+8) changes hosts on the new server
+	$ nano /etc/hosts
+	$ hostname newwwwroot
+9) ReCAPTURE
+If you migrate to a new domain and have setup Email-based_self-registration, you need to create new <Site>-Keys at google. You will find the explanation and links to google in Email-based_self-registration.
+
+10) nano /etc/httpd/conf.d/ssl.conf
+	replace ServerName oldserver
+11) check if any SOAP key are installed to other sites.
+	ie. Edwiser Bridge sets a key on moodle, this key is for a specific wordpres site. If incorrectly installed, moodle will redirect to the incorrect wordpress site after logon
+
+
+

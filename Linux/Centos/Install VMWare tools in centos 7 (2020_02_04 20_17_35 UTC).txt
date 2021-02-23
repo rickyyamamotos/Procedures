@@ -1,0 +1,17 @@
+Option1
+$ yum install open-vm-tools
+
+Option2
+$ yum update
+$ yum install perl
+$ yum install net-tools
+$ mount /dev/cdrom /mnt
+$ cp /mnt/*.tar.gz /tmp
+$ cd /tmp
+$ tar xzvf *.tar.gz
+$ cd /vmware-tools-distrib
+$ ./vmware-install.pl
+$ shutdown -r -time 0
+
+
+

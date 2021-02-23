@@ -1,0 +1,10 @@
+$ mysql -u root -p
+mysql> CREATE USER 'moodle'@'localhost' IDENTIFIED BY '<Password>';
+mysql> create database v default character set utf8 default collate  utf8_general_ci;
+mysql> GRANT USAGE ON *.* TO 'moodle'@'localhost';
+mysql> GRANT ALL PRIVILEGES ON v.* TO 'moodle'@'localhost' WITH GRANT OPTION;
+	//* root password: <Password>
+C:\> pcsp c:\temp\*.sql <Username>@XXX.XXX.XXX.237
+	//* where XXX.XXX.XXX.237 point to XXX.XXX.XXX.15
+$ cd /tmp
+$ mysql -u root -p v < /tmp/v-backup.sql

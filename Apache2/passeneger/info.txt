@@ -1,0 +1,52 @@
+it is installed on <Site>.<Domain>
+
+it works on an enviroment. So you need to run it wrapped
+
+$ nano /etc/apache2/mods-enabled/passenger.load
+	//* it constains the module load onto apache2
+	//* LoadModule passenger_module /home/User6/.rvm/gems/ruby-2.3.1/gems/passenger-5.1.11/buildout/apache2/mod_passenger.so
+
+
+$ cd /home/User6/.rvm/gems/ruby-2.3.1/wrappers/
+$ ./passenger-config --root
+	//* will show the root directory of passenger
+	//* /home/User6/.rvm/gems/ruby-2.3.1/gems/passenger-5.1.11
+
+
+
+
+
+
+Get root directory
+$ netstat -anpt
+	//* show passenger-st
+$ cd /
+$ find / -name "passenger-st*"
+	//* show /usr/sbin/passenger-status
+$ /usr/sbin/passenger-status
+	/home/<Username>/<Site>/public (development):
+	  App root: /home/<Username>/<Site>
+
+Get root directory
+sudo find / "passenger-config"
+	//* it wil show /usr/bin/passenger-config
+/usr/bin/passenger-config -root
+
+
+
+
+Start passenger
+You need to log as the user who installed passenger
+You need to go to the passwenger root directory
+$ passenger start -e <enviroment> -a 0.0.0.0 -d
+	//* replace <enviroment> with development, production, etc
+
+STOP PASSENGER
+$ passenger stop
+
+
+START PASSENGER AS A DAEMON
+You need to log as the user who installed passenger
+You need to go to the passenger root directory
+
+bundle exec passenger start -d

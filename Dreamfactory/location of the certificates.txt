@@ -1,0 +1,28 @@
+
+
+Get Installation directory
+Option 1:
+	$ find -name "ctlscript.sh"
+	$ dreamdir=$(echo $(find -name "ctlscript.sh"
+	dirname "$dreamdir"
+Option 2:
+	$ ls /opt | grep "^dreamfactory" 
+	$ dreamdir=$(echo $(ls /opt | grep "^dreamfactory"))
+	$ dreamdir="/opt/$dreamdir"
+
+
+Certs are stored in
+	$ cd $dreamdir/apache2/confg/certs
+Example:
+	/opt/dreamfactory-2.1.0-4/apache2/conf/certs
+
+ssl.conf is on
+	$ cd $dreamdir/apache2/conf/bitnami/bitnami.conf
+
+
+#SSLCertificateFile "/var/www/html/apache2/conf/server.crt"
+SSLCertificateFile "/var/www/html/apache2/conf/<Site>_<Site>_org.crt"
+#SSLCertificateKeyFile "/var/www/html/apache2/conf/server.key"
+SSLCertificateKeyFile "/var/www/html/apache2/conf/<Site>_<Site>_org.key"
+SSLCACertificateFile "/var/www/html/apache2/conf/gd_bundle-g2-g1.crt"
+

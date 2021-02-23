@@ -1,0 +1,21 @@
+HTML5 is a version of for dev, not for production
+
+Installation procedures:
+1) Install your BigBlueButton server 1.1 (flash version)
+2) Follow the instructions in the "Installation" paragraph from http://docs.bigbluebutton.org/html/html5-overview.html
+3) Implement the HTML5 Client (client side)
+      Follow the instractuin in the "Implementation of the HTML5 Client (client side)" paragraph of http://docs.bigbluebutton.org/html/html5-overview.html
+
+Safari not supported: (iphone, ipads, desktops, macbooks)
+====================
+Apple’s Safari browser on both desktop and iOS devices does not yet support WebRTC (though there are indications this
+	may change as WebKit, the underlying rendering engine for Safari, is getting support for WebRTC). To support 
+	iOS, we are developing an iOS client in a parallel project. The rest of this document focuses on the HTML5 
+	client.
+
+
+HTML5 folder:
+============
+All the code for the HTML5 client is inside the bigbluebutton/bigbluebutton-html5/ folder
+
+The BigBlueButton Flash client can detect if the HTML5 client is installed and available on the server by making a GET request to http://your_ip>/html5client/check and receiving {"html5clientStatus": "running"}.

@@ -1,0 +1,33 @@
+when server1 iframes content from server2, chrome console may show an error:
+	No 'Access-Control-Allow-Origin' header is present on the requested resource
+This happens because server2 is not allowing other servers to embed its contents.
+
+
+
+The following worked
+====================
+$ nano /etc/httpd/conf/httpd.conf
+	//* append the following line (at the end)
+	Header unset X-Frame-Options
+test site on https://tools.geekflare.com/tools/x-frame-options-test
+
+
+The following did not work anymore
+=================================
+Fix
+nano /etc/httpd/conf/httpd.conf
+	<Directory /var/www/html>
+		    AllowOverride All
+nano /var/www/html/.htaccess
+	Header set Access-Control-Allow-Origin "https://<Site>.<Domain>"
+
+
+
+Test
+on the server with the problem
+$ curl -H "Access-Control-Request-Method: GET" -H "Origin: https://google.com" --head https://localhost -k
+	//* should show origin *
+$ curl -H "Origin: https://example.com" --verbose https://localhost -k
+$ curl -H "Origin: https://example.com" -X OPTIONS --verbose https://localhost -k
+
+https://tools.geekflare.com/tools/x-frame-options-test

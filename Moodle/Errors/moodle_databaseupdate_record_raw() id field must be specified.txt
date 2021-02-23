@@ -1,0 +1,3 @@
+Scheduled task failed: Cleanup old sessions,Coding error detected, it must be fixed by a programmer: moodle_database::update_record_raw() id field must be specified.
+!!! Coding error detected, it must be fixed by a programmer: moodle_database::update_record_raw() id field must be specified. !!!
+

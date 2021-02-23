@@ -1,0 +1,22 @@
+Fix corrupted mysql InnoDB table
+nano /etc/my.cnf
+	innodb_force_recovery=1
+		//* if the whole process fail, increase the above to 2, and retry.
+		//* if it still fails, increase until 6, but the risk to lose data is increased
+service mysqld restart
+mysqlcheck --all-databases
+	//* take note of corrupted databases and tables
+
+//* backup all corrupted tables:
+mysqldump -uroot -p v mdl_logstore_standard_log > /tmp/v.mdl_logstore_standard_log.sql
+
+//* Drop all corrupted tables:
+mysql -uroot -p
+use v;
+drop table mdl_logstore_standard_log;
+nano /etc/my.cnf
+	//* remove innodb_force_recovery=1
+service mysqld restart
+
+//* restore all corrupted tables
+mysql -uroot -p v < /tmp/v.mdl_logstore_standard_log.sql

@@ -1,0 +1,12 @@
+Set a PATH temporary (until next boot) for a user
+$ export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+	adds /usr/local/bin:/usr/local/sbin to the path
+
+
+Set a PATH permanent for all user
+$ sudo nano /etc/profile.d/addpath.sh
+	export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+
+
+
+

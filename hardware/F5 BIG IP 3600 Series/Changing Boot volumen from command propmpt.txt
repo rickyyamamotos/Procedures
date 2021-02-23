@@ -1,0 +1,20 @@
+When running the switchboot utility to change the default boot image on BIG-IP appliance platforms, the system saves and implements the configuration the next time the system is rebooted.
+
+Option 1, using the interactive mode
+1) $ switchboot
+2) A list of boot image slots and their boot image descriptions displays. 
+   Use the arrow keys or type the number of the boot image slot you want to boot at startup, then press Enter. 
+3) When you reboot, the system starts from the boot image you specify.
+
+
+Option2, using the non-iteractive mode
+1) $ switchboot -l
+	To list the options for the switchboot utility
+2) $ switchboot -b <location>
+	For exammple replace <location> with HD1.1
+
+
+Alternative Options
+1) Beginning in BIG-IP 11.0.0, the command tmsh reboot volume <volume> can be used to change the default boot image on the BIG-IP systems. Additionally, this command reboots the BIG-IP system to the desired boot image immediately after execution
+2) In BIG-IP 10.0.0 through 10.2.4, you can use the bigpipe software desired command to change the default boot image or change the title displayed for a boot image on BIG-IP systems. For more information, refer to the bigpipe software man page.
+

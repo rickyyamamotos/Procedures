@@ -1,0 +1,155 @@
+learninglocker.<Site>
+hosted on exsi XXX.XXX.XXX.21
+
+Ubuntu 20.04
+
+IP
+	XXX.XXX.XXX.181
+
+SSH
+	XXX.XXX.XXX.181:22
+	rick / <Password>
+
+
+Use bitnami learninglocker image to create a server
+
+
+
+
+==========================OLD=============================================
+installation failed because dependencies are maked as unsafe
+The application is accessed through 3 web interfaces, the UI, <Site> and x<Site>.
+
+Configure server
+	apt update -y
+	apte upgrade -y
+	ufw allow from any to any port 22
+	ufw allow from any to any port 80
+	ufw allow from any to any port 443
+	ufw allow from any to any port 3000
+	ufw allow from any to any port 8080
+	ufw enable
+	ufw reload
+	apt-get install curl wget net-tools -y
+	apt install nodejs -y
+	apt install npm -y
+	npm install -g pm2
+	pm2 install pm2-logrotate
+	pm2 set pm2-logrotate:compress true
+Installing Mongodb
+	su rick
+	curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+	sudo apt update -y
+	sudo apt install mongodb-org -y
+	sudo systemctl enable mongod.service
+	sudo systemctl start mongod.service
+	
+
+
+
+
+Installing LRS with dev configuration (local MongoDB & Redis)
+https://github.com/LearningLocker/learninglocker
+http://docs.learninglocker.net/guides-installing/
+	cd /tmp
+	sudo su
+	curl -o- -L https://raw.githubusercontent.com/LearningLocker/deploy/master/deployll.sh > deployll.sh && bash deployll.sh
+	Error
+		-nodejs installed but not found
+			ln -s /usr/bin/node /usr/bin/nodejs
+		-[LL] Didn't install pm2 or can't find it - the init script will need to be set up by hand. Press any key to continue
+		 Failed to start pm2-learninglocker.service: Unit pm2-learninglocker.service not found.
+
+		-uncaughtException: The gRPC binary module was not installed. This may be fixed by running "npm rebuild"
+		 Original error: Cannot find module '/usr/local/learninglocker/releases/ll-20201203-<key>/webapp/node_modules/google-gax/node_modules/grpc/src/node/extension_binary/node-v64-linux-x64-glibc/grpc_node.node'
+
+		-MongoNetworkError: failed to connect to server [localhost:27017] on first connect [MongoNetworkError: connect ECONNREFUSED 127.0.0.1:27017]
+		 ECONNREFUSED 127.0.0.1:27017
+
+		-Job for pm2-learninglocker.service failed because the service did not take the steps required by its unit configuration.
+		 See "systemctl status pm2-learninglocker.service" and "journalctl -xe" for details.
+
+		-From logs /var/log/nginx/error.log: 
+		 *23 connect() failed (111: Connection refused) while connecting to upstream, client: XXX.XXX.XXX.255, server: site_url, request: 
+		 "POST /<Site>/auth/jwt/password HTTP/1.1", upstream:  "http://127.0.0.1:8080/auth/jwt/password", host: "XXX.XXX.XXX.181", referrer: "http://XXX.XXX.XXX.181/login"
+			Making sure mongodb is running and 'pm2 restart all' 
+			//* The <Site> (port 8080) not running
+			cd /usr/local/learninglocker/releases/ll-20201203-<key>_1/webapp
+			yarn migrate
+				-ERROR: 
+				 'Error: The gRPC binary module was not installed. This may be fixed by running "npm rebuild"',
+				 'Original error: Cannot find module \'/usr/local/learninglocker/releases/ll-20201203-<key>/webapp/node_modules/google-gax/node_modules/grpc/src/node/extension_binary/node-v64-linux-x64-glibc/grpc_node.node\'',
+					npm install --unsafe-perm
+						-ERROR:  Tried to download(403): https://storage.google<Site>s.com/grpc-precompiled-binaries/node/grpc/v1.9.1/node-v64-linux-x64-glibc.tar.gz
+						 Pre-built binaries not found for grpc@1.9.1 and node@10.19.0 (node-v64 ABI, glibc) (falling back to source compile with node-gyp)
+							//* https://github.com/google<Site>s/google-cloud-node/issues/2830
+							The root of the issue seems to be npm install grpc@1.7.3 (which occurs as a dependency of npm install @google-cloud/firestore@^0.8.0 which is a dependency of npm install google-cloud@0.57.0. That version of grpc, which is a bit old, doesn't have a binary prebuilt. The current version, grpc@1.13.0-pre1 installs without issue.
+					su learninglocker
+					npm install grpc --build-from-source
+					Running npm rebuild after npm install resolved the issue for me
+		
+
+	Uprading
+		If you're upgrading from an existing install, no matter if this is on a new server or the same one you will have to perform migrations.
+		These migrations take care of cleaning up the database to support new functionality and can be run before you switch to the new release
+		as they're non-distructive but they will need to be run for things to function correctly. If you're updating an existing install on this
+		server you should've been prompted to run the migrations. If you chose to not run them or are upgrading by rolling out a new server
+		you'll need to do this manually. 
+		This can be done by running 'cd /usr/local/learninglocker/releases/ll-20201203-<key>_1/webapp; yarn migrate'
+
+http://XXX.XXX.XXX.181/login
+	
+
+
+Base directory (it will be used to store subdirectories for new releases)
+	/usr/local/learninglocker/releases
+
+Current directory (simlink)
+	/usr/local/learninglocker/releases/current
+Current directory (Lastest version)
+	/usr/local/learninglocker/releases/ll-20201203-<key>
+
+user
+	learninglocker
+
+
+Configuring learninglocker UI, <Site> AND WORKER
+	cd /usr/local/learninglocker/releases/ll-20201203-<key>/webapp
+	nano .env
+		//* ref- http://docs.learninglocker.net/guides-configuring/#x<Site>-service
+		MONGODB_PATH
+
+Configuring learninglocker X<Site> SERVICE
+	cd /usr/local/learninglocker/releases/ll-20201203-<key>/
+#	cp .env.example .env
+	nano .env
+		//* ref- http://docs.learninglocker.net/guides-configuring/#x<Site>-service
+		MONGODB_PATH
+
+
+Restart all the services
+	service pm2-learninglocker restart
+
+
+RUNNING THE SERVICES MANUALLY
+You can start the services with these commands.
+	RUNNING THE UI
+		node ui/dist/server
+	RUNNING THE <Site>
+		node <Site>/dist/server
+	RUNNING THE WORKER
+		node worker/dist/server
+	RUNNING THE X<Site> SERVICE
+		In your x<Site> service directory
+		node dist/server.js
+
+<Username> Account
+	username:	<Email>
+	password:	<Password>
+
+Ports
+	UI=3000, <Site>=8080, x<Site>=8081
+
+
+

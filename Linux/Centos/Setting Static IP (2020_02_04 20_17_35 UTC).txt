@@ -1,0 +1,81 @@
+CONFIGURING AN STATIC IP
+========================
+
+
+Using the nmcli:
+===============
+$ nmcli d
+	//* show ens192 disconnected
+$ nmtui
+	//*Select "Edit a connection" and press <enter>
+	//*Choose "ens192" and select "Edit"
+	//*Select "Manual" next to IPv4
+	//* IP XXX.XXX.XXX.7
+	//* Gateway XXX.XXX.XXX.1
+$ service network restart
+$ ip addr
+	//* show ip address
+Set hostname
+$ nmtui
+	//*Select set Hostname
+	//*hostname: mdb
+
+Using ci:
+========
+$ ip addr
+	//* get the interface name, it could be eth0, ens192, etc
+//* in this example we are using eth1
+$ vi /etc/sysconfig/network-scripts/ifcfg-eth1
+	DEVICE=eth1
+	TYPE=Ethernet
+	ONBOOT=yes
+	NM_CONTROLLED=no
+	BOOTPROTO=static
+	IPADDR=XXX.XXX.XXX.14
+	NETMASK=<Subnet>
+	DNS1=8.8.8.8
+	DNS2=8.8.4.4
+	IPV6INIT=no
+	IPV6_AUTOCONF=no
+$ vi /etc/sysconfig/network
+	NETWORKING=yes
+	HOSTNAME=<Site>.<Domain>2
+	GATEWAY=XXX.XXX.XXX.1
+		//* GATEWAY using only 1 interface, in this case gateway is on eth1
+	NETWORKING_IPV6=no
+	IPV6_AUTOCONF=no
+$ hostname <Site>.<Domain>2
+$ nano /etc/hosts
+	127.0.0.1  <Site>.<Domain>2
+		//* add the above line to the top of the document
+//** $ vi /etc/resolv.conf
+//** 	nameserver XXX.XXX.XXX.1
+//** 	nameserver XXX.XXX.XXX.2
+$ /etc/init.d/network restart
+	//* Restart Network Interface
+//* in this example we are using eth0
+$ vi /etc/sysconfig/network-scripts/ifcfg-eth0
+	DEVICE=eth0
+	TYPE=Ethernet
+	ONBOOT=yes
+	NM_CONTROLLED=no
+	BOOTPROTO=static
+	IPADDR=XXX.XXX.XXX.14
+	NETMASK=<Subnet>
+$ /etc/sysconfig/network
+	NETWORKING=yes
+	HOSTNAME=<Site>.<Domain>2
+	GATEWAY=XXX.XXX.XXX.1
+		//* GATEWAY using only 1 interface, in this case gateway is on eth1
+$ vi /etc/resolv.conf
+	nameserver XXX.XXX.XXX.1
+	nameserver XXX.XXX.XXX.2
+$ /etc/init.d/network restart
+	//* Restart Network Interface
+
+
+
+
+
+
+

@@ -1,0 +1,5 @@
+go into the Windows VM
+open control panel -> Network Connections -> Network Connection -> Properties -> Configure -> Advanced
+	TSOEnable = 0
+	All OFFLoad CHecksums to disable
+

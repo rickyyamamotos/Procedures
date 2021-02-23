@@ -1,0 +1,10 @@
+Our local AD is being sync to Azurefor Office365 functionalities
+It is done by an app installed in the "Office365DYrSync" server
+
+Office365DYrSync
+Hostname: <Site>-dirsyncO365
+IP: XXX.XXX.XXX.144
+
+To access the dirsyn console
+	on the dirsync server, open iexplorer, log into office.com -> <Username> -> Dir Sync Status
+run task as secresever / 

@@ -1,0 +1,29 @@
+
+1) Connect to XXX.XXX.XXX.50 (the vmhost where the nginx is running)
+2) Add a secondary NIC using the backup network
+3) Log onto nginx
+4) Configure the second NIC
+   See "2 gateways with routing.txt - Shortcut"
+	(https://www.digitalocean.com/community/tutorials/how-to-configure-dns-round-robin-load-balancing-for-high-availability)
+5) Log onto the backup wan Sonicwall (XXX.XXX.XXX.178)
+6) Create a network object WAN XXX.XXX.XXX.184 “Nginx backup WAN”
+7) Create a network object LAN XXX.XXX.XXX.252 “Nginx backup LAN”
+8) Create a NAT 
+	Any Original Nginx backup WAN Nginx backup LAN Any Original Any Any
+9) Create a firewall rule to allow 
+	Nginx backup WAN Nginx backup LAN Any Allow All
+10) Changing Public DNS records to implement "Round Robin DNS load-balancing"
+	(https://www.digitalocean.com/community/tutorials/how-to-configure-dns-round-robin-load-balancing-for-high-availability)
+11) Log onto the cf4bdc server (public DNS server for some domains)
+12) Administrative Tools -> DNS -> Forwarded Lookup Zoned -> <Site> -> Wordpress495 ->  Add two duplicate A records
+	.	XXX.XXX.XXX.184
+	www	XXX.XXX.XXX.184
+	So, it will point to 2 different IPS: XXX.XXX.XXX.248 & XXX.XXX.XXX.184
+13) Administrative Tools -> DNS -> Forwarded Lookup Zoned -> right click on <Site> -> Properties -> SOA -> Increase five times
+14) Log onto https://godaddy.com
+15) Add DNS A records for the other servers serviced by NGINX
+16) repeat for every server block on NGINX
+
+
+
+

@@ -1,0 +1,41 @@
+Names:
+	-Wildcard SSL Certificate
+	-Subject Alternative Names (SANs) secured Wildcard
+
+How it works:
+You get a certificate and then add all subdomains in the "Subject Alternative Names (SANs)" extension.
+You generate keys for each SAN, then deploy the keys to each respective subdomain.
+
+To renew:
+-request the Certificate Signing Request (CSR) from any server holding the certificate
+-install the certificate on that server
+-export the certificate (private key) and then install it onto all other servers that service the sudomains.
+
+
+Benefits
+-managing multiple sites hosted across numerous subdomains
+-you can issue copies of your certificate on as many servers as you want, each of which is assigned its own private key.
+-Add, change, or delete a SAN at any point during the lifecycle of the certificate for no extra charge.
+-wildcards themselves can have subjectAltName extensions, including other wildcards. 
+	For example: The wildcard certificate *.wikipedia.org has *.m.wikimedia.org as a Subject Alternative Name
+-one SSL to install and manage if page are hosted in godaddy
+-Managing and renewing just one certificate. But deployment of the renewed keys must be done to each server anyways.
+-Godaddy offers it. Unlimited subdomain at not extra cost
+
+Disadvantages againts "Multi-Domain SAN Certificate"
+-the wildcard only covers one level of subdomains. Then test.dev.example.com will not be covered for *.example.com
+-It is not possible to get a wildcard for an "Extended Validation Certificate"
+-some Web servers might require a unique IP address for each subdomain on the Wildcard certificate.
+
+
+Example
+*.example.com
+www.example.com
+mail.example.com
+blog.example.com
+
+
+
+
+
+

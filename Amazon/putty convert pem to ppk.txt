@@ -1,0 +1,5 @@
+Start menu> All Programs > PuTTY > PuTTYgen
+Check RSA
+click on the option ‘Load'and upload your pem file
+number of bit in generated key:2048
+Click on "Save Private key"

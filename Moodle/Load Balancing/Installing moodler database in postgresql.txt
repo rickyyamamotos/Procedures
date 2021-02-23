@@ -1,0 +1,39 @@
+Finished the "Installing postgresql in a container.txt"
+
+https://docs.moodle.org/32/en/PostgreSQL
+
+Then, in Putty: XXX.XXX.XXX.48
+	<Username>/<Password>
+$ docker ps
+	//* get the "CONTAINER ID" of the runing postgres container
+$ docker attach "CONTAINER ID"
+# su postgres
+# psql
+postgres=# CREATE USER moodleuser WITH PASSWORD '<Password>';
+postgres=# CREATE DATABASE moodle WITH OWNER moodleuser;
+postgres=# \l
+	//* this shows databases
+postgres=# \q
+# <Ctl>-P <Ctrl>-Q
+$ docker cp "IMAGE ID":/etc/postgresql/9.5/main/pg_hba.conf /tmp/
+$ nano /tmp/pg_hba.conf
+	//* modify the last lines where host 	all	all	0.0.0.0/0 	md5 	to the following
+		host	moodle moodlesuer 	IPofTheMoodleAppServer	md5
+	//* Only allow the moodle servers, and the moodleuse to have access to the moodle database
+$ docker /tmp/pg_hba.conf "IMAGE ID":/etc/postgresql/9.5/main/
+$ docker attach "CONTAINER ID"
+# exit
+# cd /etc/postgresql/9.5/main/
+# chown postgres:postgres pg_hba.conf
+# chmod u+rwx pg_hba.conf
+# service postgresql restart
+# su postgres
+# psql
+postgres=# \l
+
+test by using Navicat to connect to XXX.XXX.XXX.48:5432
+	<Username>/<Password>
+
+To start the container if stopped
+$ docker run -ti -p 5432:5432 ubuntu-postgresql-moodle-db
+# service postgresql start

@@ -1,0 +1,36 @@
+Caching-only DNS
+-They do not participate in zone transfer, and therefore there is no zone transfer traffic
+-They can be placed on the far side of a slow WAN link and provide host name resolution for remote offices that do not require a high level of host name resolution support
+-They can be implemented to provide secure host name resolution when configured as Forwarders
+
+Install and Configure DNS server in Ubuntu 16.04
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo apt-get dist-upgrade
+$ sudo apt-get install bind9 bind9utils bind9-doc dnsutils -y
+$ ip address
+	//* get the IP address: XXX.XXX.XXX.9
+$ nano /etc/bind/named.conf.options
+	forwarders {
+	XXX.XXX.XXX.1;
+	XXX.XXX.XXX.2;
+	8.8.8.8;
+	};
+		// forward requests to
+	forward only;
+			// don’t iterate
+	recursion yes;
+		// but DO cache (make it explicit)
+	auth-nxdomain no; 
+		// conform to RFC1035
+	listen-on-v6 { none; };
+		// don’t do IPv6
+	listen-on { XXX.XXX.XXX.9; 127.0.0.1; };
+		// only listen on internal interfaces XXX.XXX.XXX.9 (it is the server's NICs IP)
+$ systemctl restart bind9
+$ nano /etc/resolv.conf
+	nameserver 127.0.0.1
+
+Test DNS
+$ dig @127.0.0.1 ubuntu.com
+$ dig -x 127.0.0.1

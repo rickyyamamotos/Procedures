@@ -1,0 +1,49 @@
+Install Teamviewer
+==================
+If a VM you need to connect to the VM Webserver and launch the VM console from there
+Adding GUI to CentOS 7 minimal
+$ yum groupinstall "GNOME Desktop" -y
+$ startx
+$ echo "exec gnome-session" >> ~/.xinitrc
+$ startx 
+$ systemctl set-default graphical.target
+	//* set the system graphical login
+$ shutdown -r t0
+$ wget http://download.teamviewer.com/download/version_9x/teamviewer_linux_x64.rpm
+$ yum localinstall teamviewer_linux.rpm
+$ teamviewer
+
+
+
+
+
+
+Install from SSH
+//** optionale $ sudo # yum install glibc alsa-lib freetype libICE libSM libX11 libXau libXdamage libXext libXfixes libXi libXrandr libXrender libXtst libgcc libuuid libxcb zlib
+$ wget http://download.teamviewer.com/download/version_9x/teamviewer_linux.rpm
+$ yum localinstall teamviewer_linux.rpm
+$ teamviewer --passwd <Password>
+$ teamviewer --daemon enable
+$ teamviewer --license
+$ teamviewer --daemon restart
+$ teamviewer --info
+$firewall-cmd --add-port 5940/tcp --permanent
+$firewall-cmd --add-port 5940/udp --permanent
+$firewall-cmd --add-port 5942/tcp --permanent
+$firewall-cmd --add-port 5942/udp --permanent
+$ teamviewer --daemon restart
+
+
+ERROR (PID file /var/run/teamviewerd.pid not readable (yet?) after start.)
+$ teamviewer --info
+./run/teamviewerd.pid
+./opt/teamviewer9/config/teamviewerd.pid
+
+
+
+$ teamviewer
+	//* starts teamviewer
+
+
+
+

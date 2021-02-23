@@ -1,0 +1,53 @@
+support@atlanticmetro.net; dblevins@atlanticmetro.net
+
+Dear  Atlantic Metro Support:
+
+Ref- Client ID: 4092
+     Connect For  Education
+     <Datacenter>
+
+This is to request Atlantic Metro for an authorization to remove 1 of our dell Equallogic servers from the <Datacenter>
+Below is the filled “removal request” form for this request
+
+Thanks
+
+Rick Yamamoto
+<Email>
+<Organization>
+<Address>
+<Address>
+<Phone>
+==============================================================================================================
+Request for equipment removal for <Organization>
+
+1a) Client ID: 4092
+1b) Company Name: <Organization>, Inc.
+
+2) Authorized Requester (Name, Phone #, Email Address) : <Username>, 703-, <Email>
+
+3) Names of persons you are authorizing to remove equipment:
+  <Username>
+  Rick Yamamoto
+  <Username>
+
+4) Data Center Location: IAD3  -  <Location> VA
+
+5) Description of equipment requesting to be removed. Please use the following format:
+
+   Device Type (Make/Model)          Serial No.                Rack Location
+   Dell Server Equallogic <Model>                                               <Datacenter>-F3
+   Dell Server Poweredge  R610                   xxxxx                                            <Datacenter>-F3
+   Dell Server Poweredge c1100                   xxxxx                                            <Datacenter>-F3
+   Dell Server Poweredge 1950                    xxxxx                                             <Datacenter>-F3
+
+6) Date/Time requesting to remove equipment: 06/21/20xx 11:00 (X ) AM ( ) PM
+
+
+
+
+I <Username> hereby authorize the removal of the equipment listed in section 5 at the approximate time/date listed in section 6.
+
+X _________________ <Username> ______06/11/20xx_________  (Date)
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

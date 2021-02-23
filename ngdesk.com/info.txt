@@ -1,0 +1,67 @@
+
+https://<Site>.ngdesk.com/#/login
+	<Email> / <Password>	(old <Password>)
+	rick.yamamoto@<Site> / <Password>
+
+
+Ticket email (any email sent here will generate a ticket)
+	support@<Site>.ngdesk.com
+
+
+emails configured for forwarding (This is an alternative email to support@<Site>.ngdesk.com, we can also configure something like support1@<Site>)
+	https://www.gmail.com
+	username: <Email>
+	password: <Password>
+	SMTP server: smtp.gmail.com
+	Requires SSL: Yes
+	Requires TLS: Yes (if available)
+	Requires Authentication: Yes
+	Port for TLS/STARTTLS: 587
+
+
+Creating a Ticket in ngdesk:
+1) By sending a message to support@<Site>.ngdesk.com
+2) By enailing a message to a forwarding email (needs configuration in ngdesk) like support@<Site>
+3) By submitting a form from a widget added to a webpage
+	<script>
+	var subdomain = "<Site>";
+	document.body.insertAdjacentHTML( 'beforeend', '<b>');
+	document.body.insertAdjacentHTML( 'beforeend', '<iframe id="abs_ticket" 	src="https://download.ngdesk.com/TicketWidget?subdomain=' + subdomain + '" scrolling="no" 	style="border:none;min-width:500px;min-height:700px;"></iframe>');
+	</script>
+4) By log into https://<Site>.ngdesk.com, then click on the "Tickets" icon, and click on "New Ticket"
+
+
+Problem:
+Unaffortunately, there is not way to configure a tag (or any other kind flag) when creating a ticket in the widget. Tags must be set manually through 4eit.ngdesk.com. Therefore, it makes it difficult to use a single ngdesk.com account for multiple websites.
+
+Alternative solution to problem:
+Optionally, we can create a php form to email a message to support@<Site>.ngdesk.com with a tag in the subject.
+
+
+
+email php form
+===============
+	// Swift Mailer Library
+	require_once '../path/to/lib/swift_required.php';
+	// Mail Transport
+	$transport = Swift_SmtpTransport::newInstance('ssl://smtp.gmail.com', 465)
+	    ->setUsername('<Email>')
+	    ->setPassword('<Password>'); 
+	// Mailer
+	$mailer = Swift_Mailer::newInstance($transport);
+	// Create a message
+	// Add a HTML form to get the user email, message, attached file (jpg, pdf, etc)
+	$message = Swift_Message::newInstance('<Site> Moodle Support')
+	    ->setFrom(array('webuser@example.com' => 'Sender Name')) 
+	    ->setTo(array('support@<Site>.ngdesk.com' => 'Receiver Name'))
+	    ->setBody('Here is the <strong>message</strong> itself. It can be text or <h1>HTML</h1>.', 'text/html');
+	// Send the message
+	if ($mailer->send($message)) {
+	    echo 'Mail sent successfully.';
+	} else {
+	    echo 'I am sure, your configuration are not correct. :(';
+	}
+
+
+
+	

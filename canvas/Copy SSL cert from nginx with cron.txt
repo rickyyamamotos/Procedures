@@ -1,0 +1,19 @@
+#!/bin/bash
+#SCRIPT NAME: /cp-ssl-cert.sh
+# copies ssl cert from nginx to this server
+#CREATED ON: 09/20/2019
+#CREATED BY: Rick Yamamoto
+#              sudo su
+#              chown bitnami:bitnmai /cp-ssl-cert.sh
+#              chmod 755 /cp-ssl-cert.sh
+#              su bitnami
+#              sudo crontab -e
+#                 01 01 *   *   *    /bin/bash /cp-ssl-cert.sh
+#              #  Mn Hr DoM Mon DoW
+#              yum install sshpass or apt-get install sshpass or (see https://www.tecmint.com/sshpass-non-interactive-ssh-login-shell-script-ssh-password/)
+#              get the fullpath for sshpass ($ which sshpass) and replace it in the script.
+#              restart canvas /opt/bitnami/ctlscript.sh restart
+/usr/bin/sshpass -p '<Password>' /usr/bin/scp -oStrictHostKeyChecking=no -P <PortNumber> -p <Username>@XXX.XXX.XXX.42:/etc/letsencrypt/live/<Site>/* /etc/letsencrypt/live/<Site>/
+
+
+

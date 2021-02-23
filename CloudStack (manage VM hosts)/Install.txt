@@ -1,0 +1,91 @@
+http://docs.cloudstack.apache.org/en/4.11.2.0/installguide/management-server/#configure-package-repository
+
+
+Requirements
+	4 GB of memory
+	250 GB of local disk (more results in better capability; 500 GB recommended)
+	At least 1 NIC
+	Statically allocated IP address
+	Fully qualified domain name as returned by the hostname command
+	Mysql 5.1 or 5.5
+
+Installing Mysql 5.5
+$ cd /tmp
+$ wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+$ rpm -ivh mysql-community-release-el7-5.noarch.rpm
+$ yum repolist | grep mysql
+$ yum-config-manager --disable mysql56-community
+$ yum-config-manager --enable mysql55-community
+$ yum update -y
+$ yum install mysql-community-server -y
+$ systemctl enable mysqld
+$ systemctl start mysqld
+$ sudo grep 'temporary password' /var/log/mysqld.log
+$ sudo mysql_secure_installation
+	<Password>
+$ nano /etc/my.cnf
+	# Insert the following lines in the [mysqld] section.
+	innodb_rollback_on_timeout=1
+	innodb_lock_wait_timeout=600
+	max_connections=350
+		# should be set to 350 multiplied by the number of Management Servers you are deploying. 
+	log-bin=mysql-bin
+	binlog-format = 'ROW'
+
+
+
+$ nano /etc/yum.repos.d/cloudstack.repo 
+	[cloudstack]
+	name=cloudstack
+	baseurl=http://download.cloudstack.org/centos/$releasever/4.11/
+	enabled=1
+	gpgcheck=0
+$ yum update -y
+$ yum install cloudstack-management
+$ cloudstack-setup-databases cloud:<Password>@localhost --deploy-as=root:<Password>
+$ cloudstack-setup-management
+
+Using the Management Server as the NFS Server
+This is more typical of a trial installation
+$ yum install nfs-utils
+$ mkdir -p /export/primary
+$ mkdir -p /export/secondary
+$ nano /etc/exports
+	/export  *(rw,async,no_root_squash,no_subtree_check)
+$ exportfs -a
+$ nano /etc/sysconfig/nfs
+	# Uncomment the following lines:
+	LOCKD_TCPPORT=32803
+	LOCKD_UDPPORT=32769
+	MOUNTD_PORT=892
+	RQUOTAD_PORT=875
+	STATD_PORT=662
+	STATD_OUTGOING_PORT=2020
+$ nano /etc/sysconfig/iptables
+	# Add the following lines at the beginning of the INPUT chain, where XXX.XXX.XXX.0<CIDR> is the network that you’ll be using:
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p udp --dport 111 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 111 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 2049 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 32803 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p udp --dport 32769 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 892 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p udp --dport 892 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 875 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p udp --dport 875 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p tcp --dport 662 -j ACCEPT
+	-A INPUT -s XXX.XXX.XXX.0<CIDR> -m state --state NEW -p udp --dport 662 -j ACCEPT
+$ service iptables save
+
+Prepare the System VM Template
+On the Management Server, run one or more of the following cloud-install-sys-tmplt commands to retrieve and decompress the system VM template. 
+Run the command for each hypervisor type that you expect end users to run in this Zone.
+For vSphere:
+$ /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /export/secondary -u http://download.cloudstack.org/systemvm/4.11/systemvmtemplate-4.11.2-vmware.ova -h vmware -F
+
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+Run App Search as a Systemd Service
+
+$ nano /etc/systemd/system/elasticsearch.service
+	[Unit]
+	Description=Elasticsearch
+	Documentation=http://www.elastic.co
+	Wants=network-online.target
+	After=network-online.target
+	[Service]
+	Type=simple
+	ExecStart=/startelasticsearch.sh
+	TimeoutStartSec=0
+	[Install]
+	WantedBy=multi-user.target
+$ nano /startelasticsearch.sh
+	#!/bin/bash
+	su -c "cd /opt/elasticsearch-7.5.0/bin;./elasticsearch" -l elasticsearch
+$ systemctl enable elasticsearch.service

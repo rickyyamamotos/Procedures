@@ -1,0 +1,82 @@
+
+
+Enable SSH without keys
+=======================
+$ nano /etc/ssh/sshd_config
+	//* Disabling root login through ssh
+	//* 	uncomment #PermitRootLogin no
+	//* Changing the port
+	//* 	uncomment #port <PortNumber>
+$ service sshd restart
+$ netstat -tulpn
+	//* verify that your CentOS is not already listening on the port
+	//* it also show which post ssh is actually using
+$ nano /etc/ssh/sshd_config
+	ClientAliveInterval 120 
+	ClientAliveCountMax 10
+		//* The 120 value for ClientAliveInterval means SSH will send KeepAlive packets in 120 second intervals. If SSH doesn't receive a response back from the client the 10 value for ClientAliveCountMax means SSH will retry sending up to 10 times. 
+
+Enable SSH with keys
+===========================
+$ nano /etc/ssh/sshd_config
+	//* Disabling root login through ssh
+	//* 	uncomment #PermitRootLogin no
+	//* Changing the port
+	//* 	uncomment #port <PortNumber>
+	//* Add the following line
+	//* 	AllowUsers <Username> dev
+	//* Uncomment the following line to disable Protocol 1(less secure)
+	//* 	#Protocol 2
+$ firewall-cmd --add-port <PortNumber>/tcp --permanent
+$ service sshd restart
+$ netstat -tulpn
+	//* verify that your CentOS is not already listening on the port
+	//* it also show which post ssh is actually using
+Optionally: Filter SSH at the Firewall
+	//* If you only need remote access from one IP address (say from work to your home server), then consider filtering connections at your firewall by either adding a firewall rule on your router or in iptables to limit access on port <PortNumber> to only that specific IP address
+	//* iptables -A INPUT -p tcp -s XXX.XXX.XXX.186 --dport <PortNumber> -j ACCEPT
+Use Public/Private Keys for Authentication:
+$ ssh-keygen -t rsa
+	//* paraphrase: 
+$ mv ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
+$ chmod 600 ~/.ssh/authorized_keys
+mkdir /home/<Username>/.ssh
+cp -p -t ~/.ssh/. /home/<Username>/.ssh/
+cd /home/<Username>/.ssh/
+chown <Username>:<Username> id_rsa
+chown <Username>:<Username> authorized_keys
+Transfer key to another linux computer
+	$ mkdir ~/.ssh 
+	$ chmod 700 ~/.ssh
+	$ scp <Username>@XXX.XXX.XXX.7:/home/<Username>/.ssh/id_rsa ~/.ssh/ 
+Test Connection from other linux computer
+	$ ssh -i !/.ssh/id_rsa <Username>@XXX.XXX.XXX.7
+		//* connecting using the key
+		//* Enter passphrase: <Site>
+Transfer the secret key created on the Server to a Client, then it's possbile to login with keys authentication.
+	C:\> pscp -p -P <PortNumber> <Username>@XXX.XXX.XXX.7:/home/<Username>/.ssh/id_rsa C:\Users\rick.yamamoto\Desktop\IT Change Log\<Site> Server\mdb\
+	C:\> cd "\ProgramData\Microsoft\Windows\Start Menu\Programs\PuTTY (64-bit)"
+	C:>  puttygen
+		//* click on the "Convertions" tab
+		//* click on "import key"
+		//* Select the id_rsa file from C:\Users\rick.yamamoto\Desktop\IT Change Log\<Site> Server\mdb\
+		//* Enter the paraphrase" <Site>
+		//* save the public key
+		//* save the private key as puttyprivatekey.ppk
+		//* close puttygen
+	C:> putty
+		//* click on SSH on the left pane
+		//* click on Auth
+		//* click on "Browse"
+		//* Select the C:\Users\rick.yamamoto\Desktop\IT Change Log\<Site> Server\mdb\puttyprivatekey.ppk
+		//* Click on session on the left pane
+		//* Host IP: XXX.XXX.XXX.7
+		//* port: <PortNumber>
+		//* click on Open
+		//* username: <Username>
+		//* paraphases: c4dedu
+Disable password authentication and allow only key authenticatio
+$ nano /etc/ssh/sshd_config
+	//* # Disable password authentication forcing use of keys
+	//* PasswordAuthentication no
+$ systemctl restart sshd

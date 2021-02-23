@@ -1,0 +1,3 @@
+Error 504 gateway time-out 
+$ nano /etc/apache2/apache.conf   (ubuntu)
+	TimeOut=900

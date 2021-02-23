@@ -1,0 +1,8 @@
+Bibgluebutton ver 1.1
+
+//* Bigbluebutton's users need to access the server via web using the server FQDN. http://FQDN
+//* if the server public domain name changes, you need to update it following the steps below
+
+//** Assign a hostnameAnchor link for: assign a hostname
+sudo bbb-conf --setip bigbluebutton.<Site>
+	//** where bigbluebutton.<Site> is the hostname and FQDN

@@ -1,0 +1,19 @@
+failed to push some refs to
+
+This normally happens when the origin (remote in github) repository have changes that the local repository does not 
+  have. The error is show to avoid rewritting newest changes that exist on the origin
+
+SOlution
+1) Check that all the chnages in the local repository are already in the origin.
+   So if the origin if pulled, no changes will be lost on the local
+   $ cd /var/www/html
+       //* or the root folder where the .git directory exists
+   $ find ./ -mtime -7 -not -path "./.git/*"
+       //* this will show the changes made locally in the last 7 days
+2) Check that the changes shown in step 1 are already existing in the origin repository in the github
+3) $ git pull origin master
+
+
+Optionally
+$ cd /var/www/html
+$ git push -f origin master

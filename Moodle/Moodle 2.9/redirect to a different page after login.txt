@@ -1,0 +1,5 @@
+nano $ /var/www/html/login/index.php
+	CHANGE
+	        redirect(new moodle_url(get_login_url(), array('testsession'=>$USER->id)));
+	WITH
+	        redirect(new moodle_url('/alt-login/index.php', array('testsession'=>$USER->id)));

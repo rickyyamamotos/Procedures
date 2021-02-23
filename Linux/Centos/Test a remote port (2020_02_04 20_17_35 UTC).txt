@@ -1,0 +1,12 @@
+Best:
+$ (echo > /dev/tcp/XXX.XXX.XXX.123/<PortNumber>) >/dev/null 2>&1 && echo "It's up" || echo "It's down"
+	//* check if the remote port is open for IP and port <PortNumber>
+
+Optionally:
+$ cat < /dev/tcp/XXX.XXX.XXX.123/<PortNumber>
+	//* you should get an answer
+
+
+Optionally but requires netcat to be installed
+$ nc -zv XXX.XXX.XXX.123 <PortNumber>
+

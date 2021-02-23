@@ -1,0 +1,13 @@
+
+
+Add new user to folder redirection
+	Add user to the "Folder redirection" AD security group
+On the user PC
+	c:\> gpupdate /force
+
+Profiles location
+Share: \\<Site>\DFS\profiles\<USERNAME>
+storage \\<ServerName>\$D\profiles
+
+GPO 
+	<Site> -> Folder Redirection Setting

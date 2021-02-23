@@ -1,0 +1,7 @@
+ssh to the server and run
+/usr/local/blackboard/tools/<Username>/AuthenticationOneTimeLogin.sh -u <Username> -t 60
+
+This will show a link and an entry code to overpass the lock
+
+
+Note- Log into blackboard, disable the security feature and enable it again and the account unlocked

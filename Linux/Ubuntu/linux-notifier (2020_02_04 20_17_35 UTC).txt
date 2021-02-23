@@ -1,0 +1,91 @@
+INSTALLING SENDEMAIL IN CENTOS
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ sudo cp -a sendEmail-v1.56/sendEmail /usr/local/bin
+$ sudo chmod +x /usr/local/bin/sendEmail
+$ yum install perl-Net-SSLeay
+	sudo yum install 'perl(Net::SSLeay)'
+$ yum install perl-IO-Socket-SSL
+	sudo yum install 'perl(IO::Socket::SSL)'
+$ sendEmail -v -f $username -s $host -xu $username -xp $password -t $recipient -o tls=yes -u $subject -m $content
+
+
+CONTACTEMAIL=
+SERVERNAME=$hostname
+SERVERIP=
+LONGDATETIME=
+NOTIFICATION=
+
+INSTALLING SENDEMAIL IN UBUNTU
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ cp sendEmail-v1.56/sendEmail /usr/local/bin
+//** Not needed: $ apt-get install libnet-ssleay-perl libcrypt-ssleay-perl libio-socket-ssl-perl
+
+CREATING THE SCRIPT
+$ nano /usr/local/bin/localmonitor.sh
+#!/bin/bash
+LANG=C
+#GLOBAL VARIABLES DECLARATION
+SERVERNAME=$(hostname | awk '{print $1}')
+SERVERIP=$(hostname -I | awk '{print $1}')
+LONGDATETIME=$(date +%d-%b-%H:%M:%S)
+
+function fsendEmail()
+   {
+    /usr/bin/printf "$1" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** Host Alert: $SERVERNAME is $2 **" -t <Email> -xu <Email> -xp <Password>
+   }   
+
+# TESTING DISK SPACE
+CURRENT=$(df / | grep / | awk '{ print $5}' | sed 's/%//g')
+THRESHOLD=90
+if [ "$CURRENT" -gt "$THRESHOLD" ] ; then
+    NOTIFICATION="Root Partition's disk space of critically low, it is being used to more than $CURRENT%."
+    PROCS="$(df / | grep /)"
+    SUBJECT="***** Server: $SERVERNAME with IP: $SERVERIP *****\n\nNotification: $NOTIFICATION \nServer's Date/Time: $LONGDATETIME\n\n\n $PROCS"
+    fsendEmail "$SUBJECT" "$NOTIFICATION"
+fi
+
+# TESTING MEMORY
+###  if you want to use absolute values FREE=`free -mt | grep Total | awk '{print $4}'`
+THRESHOLD=95
+FREE=$(free -m | awk 'NR==2{printf "%.0f", $4*100/$2 }')
+if [ "$FREE" -gt "$THRESHOLD" ]; then
+    NOTIFICATION="Free Server's memory remaining is critically low. Current used memory is $FREE%"
+    PROCS="$(ps -eo %mem,pid,user,args)"
+    SUBJECT="***** Server: $SERVERNAME with IP: $SERVERIP *****\n\nNotification: $NOTIFICATION \n\nServer's Date/Time: $LONGDATETIME\n\n\n $PROCS"
+    fsendEmail "$SUBJECT" "$NOTIFICATION"
+fi
+
+# TESTING A APACHE2 SERVICE
+# OTHER SERVICE TO TEST DEPENDING ON THE SERVER: ssh, mysql
+SERVICE=apache2
+if [ $(ps -ef | grep -v grep | grep $SERVICE| wc -l) -lt 1 ]; then
+    NOTIFICATION="Service $SERVICE is not running."
+    PROCS="$(ps -ef | grep -v grep)"
+    SUBJECT="***** Server: $SERVERNAME with IP: $SERVERIP *****\n\nNotification: $NOTIFICATION \n\nServer's Date/Time: $LONGDATETIME\n\n\n $PROCS"
+    fsendEmail "$SUBJECT" "$NOTIFICATION"
+/etc/init.d/$SERVICE start
+fi
+
+
+# TESTING THE APACHE2 SERVICE
+SERVICE=mysql
+if [ $(ps -ef | grep -v grep | grep $SERVICE| wc -l) -lt 1 ]; then
+    NOTIFICATION="Service $SERVICE is not running."
+    PROCS="$(ps -ef | grep -v grep)"
+    SUBJECT="***** Server: $SERVERNAME with IP: $SERVERIP *****\n\nNotification: $NOTIFICATION \n\nServer's Date/Time: $LONGDATETIME\n\n\n $PROCS"
+    fsendEmail "$SUBJECT" "$NOTIFICATION"
+/etc/init.d/$service start
+fi
+
+
+//* CREATING A CRON ENTRY
+chmod +x /etc/scripts/alert.sh
+ln -s /usr/local/bin/localmonitor.sh /etc/cron.hourly/localmonitor.sh 
+
+
+
+error: invalid SSL_version specified at /usr/share/perl5/IO/Socket/SSL.pm 
+	nano /usr/local/bin/sendEmail
+	 if (! IO::Socket::SSL->start_SSL($SERVER, SSL_version => 'TLSv1')) {

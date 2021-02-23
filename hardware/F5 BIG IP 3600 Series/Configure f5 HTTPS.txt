@@ -1,0 +1,69 @@
+Setting up SSL Offloading (Termination) - Managing SSL	See (https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_1/ltm_ssl_profiles.html#1308827)
+				(See https://www.lullabot.com/articles/setting-up-ssl-offloading-termination-on-an-f5-bigip-load-balancer)
+1) Install a key/certificate pair on the BIG-IP system for terminating client-side secure connections.
+	-Local Traffic -> SSL Certificates -> Import
+	-import the .key obtained from your Certificate Authority, name it with your domain's name
+	-import the .crt files from your Certificate Authority, name it with your domain's name (same name as for the .key import)
+2) Create a SSL Client Profile (A Client profile is a type of traffic profile that enables the BIG-IP system to accept and terminate (decrypt) any client requests that are sent by way of a fully SSL-encapsulated protocol. The BIG-IP system supports SSL for both TCP and UDP protocols.)
+				(configure CRL for Cert Revocation check)	(https://support.f5.com/kb/en-us/products/big-ip_ltm/manuals/product/ltm_configuration_guide_10_1/ltm_ssl_profiles.html#1298333)
+				(Configure Cert chain: client might need to authenticate the BIG-IP system. However, a certificate that the BIG-IP system uses to authenticate itself to a client is sometimes signed by an intermediate CA that is not trusted by that client. In this case, the BIG-IP system might need to use a certificate chain. The profile enables you to specify the name of a specific certificate chain file. Note that the certificate files that make up the chain file must be in PEM format.)
+				(COnfigure rusted Certificate Authorities setting, you can specify a client trusted CAs file name, which the BIG-IP system then uses to verify client or server certificates)
+				(Confirguration Tool/Local Traffic/Profiles/SSL tab/Client)
+	-Local Traffic -> Profiles -> SSL -> Client -> Create
+	-Select "clientssl" for parent profile
+	-check custom options
+	-Select your cert and key you imported
+	-Optionally: Configure certificate presentation to Required
+	-Optionally: Configure per-session authentication to Once
+2) Create a Authentication Profile
+	
+3) Create nodes
+	-Set nodes to service HTTP Port 80 (not 443)
+	-Set IP Address to a IP inside the interior VLAN subnet
+4) Create a pool
+	-Set sNAT and NAT enabled
+	-Add the nodes as members of the pool
+5) Create a Virtual Server
+	-Select Host for Type
+	-Set Destination Address with the same IP as your HTTP Virtual Server (this in case you want to allow HTTP)
+	-Set Service Port to 444,HTTPS
+	-Set SSL Profile (Client) to the SSL Profile you created
+	-Set SSL Profile (Server) to None  (We are not doing Internal SSL)
+	-Set SNAT Pool with the same setting of your HTTP Virtual Server (This is in case you are using SNAT)
+	-Set the default pool of nodes (servers) serving the SSL web clients
+	-Set Protocol Profile (Client) to tcp-wan-optimized
+	-Set Protocal Profile (Server) to tcp-lan-optimized
+	-Set HTTP Profile to "http_acceleration"	(this make use of the f5 cache)
+	-Set Default Persistence Profile to ssl
+	-Set Fallback Persistence Profile to source_addr
+6) (Depreciated: Use an HTTP profile Instead, see 6) Create a iRule to avoid HTTP to HTTPS redirection from nodes	(ll traffic getting to your web application is now over HTTP. This is a problem because often times security checks on the page will enforce an HTTPS connection and possibly attempt to redirect the user to HTTPS. In order for the application to avoid redirects like this, we need to inform the web server that the contents of the request were previously encrypted over HTTPS, even though they aren't any more.)
+	-Local Traffic -> iRules -> iRule List -> Create
+	-name it "https-offloaded-header"
+	-Add the following code to the rule contents
+		##
+		# Notify the backend servers that this traffic was SSL offloaded by the F5.
+		##
+		when HTTP_REQUEST {
+		  HTTP::header insert "X-Forwarded-Proto" "https"; 
+		}
+	-Local Traffic -> Virtual Servers -> Virtual Server List -> click on your HTTPS virtual server -> "Resources" tab -> iRules -> "Manage..."
+	-Move your new iRule from the "Available" list into the top of the "Enabled" list
+	-In your application, check this header in your code. For a PHP application, you may want to use this header to set the $_SERVER['HTTPS'] super-global. 
+		you would probably include code like this in your settings.php file.
+			if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+ 				 $_SERVER['HTTPS'] = 'On';
+			}
+7)  Use a HTTP Profile to avoid HTTP to HTTPS redirection from nodes (better performance the using a iRule)
+	-Local Traffic-> Profiles -> Create
+	-name it <Site>-http_header_insert
+	-Select http as parent profile
+	-Check "Request Header Insert" and add: X-Forwarded-Proto:https
+	-Enable "Redirect Rewrite" to "Matching"	(many cases when you're doing this type of load balancing, redirect responses may have the SERVERs hostname instead of the Virtual IP Addresses' hostname, Redirect Rewrite fixes this for you)
+	-Apply this profile to your Virtual Server
+
+
+
+
+
+			
+

@@ -1,0 +1,13 @@
+OWNER
+i want to replace the ownership of files and folders from <Username> to user2
+$ chown --from=<Username> user2 * -R
+	//* replace ownership of files whose owner is <Username> to user2
+	//* * all files
+	//* -R recursive (all subfolders)
+
+
+GROUP
+$ chown --from=:group1 :group2 * -R
+	//* replace ownership of files whose group owner is owner1 to owner2
+	//* * all files
+	//* -R recursive (all subfolders)

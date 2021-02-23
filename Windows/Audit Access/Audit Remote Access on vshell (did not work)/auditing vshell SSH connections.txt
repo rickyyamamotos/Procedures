@@ -1,0 +1,5 @@
+https://www.vandyke.com/support/automation/failedauthtrig.html
+
+create a batch script for windows to add a log in the backupserver
+	"vshell -< triggers -> login -> Edit" allows to run a script on logins
+plink -ssh -P <PortNumber> -l <Username> -pw <Password> 

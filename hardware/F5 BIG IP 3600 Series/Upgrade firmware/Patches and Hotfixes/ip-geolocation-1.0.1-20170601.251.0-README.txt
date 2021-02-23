@@ -1,0 +1,28 @@
+﻿To download and install updates to the IP geolocation database:
+
+1. Log in to the F5 Networks customer web site at https://downloads.f5.com.
+2. Click Find a Download.
+3. In the F5 Product Family column, find BIG-IP, and then in the Product Line
+   column, click either BIG-IP v12.x/Virtual Edition, BIG-IP v11.x/Virtual Edition,
+   or BIG-IP v10.x/Virtual Edition.
+4. From the drop down list above the table, select a version.
+5. In the Name column, click GeolocationUpdates.
+6. Click I Accept to accept the license.
+7. In the Filename column, click the name of the most recent zip file. 
+8. In the Ready to Download table, click a download method. 
+9. In the dialog box, click OK.
+10. Select the directory in which you want to save the zip file.
+11. Unzip the file, to save the RPM files on the system.
+12. Install and load one of the RPM files using the following command sequence. 
+    Note that the path and file name are case-sensitive.
+
+    geoip_update_data -f </path to RPM file and file name>
+    The system installs and loads the specified database file. 
+
+13. Repeat step 12 for each of the other RPM files that you saved to the system.
+    The system installs and loads the specified database file.
+    
+For more information, see the TMOS® Management Guide for BIG-IP® Systems.
+
+     
+

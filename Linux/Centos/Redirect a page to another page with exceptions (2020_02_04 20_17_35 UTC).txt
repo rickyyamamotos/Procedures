@@ -1,0 +1,34 @@
+https://httpd.apache.org/docs/2.4/rewrite/remapping.html
+https://<Site>.<Domain>
+
+First ensure that override is enable for the directory (I.E. /var/www/html)
+$ nano /etc/httpd/conf/httpd.conf
+	<Directory "/var/www/html">
+		AllowOverride All
+$ service httpd restart
+
+
+Note, you cant rewrite subdirectories, therefore you have to put the .htaccess on the subdirectory
+Note, you only escape with "\" the ReWriteCond, not the RewriteRule
+
+
+//* Redirects a directory for all IP sources 
+RewriteEngine on
+RedirectMatch "^/login/(.*)" "http://<Site>/$1"
+
+
+//* Redirects a file for all IP sources 
+RewriteEngine on
+RedirectMatch "^/login/index\.php$" "http://<Site>/"
+
+
+//* Redirects a /var/www/html/login/index.php for all IP sources except XXX.XXX.XXX.186
+nano /var/www/html/login/.htaccess
+RewriteEngine on
+RewriteCond %{REMOTE_ADDR} !^XXX.XXX.XXX.42|127.0.0.1|XXX.XXX.XXX.186|XXX.XXX.XXX.4|XXX.XXX.XXX.178
+RewriteRule "index.php" "http://<Site>/" [R=301,L]
+
+
+
+
+XXX.XXX.XXX.4|XXX.XXX.XXX.178

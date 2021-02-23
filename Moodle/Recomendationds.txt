@@ -1,0 +1,9 @@
+-use eAccelerator to speed up PHP execution
+-properly configured and optimized server with a high concurrency level
+-NGIX can handle much more websites than APACHE without lag
+-Get a 1GB+ port and 100 TB+ or unmetered.
+-recommended to use 2 dedicated servers for uptime, even better is cloud redundancy.
+-Check the settings on your network card. You may get an improvement in performance by increasing the use of buffers and transmit/receive descriptors (balance this with processor and memory overheads) and off-loading TCP checksum calculation onto the card instead of the OS.
+-
+
+

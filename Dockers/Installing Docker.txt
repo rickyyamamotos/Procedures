@@ -1,0 +1,53 @@
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+	//* Install packages to allow apt to use a repository over HTTPS
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+	//* Add docker office GPG key
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+	//* set up the stable repository. You always need the stable repository, even if you want to install edge builds as well.
+sudo apt-get update
+sudo apt-get install docker-ce
+	//* Install the last version of docker
+sudo docker run hello-world
+	//* Test
+
+sudo systemctl enable docker
+	//* start docker on boot
+Check Docker functionality
+curl https://raw.githubusercontent.com/docker/docker/master/contrib/check-config.sh > /tmp/check-config.sh
+bash /tmp/check-config.sh
+	//* Check kernel compatibility
+	Error CONFIG_MEMCG_SWAP_ENABLE: missing
+		sudo gedit /etc/default/grub
+			GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1" 
+		sudo update-grub
+		reboot
+	Error CONFIG_RT_GROUP_SCHED: missing
+		
+	Error dev/zfs/
+		sudo apt-get install -y zfs
+		lsmod | grep zfs
+
+Post-Installation
+https://docs.docker.com/engine/installation/linux/linux-postinstall/#specify-dns-servers-for-docker
+
+Open port for remote docker connection (DONT USE THE FOLLOWING, BETTER INSTAL SSH)
+//* Warning this is for testing only. Beacause it will open the ports to the internet with root access to docker
+sudo nano /etc/systemd/system/docker-tcp.socket
+	[Unit]
+	Description=Docker Socket for the <Site>  
+	[Socket]
+	ListenStream=2375  
+	BindIPv6Only=both  
+	Service=docker.service  
+	[Install]
+	WantedBy=sockets.target 
+systemctl enable docker-tcp.socket
+systemctl enable docker.socket
+systemctl stop docker
+systemctl start docker-tcp.socket
+systemctl start docker
+
+
+
+

@@ -1,0 +1,5 @@
+nagios shows "WARNING - <Site>.<Domain> 443 connection refused "
+	replace the cert crt with a chained one.
+	to created a chained cert do the following
+		cat <Site>.<Domain>.crt <Site>.<Domain>_ca.crt > <Site>.<Domain>_chained.crt
+	replace the certificate in the server block(ngix), sites-enabled (apache) with <Site>.<Domain>_chained.crt

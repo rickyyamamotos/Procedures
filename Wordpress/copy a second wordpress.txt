@@ -1,0 +1,19 @@
+copy all files to /var/www/html/newfolder/
+c:> pscp c:\temp\* rick@<Site>:/var/www/html/newfolder/
+
+restore the database to a newdatabase
+c:> pscp c:\temp\test.sql rick@<Site>:/tmp/
+//* if a restore is into an existing database
+$ mysql -u root -p
+mysql> drop existingdatabasebname
+//* create a database
+mysql> CREATE DATABASE newdatabasebane DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+mysql> CREATE USER WP_user@localhost IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON newdatabasename.* TO "WP_user"@"localhost";
+mysql> FLUSH PRIVILEGES;
+mysql> EXIT
+$ mysql –u <Username> –p newdatabasename < /tmp/test.sql
+
+Modify settings of php-config.php to use the new location /var/www/html/newfolder/ and the new database
+
+

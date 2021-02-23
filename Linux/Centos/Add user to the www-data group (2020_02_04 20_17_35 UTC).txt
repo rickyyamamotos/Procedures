@@ -1,0 +1,2 @@
+usermod -a -G www-data <Username>
+

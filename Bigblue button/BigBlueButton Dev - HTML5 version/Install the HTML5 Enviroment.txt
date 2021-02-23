@@ -1,0 +1,88 @@
+
+Cloning the github bigbluebuttom:
+================================
+https://github.com/bigbluebutton/bigbluebutton
+	//* username: <Username>
+	//* password: <Password>
+Click on Fork
+	//* Note that you need just the master branch
+Install Git: follow the document "install, and configure Git"
+Create a local clone of your fork
+Under the repository name, click Clone or download.
+In the Clone with HTTPs section, click  to copy the clone URL for the repository
+	//* https://github.com/<Username>/bigbluebutton.git
+Back on the bigbluebutton server:
+$ cd /home/<Username>
+$ mkdir dev
+$ cd dev
+$ git clone https://github.com/<Username>/bigbluebutton.git
+	//* username: <Username>
+	//* password: <Password>
+$ cd /home/<Username>/dev/bigbluebutton
+$ ls
+	//* check that the folder is populated
+$ git status
+	//* it should show:
+		# On branch master
+		nothing to commit (working directory clean)
+
+
+Installation of the HTML5 client component:
+$ service bbb-html5 stop
+//* The following line is needed if /etc/bigbluebutton/nginx/bbb-html5.nginx and html5.nginx do not exist
+	$ nano /etc/bigbluebutton/nginx/html5.nginx
+		//* it should be a blank file, add the following:
+			location /html5client {
+			  proxy_pass http://127.0.0.1:3000;
+			  proxy_http_version 1.1;
+			  proxy_set_header Upgrade $http_upgrade;
+			  proxy_set_header Connection "Upgrade";
+			}
+			location /_timesync {
+			  proxy_pass http://127.0.0.1:3000;
+			}
+$ /etc/init.d/nginx reload
+	//* reload nginx
+
+
+$ curl https://install.meteor.com/ | sh
+$ curl -L https://www.npmjs.com/install.sh | sh
+	//* the following is a broken package: $ apt-get install npm
+$ npm
+	//* if nnpm shows not installed do the following:
+		$ ls /usr/lib/node_modules/* -l
+			//* Take note of the target of the simlink. for example: npm.10747/package
+		$ cd /tmp
+		$ ls npm.* -l
+			//* take note of an existing npm.#### folder
+		$ cp -r -p npm.#### npm.10747
+$ nano /var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+	svgImagesRequired=true
+$ service tomcat7 restart
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/
+$ meteor npm install
+	//* Warning messages
+		npm WARN prefer global node-gyp@3.6.2 should be installed with -g
+		gyp WARN EACCES user "root" does not have permission to access the dev dir "/root/.node-gyp/4.8.4"
+		gyp WARN EACCES attempting to reinstall using temporary dev dir "/home/<Username>/dev/bigbluebutton/bigbluebutton-html5/node_modules/hiredis/.node-gyp"
+		npm WARN eslint-config-airbnb@15.0.2 requires a peer of eslint-plugin-import@^2.6.1 but none was installed.
+		npm WARN bbb-html5-client@ No repository field.
+		npm WARN bbb-html5-client@ No license field.
+$ exit
+	//* back to <Username>
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/.meteor/
+$ sudo chwon -R <Username>:<Username> local
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/
+$ npm start
+	//* run the server side of the HTML5 client in development mode
+
+
+Changing the default development mode to production mode:
+========================================================
+$ cd /home/<Username>/dev/bigbluebutton/bigbluebutton-html5/
+$ NODE_ENV=production npm start
+	//* run the server side of the HTML5 client in production mode
+
+
+
+

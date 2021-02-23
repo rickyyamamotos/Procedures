@@ -1,0 +1,68 @@
+Setting HTTPS only:
+1) Network -> Interfaces -> Edit LAN  
+2) Check HTTPS and uncheck HTTP
+3) Check Add rule to enable redirect from HTTP to HTTPS
+
+Disable remote mgmt from LAN (optional):
+If your sonicwall have multiple LANs interfaces, and if you need do disable mgmt access from any of the LANs
+1) Network -> Interfaces -> Edit LAN (Edit the LAN you dont want to have mgmt access) 
+2) Uncheck HTTPS and uncheck HTTP
+
+Disable remote mgmt from WAN (optional):
+Ig you dont anyone from the internet to have mgmt access
+1) Network -> Interfaces -> Edit WAN
+2) Uncheck HTTPS and uncheck HTTP
+
+
+Restricting mgmt access from LAN from a specific IP
+1) Network -> Address object -> Add
+	Name: Server01
+	Zone Assigment: LAN
+	Type: Host
+	IP address: XXX.XXX.XXX.9
+2) Click on Add
+3) Firewall -> Access rules -> Click on Drop down boxes -> Select From LAN to LAN
+4) Change the rules:
+	Any 	All X0 Management IP 	HTTPS Management 	Allow All None
+	Any 	All X0 Management IP 	HTTP Management 	Allow All None 
+   To
+	Server1	All X0 Management IP 	HTTPS Management 	Allow All None
+	Server1	All X0 Management IP 	HTTP Management 	Allow All None 
+   where X2 Management Ip is the IP for the X0 interface that servers the LAN wehre Server1 is.
+
+
+Restricting mgmt access from LAN from a specific range of IPs
+1) Network -> Address object -> Add
+	Name: PCRang1
+	Zone Assigment: LAN
+	Type: Range
+	Starting IP address: XXX.XXX.XXX.2
+	Ending IP address:   XXX.XXX.XXX.31
+2) Click on Add
+3) Firewall -> Access rules -> Click on Drop down boxes -> Select From LAN to LAN
+4) Change the rules:
+	LAN->LAN Any 		All X0 Management IP 	HTTPS Management 	Allow All None
+	LAN->LAN Any 		All X0 Management IP 	HTTP Management 	Allow All None 
+   To
+	LAN->LAN PCRang1	All X0 Management IP 	HTTPS Management 	Allow All None
+	LAN->LAN PCRang1	All X0 Management IP 	HTTP Management 	Allow All None 
+   where X2 Management Ip is the IP for the X0 interface that servers the LAN wehre Server1 is.
+
+
+Restricting mgmt access from WAN from a specific IP
+1) Network -> Address object -> Add
+	Name: Office
+	Zone Assigment: WAN
+	Type: Host
+	IP address: XXX.XXX.XXX.186
+2) Network -> Interfaces -> Edit the WAN interface
+3) Check HTTPS and uncheck HTTP
+4) Check Add rule to enable redirect from HTTP to HTTPS
+5) Firewall -> Access rules -> Click on Drop down boxes -> Select From WAN to WAN
+6) Change the rules:
+	WAN->WAN Any 		All X1 Management IP 	HTTPS Management 	Allow All None
+	WAN->WAN Any 		All X1 Management IP 	HTTP Management 	Allow All None 
+   To
+	WAN->WAN Office		All X1 Management IP 	HTTPS Management 	Allow All None
+	WAN->WAN Office		All X1 Management IP 	HTTP Management 	Allow All None 
+   where X1 is the WAN interface

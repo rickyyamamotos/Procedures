@@ -1,0 +1,45 @@
+
+
+nano /etc/nginx/sites-enabled/<Site>.<Domain>
+server {
+        listen 80;
+        listen [::]:80;
+        server_name <Site>.<Domain>;
+# SSL Disabled. Rick 10/30/17
+#       return 301 https://$server_name$request_uri;
+
+# The following was added to enable http. Rick 10/30/17
+        location ~ {
+                   proxy_pass  http://XXX.XXX.XXX.34;
+                        # XXX.XXX.XXX.45 is the internal web server
+                   proxy_http_version 1.1;
+                   proxy_set_header Upgrade $http_upgrade;
+                   proxy_set_header Connection 'upgrade';
+                   proxy_cache_bypass $http_upgrade;
+                  }
+}
+
+server {
+        listen 443;
+        ssl on;
+        ssl_certificate         /etc/ssl/<Site>.<Domain>/<Site>_<Domain>.crt;
+        ssl_certificate_key     /etc/ssl/<Site>.<Domain>/<Site>_<Domain>.key;
+#       SSLCACertificateFile    /etc/ssl/<Site>.<Domain>/<Site>_ca.crt;
+
+                # using the certs of the original website <Site>
+##        ssl_protocols   TLSv1.1 TLSv1.2;
+##        ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:$
+##        ssl_dhparam /etc/ssl/certs/dhparam.pem;
+##        ssl_prefer_server_ciphers on;
+        server_name <Site>.<Domain>;
+        location ~ {
+                   proxy_pass  https://XXX.XXX.XXX.34;
+                        # XXX.XXX.XXX.45 is the internal web server
+                   proxy_http_version 1.1;
+                   proxy_set_header Upgrade $http_upgrade;
+                   proxy_set_header Connection 'upgrade';
+                   proxy_cache_bypass $http_upgrade;
+                  }
+}
+
+

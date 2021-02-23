@@ -1,0 +1,18 @@
+nano /etc/ssh/sshd_config
+	Port <PortNumber>
+	Protocol 2
+	LoginGraceTime 30
+	PermitRootLogin no
+	MaxAuthTries 4
+	UserPAM	no
+	AllowUsers <Username> <Username>
+	MACs hmac-sha2-512,hmac-sha2-256
+	Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+Make sure your ssh client can use these ciphers, run ssh -Q cipher to see the list.
+
+Public Key instead of password:
+It is recommended to set and enable pulickey authentication and Disable PasswordAuthritcation
+
+Allow only certain IP to connect to ssh
+sudo ufw allow from XXX.XXX.XXX.0<CIDR> to any port <PortNumber>
+sudo ufw allow from XXX.XXX.XXX.186 to any port <PortNumber>

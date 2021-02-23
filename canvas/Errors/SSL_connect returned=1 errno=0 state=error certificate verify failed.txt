@@ -1,0 +1,33 @@
+SSL_connect returned=1 errno=0 state=error certificate verify failed
+	in bitnami canvas
+
+The issue is cause by the default configuration of bitnami canvas
+nano /opt/bitnami/apps/canvaslms/htdocs/config/domain.yml
+	production:
+	  domain: <Site>
+		//* change the IP with the hostname
+
+
+
+
+
+THE FOLLOWING DID NOT WORK
+==========================
+on the bitnami server
+cd /etc
+mkdir letsencrypt
+cd letsencrypt
+mkdir live
+cd live
+mkdir <Site>
+chown bitnami:bitnami <Site>
+copy the ssl certs from nginx to the bitnami server in /etc/letsencrypt/live/<Site>/
+nano /opt/bitnami/apache2/conf/bitnami/bitnami.conf
+	SSLCertificateFile "/etc/letsencrypt/live/<Site>/cert.pem"
+	SSLCertificateKeyFile "/etc/letsencrypt/live/<Site>/privkey.pem"
+
+See "C:\Users\rick.yamamoto\Desktop\Training\canvas\desktopCopy SSL cert from nginx with cron.txt"
+chown bitnami:bitnami /cp-ssl-cert.sh
+chmod 755 /cp-ssl-cert.sh
+cd /opt/bitnami
+ctlscript.sh restart

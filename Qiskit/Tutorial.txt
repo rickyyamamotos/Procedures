@@ -1,0 +1,124 @@
+https://quantum-computing.ibm.com/ 
+	log using the linkedin.com account for rickyyamamoto
+IBM quantum <Site> 
+	<key>
+Tutorials
+	https://www.youtube.com/playlist?list=PLOFEBzvs-Vvp2xg9-POLJhQwtVktlYGbY
+
+
+requirements
+	anaconda python
+	jupyter notebook (a editor IDE for python code)
+		
+install Jupyter on windows: 
+	https://plux.info/getting-started/443-jupyter-notebook-environment.html
+	Install Anaconda Python 3+
+	Open a cmd prompt as <Username> and type the following commands
+		C:\> python.exe -m pip install --upgrade pip
+			//* WARNING: pip is configured with locations that require TLS/SSL, however the ssl module in Python is not available
+			//* add the following to the windows path:
+			//*	C:\ProgramData\Anaconda3;C:\ProgramData\Anaconda3\Library\mingw-w64\bin;C:\ProgramData\Anaconda3\Library\bin;C:\ProgramData\Anaconda3\Scripts;
+			//* Try again
+		C:\> python.exe -m pip install jupyter
+	Open Jupyter
+		Open a cmd prompt and type the following commands
+			C:\> jupyter notebook
+
+Open the Anaconda Prompt
+	Windows Start button -> Anaconda Prompt
+
+
+Get an <Site>  to allow access to ibm
+	create a new account on https://www.ibm.com/quantum-computing/ by clickin on "Try IBM Quantum Experience"
+	Once you have an account
+		Go to https://quantum-computing.ibm.com/ 
+		Dashboard -> Profile page -> My Account -> Copy 
+			<key>
+
+Inject the <Site>  on your Pyhton enviroment
+	Open Jupyter notebook 
+	Create a new Jupyter notebook based on Python 3
+	Type the following commands
+		import qiskit
+		from qiskit import IBMQ
+		IBMQ.save_account('<key>')
+		IBMQ.load_account()
+			//* <AccountProvider for IBMQ ....
+
+Determine which Quatum Computer (backends) you can use at the moment
+	Dashboard -> Right Pane -> Your backends
+	or
+	Dashboard -> Profile page -> My Account -> Allocated backends
+
+Install Qiskit
+	Open a cmd prompt as <Username> and type the following commands
+		C:\> python.exe -m pip install qiskit
+			//* ERROR: Could not install packages due to an EnvironmentError: [WinError 87] The parameter is incorrect
+			//* Disable Comodo Internet Security autocontainment for 15 minutes and try again
+		C:\> pip install qiskit-terra[visualization]
+	Test
+		C:\> python
+		>>> import qiskit
+		>>> quit()
+
+Building a 2 qbits quantum circuit
+	See https://www.youtube.com/watch?v=M4EkW4VwhcI&list=PLOFEBzvs-Vvp2xg9-POLJhQwtVktlYGbY&index=3&t=0s
+	Open a cmd prompt
+	C:\> jupyter notebook
+		//* a webpage (http://localhost:8888/tree) will be opened
+	On the web, click on the "New" drop-down button, and select "python 3"
+	A new web will be opened, type the following commands, followed by <Shift>-<Enter> on each line
+		import qiskit
+		from qiskit import *
+		qr = Quantum<Site>(2)
+			//* creates 2 quantum <Site> to measure state at any time
+		cr = Classical<Site>(2)
+			//* creates 2 digital <Site> to measure state at any time
+		circuit = QuantumCircuit(qr,cr)
+			//* creates a circuit (connects) the cr and qr
+		%matplotlib inline
+		circuit.draw
+			//* q0_0: |0>
+				//* 1st quantum bit
+			//* q0_1: |0>
+				//* 2nd quantum bit
+			//* c0_0: 0
+			//* c0_1: 0
+		circuit.draw(ouput='mpl')
+
+Test entanglement between qr[0] and qr[1]
+		circuit.h(qr[0])
+			//* applies a Hadamark gate (creates entaglement between to quantum <Site>s)
+		circuit.draw(ouput='mpl')
+		circuit.cx(qr[0], qr[1])	
+			//* create a 2 qbits operation called controlled X
+Measuring the qbits
+		circuit.measure(qr, cr)
+			//* measures the states of qr and store their values on cr
+		circuit.draw(output='mpl')
+Simulation the circuit (runs the above circuit on a quantum computer's simulator)
+		simulator = Aer.get_backend('qasm_simulator')
+			//* Aer component of Qiskit: it is a quantum computer simulator ran locally
+			//* qasm_simulator: the name of the simulator, Quantum Assembler Language
+		result = execute(circuit, backend = simulator).result()
+		from qiskit.tools.visualization import plot_histogram
+		plot_histogram(result.get_counts(circuit))
+
+Run the circuit on a real IBM Quantum Computer
+		from qiskit import IBMQ
+		IBMQ.save_account('<key>')
+		IBMQ.load_account()
+		provider = IBMQ.get_provider('ibm-q')
+		qcomp = provider.get_backend('ibmq_16_melbourne')
+			//* log onto https://quantum-computing.ibm.com/
+			//* account -> Your Providers paragraph -> Allocated backends -> ibmq_16_melbourne
+		job = execute(circuit, backend=qcomp)
+		from qiskit.tools.monitor import job_monitor
+		job_monitor(job)
+			//* because there are lots of people using the real quantum computer, your job is queued
+		//*wait for job to be successfully run
+		result = job.results()
+		plot_histogram(result.get_counts(circuit))
+		//* You will see a big difference between the previos exercise and the current, simulation and the real quantum computer respectively. 
+		//* this is caused by imperfections (quantum errors) on the real quantum computer.
+More on https://www.youtube.com/watch?v=tBnWG_95F9c&list=PLOFEBzvs-Vvp2xg9-POLJhQwtVktlYGbY&index=4

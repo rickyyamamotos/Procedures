@@ -1,0 +1,17 @@
+ubuntu 15.04 is decommisioned and not longer supported
+
+Fix for the repositories
+$ sed -i.bak -r 's/(archive|security).ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+$ nano /etc/apt/sources.list
+	//* replace http://us.old-releases.ubuntu.com with http://old-releases.ubuntu.com
+
+
+
+Optionally
+You need to upgrade it to 15.10 or 16.04
+
+
+Fix broken  repositories
+cp /etc/apt/sources.list ~/sources.list
+sudo sed -i -re 's/([a-z]{2}\.)?archive.ubuntu.com|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+sudo apt-get update && sudo apt-get dist-upgrade

@@ -1,0 +1,17 @@
+Link Aggregation Control Protocol
+It is a protocol for switches and NICs
+
+It aggregate one or more Ethernet interfaces to form a logical point-to-point link, known as a LAG, virtual link, or bundle. The MAC client can treat this virtual link like a single link.
+The switch can dynamically group similar ports into a single logical link, which will highly extend the bandwidth and flexibly balance the load.
+
+For FM I/O cards, the mgmt IP must be in a different vlan than the production vlan
+During the configuration of the LAG on the FN I/O the production vlan or subnet is not determined
+It is determined by the servers or vmware host connected
+
+LACP is a trunk that negotiates its members links.
+To negotiate, one side of the trunk must be set to passive LACP and the other to active LACP
+
+It is recommended to put the F5 is passive LACP.
+F5 trunk only use 1 link, and keep the others in inactive mode until the active link fails.
+
+Set Active mode on one of the ends, or on both. But at least one of the ends has to be in active mode.

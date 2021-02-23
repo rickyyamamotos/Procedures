@@ -1,0 +1,61 @@
+Create the A records in the public DNS, it could be a wildcard sudomain
+
+
+
+In the nginx server set server block:
+====================================
+server {
+        listen 80;
+        listen [::]:80;
+        server_name *.<Site>;
+        location ^~ /.well-known {
+                   allow all;
+                   auth_basic off;
+                   alias /var/www/html/.well-known;
+                   }
+        location ~ {
+                   proxy_pass  http://XXX.XXX.XXX.169;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#                   proxy_redirect          off;
+#                   proxy_set_header Upgrade $http_upgrade;
+#                   proxy_set_header Connection 'upgrade';
+#                   proxy_cache_bypass $http_upgrade;
+                  }
+#       return 301 https://$server_name$request_uri;
+#       redirection of http to https
+}
+
+server {
+        listen 443;
+        ssl on;
+        ssl_certificate         /etc/letsencrypt/live/<Site>/fullchain.pem;
+        ssl_certificate_key     /etc/letsencrypt/live/<Site>/privkey.pem;
+        server_name *.<Site>;
+        location ~ {
+                   proxy_pass  http://XXX.XXX.XXX.169;
+                   proxy_http_version 1.1;
+                   proxy_set_header        Host $host;
+                   proxy_set_header        X-Real-IP $remote_addr;
+                   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#                   proxy_redirect          off;
+#                   proxy_set_header Upgrade $http_upgrade;
+#                   proxy_set_header Connection 'upgrade';
+#                   proxy_cache_bypass $http_upgrade;
+                  }
+}
+
+
+
+
+In nginx, set a wildcard cert for subdomains
+============================================
+(See https://community.letsencrypt.org/t/nginx-add-new-subdomain/53615/9)
+Expand the existing certificate or create a new one, in this option we already have a letsecnrypt cert for <Site>
+$ certbot certonly --webroot -w /var/www/html/ -d <Site> -d <Site> -d <Site> -d <Site>
+$ service nginx restart
+
+
+

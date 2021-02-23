@@ -1,0 +1,25 @@
+snmp agent (manager) is the monitoring server whcih collect all metrics
+snmp trap host is on the server being monitored, it responds to traps send by the agent
+
+
+Configure an SNMP Agent and Community String in Windows 2012
+On the windows2012r2 server that will be the momitoring server: servername=<Site>
+1) Add Roles and Features: "SNMP Service" and "SNMP WMI Provider"
+2) Administrative Tools\Services\Right click on SNMP Service\click on Properties\Security tab\Edit
+	Enter a connection string: <Site>comm
+3) Apply
+4) Restart the SNMP Service
+5) Restart the SNMP Trap Service
+6) Make the SNMP Trap Service Auto Start
+
+
+On the windows server you want to monitor: servername=server01
+1) Add Roles and Features: "SNMP Service" and "SNMP WMI Provider"
+2) Administrative Tools\Services\Right click on SNMP Service\click on Properties\Traps tab\Community name=<Site>comm
+	Click on Add: <Site> (monitoring server)
+3) Apply
+4) Restart the SNMP Service
+5) Restart the SNMP Trap Service
+6) Make the SNMP Trap Service Auto Start
+
+

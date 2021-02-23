@@ -1,0 +1,6 @@
+on nagios
+$ cd /etc/nagios3/conf.d/templates.cfg
+Try using the -N option of check_http.
+The -N option tells check_http to receive only the header, but not the content of the page / document.
+I ran into similar problems, and in my case the web server didn't terminate the connection after sending the response (https was working, http wasn't). check_http tries to read from the open socket until the server closes the connection. If that doesn't happen then the timeout occurs.
+	

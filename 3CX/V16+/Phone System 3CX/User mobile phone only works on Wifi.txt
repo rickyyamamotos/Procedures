@@ -1,0 +1,16 @@
+Log onto the 3cx server
+Locate the user extension
+	click on "Extensions"
+	double click on the user extension
+Click on "Phone Provisioning"
+Change IP Phone Provision Method to "Direct SIP (STUN - remote)"
+	ensure that select interface is now "<Site>-voip.4cx.us"
+Click Ok
+
+Resend the user to reprovision the<Site>le phone with the new settings
+Click on "Extensions"
+	Click 1 time on the user (to highlight it"
+	Click on "Send Welcome Email"
+
+Ask the user to open the attachment of the email the user received.
+This will reprovision the phone with the new settings

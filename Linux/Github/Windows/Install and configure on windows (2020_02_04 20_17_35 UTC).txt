@@ -1,0 +1,70 @@
+
+Using a password
+- download and install from https://git-scm.com/download/win
+	default editor: Use nano by default
+	adjusting your path environment: Git from the command line and also from 3rd-party software
+	Configuring the line ending conversions: checkput windows-stule, commit Unix-stule line endings
+	Configuring the terminal emulator to use: Use MinTTY
+- Open "Git bash"
+- From the command line, move to the directory you want to contain your Git repository.
+- Type the following command to configure your Git username:
+	git config --global user.name "<Email>"
+- Next, enter your e-mail address by typing the following command:
+	git config --global user.email "<Email>"
+- Initalize
+	git init
+- Create a ignore file
+	cd .git
+	nano .gitignore
+		//* paste the info from the file C:\Users\rick.yamamoto\Desktop\Training\Linux\Github\Windows\.git\.gitignore.txt
+-Set ignore file
+	git config --global core.excludesFile .git/.gitignore
+-Add files to local git
+	git add *
+	git commit -m "first commit"
+-push local to remote on github
+	git remote rm origin
+	git remote add origin https://github.com/<repo>/officelaptop.git
+		git remote add origin git@github.com:<repo>/<Site>.git
+		git remote add origin git@github.com:<repo>/<Site>.git
+	git push -u origin master
+		//* password: <Password>
+
+Adding specific file type recursively
+	git add Desktop/\*.txt
+
+
+Cloning (downloading)
+	git clone https://github.com/<Username>/officelaptop.git
+
+
+Using a public key
+==================
+- Open "Git bash"
+- From the command line, 
+  cd ~
+  ssh-keygen
+	//* this will create tehe keys on ~/.ssh/
+  cd "/c/Program Files/Git"
+  mkdir .ssh
+  cd .ssh
+  cp ~/.ssh/* ./
+- Copy the content of id_rsa.pub into https://github.com/<Site>/<Site>/settings/keys -> "Add deploy key"
+- Initalize
+	cd /c/IIS/webs/<Site>/<Site>
+		//* this is the folder we want to push
+	git init
+- Create a ignore file
+	cd .git
+	nano .gitignore
+		//* paste the info from the file C:\Users\rick.yamamoto\Desktop\Training\Linux\Github\Windows\.git\.gitignore.txt
+-Set ignore file
+	git config --global core.excludesFile .git/.gitignore
+-Add files to local git
+	git add *
+	git commit -m "first commit"
+-push local to remote on github
+	git remote rm origin
+	git remote add origin git@github.com:<Site>/<Site>.git
+	git push -u origin master
+

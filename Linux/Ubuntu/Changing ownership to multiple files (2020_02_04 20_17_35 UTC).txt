@@ -1,0 +1,2 @@
+$ find /var/www/html/wp-content/ -exec chown www-data:www-data {} \;
+$ find ./. -type f -name '*.conf' -exec chown www-data:www-data {} \;

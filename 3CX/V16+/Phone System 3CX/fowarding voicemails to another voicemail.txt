@@ -1,0 +1,13 @@
+To Forward a Copy of One of your Voice Messages to Another peson's Voicemail, using Your Phone or 3CX Client (computer App) 
+This procedure is similar to the Voicemail usage on all<Site>le phones.
+
+1) Call 999 to access your voicemail
+2) enter your 4 digits Voicelmail ID/PIN
+3) Press * to listen to your voice messages
+4) Browse your messages
+4) When you listen to a message that you want to forward, press 5
+5) Enter the extension of the person that you want to receive a copy of your voicemail
+6) Done
+
+This is the only way to forward a voice message
+

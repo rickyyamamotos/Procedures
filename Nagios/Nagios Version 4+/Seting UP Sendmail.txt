@@ -1,0 +1,47 @@
+
+CENTOS
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ yum install perl-Net-SSLeay
+$ yum install perl-IO-Socket-SSL
+$nano /usr/local/nagios/etc/objects/commands.cfg 
+	//* Add the following commands
+	define command{  
+		command_name notify-host-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" -t $CONTACTEMAIL$ -xu <Email> -xp <Password>
+#	       	command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" $CONTACTEMAIL$
+
+
+		}
+	define command{  
+		command_name notify-service-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" -t $CONTACTEMAIL$  -xu <Email> -xp <Password>
+#        	command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$\n" | /usr/bin/mail -s "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" $CONTACTEMAIL$
+		}
+
+
+
+UBUNTU
+$ wget http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v1.56.tar.gz
+$ tar -xvzf sendEmail-v1.56.tar.gz
+$ cp sendEmail-v1.56/sendEmail /usr/local/bin
+$ apt-get install libnet-ssleay-perl libcrypt-ssleay-perl libio-socket-ssl-perl
+$nano /usr/local/nagios/etc/objects/commands.cfg 
+	//* Add the following commands
+	define command{  
+		command_name notify-host-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **" -t $CONTACTEMAIL$ -xu <Email> -xp <Password>
+		}
+	define command{  
+		command_name notify-service-by-email  
+		command_line /usr/bin/printf "%b" "***** Nagios *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | /usr/local/bin/sendEmail -f <Email> -s <SMTPServer>:2525 -u "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" -t $CONTACTEMAIL$  -xu <Email> -xp <Password>
+		}
+
+
+error: invalid SSL_version specified at /usr/share/perl5/IO/Socket/SSL.pm 
+	nano /usr/local/bin/sendEmail
+	 if (! IO::Socket::SSL->start_SSL($SERVER, SSL_version => 'TLSv1')) {
+
+
+

@@ -1,0 +1,7 @@
+
+1) Install Postgresql in a container
+2) Install <Username> database in postgresql
+3) Install Severalnines cluster control for DB HA
+	https://severalnines.com/download-clustercontrol-database-management-system
+
+

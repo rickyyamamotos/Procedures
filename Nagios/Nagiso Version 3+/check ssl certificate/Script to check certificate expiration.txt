@@ -1,0 +1,138 @@
+
+CREATE SCRIPT
+$ nano /usr/lib/nagios/plugins/check_ssl_expiry.py
+#!/usr/bin/env python3
+import sys
+import socket
+import ssl
+import datetime
+
+# based on https://serverlesscode.com/post/ssl-expiration-alerts-with-lambda/
+#
+# Usage: check_ssl_expiry.py <hostname> [port] [gracetime_days]
+#        port             Port to check (defaults to 443)
+#        gracetime_days   Warn if certificate is valid for less than nr of days(defaults to 14)
+#
+#
+# Examples:
+# $ check_ssl_expiry.py ok.example.com
+# OK - ok.example.com: valid for 60 days (until 2016-12-01 06:00:00)
+#
+# $ check_ssl_expiry.py warn.example.com
+# WARNING - warn.example.com: expires in 10 days (on 2016-10-20 06:00:00)
+#
+# $ check_ssl_expiry.py invalid.example.com
+# CRITICAL - invalid.example.com: expired 2 days ago (on 2016-10-08 06:00:00)
+#
+
+def ssl_expiry_datetime(hostname, port):
+    ssl_date_fmt = r'%b %d %H:%M:%S %Y %Z'
+
+    context = ssl.create_default_context()
+    conn = context.wrap_socket(
+        socket.socket(socket.AF_INET),
+        server_hostname=hostname,
+    )
+    conn.settimeout(3.0)
+
+    conn.connect((hostname, port))
+    ssl_info = conn.getpeercert()
+
+    # parse the string from the certificate into a Python datetime object
+    return datetime.datetime.strptime(ssl_info['notAfter'], ssl_date_fmt)
+
+
+if __name__ == '__main__':
+    try:
+        hostname = sys.argv[1]
+    except IndexError:
+        print("UNKNOWN - no hostname given")
+        sys.exit(3)
+
+    try:
+        port = int(sys.argv[2])
+    except:
+        port = 443
+
+    try:
+        gracetime_days = int(sys.argv[3])
+    except:
+        gracetime_days = 14
+
+    # get remaining time
+    try:
+        now = datetime.datetime.utcnow()
+        expires = ssl_expiry_datetime(hostname, port)
+        # timedelta
+        remaining = expires - now
+    except:
+        print("WARNING - %s:%s: connection refused" % (hostname, port))
+        sys.exit(1)
+
+    if remaining < datetime.timedelta(days=0):
+        # cert has already expired
+        print("CRITICAL - %s: expired %s days ago (on %s)" % (hostname, remaining.days, expires))
+        sys.exit(2)
+    elif remaining < datetime.timedelta(days=gracetime_days):
+        # cert expires sooner that gracetime_days
+        print("CRITICAL - %s: expires in %s days (on %s)" % (hostname, remaining.days, expires))
+        sys.exit(1)
+    else:
+        # cert is valid and does not expire within gracetime_days
+        print("OK - %s: valid for %s days (until %s)" % (hostname, remaining.days, expires))
+        sys.exit(0)
+
+PERMISSION
+$ chmod 777 /usr/lib/nagios/plugins/check_ssl_expiry.pl
+
+TEST SCRIPT
+$ /usr/lib/nagios/plugins/check_ssl_expiry.pl <Site>.<Domain> 443 7
+	//* port 443
+	//* graceperiod 7 days. Checks if the cert will expire in the next 7 days
+
+
+CONFIGURING NAGIOS
+$ cd /etc/nagios3/conf.d
+$ nano commands.cfg
+	//* Append the following
+	define command{
+	        command_name check_cert
+	        command_line /usr/lib/nagios/plugins/check_ssl_erpiry.pl $HOSTNAME$ 443 7
+	        }
+$ nano templates.cfg
+	define host{
+	        name                            webserver_ssl
+	        use                             generic-host    ; This template inherits other values from the generic-host template
+	        check_period                    24x7            ; By default, Linux hosts are checked round the clock
+	        check_interval                  1440            ; Actively check the host every 5 minutes
+	        retry_interval                  180             ; Schedule host check retries at 1 minute intervals
+	        max_check_attempts              3               ; Check each Linux host 10 times (max)
+	        check_command                   check_cert!$HOSTNAME$
+	        notification_period             24x7            ; By default, Linux hosts are checked round the clock
+	        notification_interval           120             ; Resend notifications every 2 hours
+	        notification_options            d,u,r           ; Only send notifications for specific host states
+	        contact_groups                  <Username>s          ; Notifications get sent to the <Username>s by default
+	        flap_detection_enabled          0
+	        <Site>                        0               ; DONT <Site> THIS DEFINITION - ITS NOT A REAL HOST, JUST A TEMPLATE!
+	        }
+$ nano hosts_cert.cfg
+	define host{
+	        use                     webserver_ssl
+	        host_name               <Site>.<Domain>
+	        alias                   <Site>.<Domain>_ssl
+	        }
+	define host{
+	        use                     webserver_ssl
+	        host_name               <Site>.<Domain>
+	        alias                   <Site>.<Domain>
+	        }
+$ nano hostgroups.cfg
+	define hostgroup{
+		hostgroup_name	website_ssl
+		members    <Site>, <Site>.<Domain>, <Site>.<Domain>, <Site>, <Domain>, content.<Site>, <Site>, devcontent.<Site>, <Site>.<Domain>, <Site>, <Site>, explorefood.<Site>, <Site>, <Site>, lti-mytools.<Domain>, mediahub.<Domain>, <Site>, <Site>, net.<Site>, <Site>, <Site>, sandbox-clean.<Domain>, <Site>, secure.<Domain>, secure2.<Site><Site>, secure-mytools.<Domain>, studytools.<Site>, <Site>, <Site>, <Site>.<Domain>, <Site><Site>, <Site>, www.<Site>, www.<Site>, www.<Site>
+		}
+
+$ nagios3 -v /etc/nagios3/nagios.cfg
+$ service nagios3 restart
+
+

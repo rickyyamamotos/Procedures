@@ -1,0 +1,137 @@
+THIS PROCEDURE IS FOR UBUNTU 16.04 (LTS) (Xenial Xerus)
+Moodle 3.2.2 STABLE requires
+	-Apache2
+	-MySQL 5.5.31+ (better is the lastest)
+	-PHP 5.6.5+. Note: minimum PHP version has increased since Moodle 3.1. PHP 7.0.x and 7.1.x are supported but have some engine limitations
+
+In the Docker Host:
+$ docker search ubuntu:16.04
+$ docker login
+	<Username>
+	<Password>
+$ docker pull ubuntu:xenial
+$ docker run ubuntu:xenial -p 8080:80
+$ sudo vi /etc/default/ufw
+	Replace “DEFAULT_FORWARD_POLICY=”DROP”” with “DEFAULT_FORWARD_POLICY=”ACCEPT” and save the file.
+
+
+In the container ubuntu:xenial
+	# cat /etc/*release
+		//* Check if the ubuntu version is ubuntu 16.04 (LTS) (Xenial Xerus)
+	# apt-get update
+	# apt-get remove php5-common -y
+	# apt-get install apache2 php7.0 libapache2-mod-php7.0 php7.0-fpm php7.0-mysql -y
+	# a2query -m php7.0
+		//** Verifies that php is working
+	# a2enmod php7.0
+	# apt-get install aspell graphviz php7.0-curl php7.0-gd php7.0-intl php7.0-ldap php7.0-mysql php7.0-pspell php7.0-xml php7.0-xmlrpc php7.0-zip
+	# service apache2 restart
+Press <Ctrl>-P <Ctrl>-Q to exit the container but leaving it running:
+	$ sudo docker ps
+		//* get the "CONTAINER ID" of the ubuntu:16.04 running
+	$ sudo docker commit "CONTAINER ID" moodle1
+		//* replace "CONTAINER ID"
+	$ docker cp "CONTAINER ID":/etc/apache2/apache2.conf /tmp/apache2.conf
+	$ nano /tmp/apache2.conf
+		//* Add the following line
+			ServerName localhost 
+	$ docker cp /tmp/apache2.conf "CONTAINER ID":/etc/apache2/apache2.conf
+	$ curl -L https://download.moodle.org/download.php/direct/stable32/moodle-latest-32.tgz > moodle.tgz
+	$ docker cp ./moodle.tgz "CONTAINER ID":/tmp/moodle.tgz
+	//* Test that apache is running, in another pc in the lan, go to http://IP_OF_DOCKER_SERVER:8080
+	$ nano /tmp/testphp.php
+		add the following line and save
+			<? php phpinfo(); ?>
+	$ docker cp /tmp/phptest.php "CONTAINER ID":/var/www/html/testphp.php
+	//* Test that php is running, in another pc in the lan, go to http://IP_OF_DOCKER_SERVER:8080/testphp.php
+	$ docker attach "CONTAINER ID"
+Back in the container
+	# sudo service apache2 restart
+	# ps -ax
+		//* Check is apache2 is running
+	# tar -xvzf /tmp/moodle.tgz -C /var/www/html
+	# mkdir /var/moodledata
+		//* a directory outside the web root for Moodle to store all the course-related data that will be stored on the server, but not in the database. It is more secure to create this directory outside the web root so that it cannot be accessed directly from a browser. 
+	# chown -R www-data /var/moodledata
+	# chmod -R 0770 /var/moodledata
+	<Ctrl>-P <Ctrl>-Q
+Back in the docker host
+	$ cp "CONTAINER ID":/etc/mysql/mysql.conf.d/mysqld.cnf 
+
+
+	$ docker commit "CONTAINER ID" moodle-installed
+	$ docker kill "CONTAINER ID"
+		//* We saved a copy of the image with the moodle installed
+	$ docker run -ti moodle-installed
+Back to the container
+	# apt-get install mysql-server
+		//* password=<Password>
+	<Ctrl>-P <Ctrl>-Q
+Back in the docker host
+	$ docker cp "CONTAINER ID":/etc/mysql/mysql.conf.d/mysqld.cnf /tmp/
+	$ nano /tmo/mysqld.cnf
+		//* Add the following lines after skip-external-locking
+			default_storage_engine = innodb
+			innodb_file_per_table = 1
+			innodb_file_format = Barracuda
+	$ docker cp /tmp/mysqld.cnf "CONTAINER ID":/etc/mysql/mysql.conf.d/
+	$ docker attach "CONTAINER ID"
+Back to the container
+	# service mysql restart
+	# mysql -u root -p
+		//** <Password>
+	mysql> CREATE DATABASE moodle DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+	mysql> create user '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,CREATE TEMPORARY TABLES,DROP,INDEX,ALTER ON moodle.* TO '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+	mysql> 
+	mysql> quit;
+	# sudo chmod -R 777 /var/www/html/moodle
+		//* !!!!!!!!!!!!!!  TEMPORARY  !!!!!!!!!!!!!
+		//** it is very important to undo this as soon as you have completed the setup. That step is included in this tutorial.
+	# 
+	
+In another PC go to http://XXX.XXX.XXX.48:8081/moodle
+	-Set the language you want to use and click Next.
+	-On the next screen, set the Data Directory to /var/moodledata and click Next.
+	-On the the Choose Database Driver page, set Database driver to Improved MySQL (native mysqli). Then click Next.
+	-On the Database setting page, enter the username and password for the Moodle MySQL user you created in Step 3. The other fields can be left as they are. Click Next to continue.
+		<Username>/<Password>
+	-Review the license agreement and confirm that you agree to its terms by pressing Continue.
+		php_extension mbstring
+			# apt-get case apt-get install php-mbstring
+			# service apache2 restart
+		php_extension soap
+			# apt-get install php-soap
+			# service apache2 restart
+		rerun 
+	-Review the Server Checks page for any possible issues. Ensure the message "Your server environment meets all minimum requirements" exists at the bottom and press Continue.
+	-Moodle will install several components, displaying "Success" messages for each. Scroll to the bottom and press Continue.
+	-You'll then see a page where you can set up your <Username> account for Moodle.
+	-For Username, enter anything you'd like, ar accept the default.
+		<Username>/<Password>
+	-For Choose an authentication method, leave the default value in place.
+	-For New password, enter the password you'd like to use.
+	-For Email, enter your email address.
+	-Set the rest of the fields to appropriate values.
+	-Click Update profile.
+	-On the Front Page Settings screen, fill in the Full site name, the Short name for site, set a location, and select whether you want to allow self-registration via email. Then click Save changes.
+
+Back to the container
+	# chmod -R 0755 /var/www/html/moodle
+	# <Ctrl>-P <Ctrl>-Q
+Back in the docker host
+	$ docker cp "CONTAINER ID":/var/www/html/moodle/config.php /tmp/
+	$ nano /tmp/config.php
+		//* Change the following line: $CFG->directorypermissions = 0777;
+		//* To: $CFG->directorypermissions = 0770;
+	$ docker cp /tmp/config.php "CONTAINER ID":/var/www/html/moodle/
+	$ docker attach "CONTAINER ID"
+Back to the container
+	# chmod -R 0770 /var/moodledata
+	
+
+
+
+
+
+

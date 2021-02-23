@@ -1,0 +1,25 @@
+
+
+on the source server (I.E. <Domain>)
+$ find /var/www/html > /tmp/<Domain>
+
+on the target server (I.E. bak4.<Domain>)
+$ cd /tmp
+$ nano script.sh
+	while read -r || [[ -n $REPLY ]]; do
+	    [[ -z $REPLY ]] && continue
+	    if [[ -f "${REPLY}" ]] || [[ -d  "${REPLY}" ]]; then
+	        echo "$REPLY" >> "/tmp/foundfiles.txt"
+	    else
+	        echo "$REPLY" >> "/tmp/lostfiles.txt"
+	    fi
+	done < "/tmp/<Domain>.txt"
+$ cat /tmp/lostfiles.txt
+
+on the source server (I.E. <Domain>)
+$ tar -cvzf diff.tar.gz -T /tmp/lostfiles.txt
+
+on the target server (I.E. bak4.<Domain>)
+$ tar -xvf /tmp/diff.tar.gz -C /tmp/
+
+

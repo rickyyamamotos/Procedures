@@ -1,0 +1,27 @@
+start Settings =>  Apps => Apps and Features => Manage Optional Features => Add a feature => 
+   OpenSSH Server => click "Install"
+reboot
+
+Change port
+notepad %programdata%\ssh\sshd_config
+	port <PortNumber>
+
+
+change default sftp directory
+notepad %programdata%\ssh\sshd_config
+	Subsystem	sftp	sftp-server.exe -d C:\IIS\webs\<Site>\<Site>
+
+Enable
+Service -> OpenSSH Server -> Properties -> autostart
+
+Starting
+Service -> OpenSSH Server -> Start
+
+Bin folder
+	c:\windows\system32\openssh
+
+Config folder
+	%programdata%\ssh\
+
+
+

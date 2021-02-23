@@ -1,0 +1,14 @@
+http://example.com/server-status?auto not found
+
+
+centos
+$ nano /etc/httpd/conf/httpd.conf
+	//* append the following
+	<Location /server-status>
+		SetHandler server-status
+		Order Deny,Allow
+		Deny from all
+		Allow from localhost
+	</Location>
+	ExtendedStatus On
+$ service httpd restart

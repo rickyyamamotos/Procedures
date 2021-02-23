@@ -1,0 +1,68 @@
+https://docs.microsoft.com/en-us/surface-hub/online-deployment-surface-hub-device-accounts
+
+Setting Up the device's account for the Microsoft Surface Hub
+This applies for enviroments with only Office365 deployment (not Office 2013, 2016)
+
+1) Start a remote PowerShell session on a PC and connect to Exchange.
+	requirements:  	Microsoft .NET Framework 4.5.2 
+			Windows Management Framework 4.0
+	Run "Windows PowerShell" as <Username>
+
+	PS> $UserCredential = Get-Credential
+		//* Enter your credentials as <Username> for the exchange server
+	PS> $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://outlook.office365.com/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+	PS> Import-PSSession $Session
+	Set-ExecutionPolicy Unrestricted
+		//* enable the run of scripts
+	$org='<Site>'
+	$cred=Get-Credential
+		//* Enter the credentials of the <Username> for the exchange server
+		//* or whoever has <Username> privileges in exchange
+	$sess= New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $cred -Authentication Basic -AllowRedirection
+	Import-PSSession $sess
+2) create a new mailbox and enable it as a RoomMailboxAccount, or change the settings for an existing room mailbox
+   This will allow the account to authenticate into the Surface Hub.
+	2.1) Creating a new mailbox account
+		New-Mailbox -MicrosoftOnlineServicesID HUB01@contoso.com -Alias HUB01 -Name "Hub-01" -Room -EnableRoomMailboxAccount $true -RoomMailboxPassword (ConvertTo-SecureString -String <password> -AsPlainText -Force)
+	XOR
+	2.2) Editing an existing mailbox acount
+		Set-Mailbox -Identity 'HUB01' -EnableRoomMailboxAccount $true -RoomMailboxPassword (ConvertTo-SecureString -String <password> -AsPlainText -Force)
+3) create a new Exchange ActiveSync policy, or use a compatible existing policy.
+   Surface Hubs are only compatible with device accounts that have an ActiveSync policy where the PasswordEnabled property is set to False. Otherwise (mail, calendar, and joining meetings) will not work
+	3.1) Create a new policy
+		$easPolicy = New<Site>leDeviceMailboxPolicy -Name "SurfaceHubs" -PasswordEnabled $false -AllowNonProvisionableDevices $True
+	XOR
+	3.2) Apply an existing policy to the device account
+		Set-CASMailbox 'HUB01@contoso.com' -ActiveSyncMailboxPolicy $easPolicy.Id
+
+4) Setting to improve the meeting experience
+	Set-CalendarProcessing -Identity 'HUB01@contoso.com' -AutomateProcessing AutoAccept -AddOrganizerToSubject $false –AllowConflicts $false –DeleteComments $false -DeleteSubject $false -RemovePrivateProperty $false
+	Set-CalendarProcessing -Identity 'HUB01@contoso.com' -AddAdditionalResponse $true -AdditionalResponse "This is a Surface Hub room!"
+5) connect to AzureAD to apply some account settings
+	Connect-MsolService -Credential $cred
+6) Set this account's password to not expire
+	Set-MsolUser -UserPrincipalName 'HUB01@contoso.com' -PasswordNeverExpires $true
+7) Assigning a Skype for Business Account
+   You'll need to have Lync Online (Plan 2) or higher in your O365 plan. The plan needs to support conferencing capability.
+   If you need Enterprise Voice (PSTN telephony) using telephony service providers for the Surface Hub, you need Lync Online (Plan 3).
+	Get-MsolAccountSku
+		//* get the SKU that includes Lync plan 2 or higher
+	$strLicense = 'XXXXXXXXX'
+		//* replace XXXXXX with the SKU that includes Lync plan 2 or higher
+	Set-MsolUser -UserPrincipalName 'HUB01@contoso.com' -UsageLocation "US"
+	Get-MsolAccountSku
+	Set-MsolUserLicense -UserPrincipalName 'HUB01@contoso.com' -AddLicenses $strLicense
+8) Enable the device account with Skype for Business.
+	Import-Module LyncOnlineConnector  
+	$cssess=New-CsOnlineSession -Credential $cred  
+	Import-PSSession $cssess -AllowClobber
+	$strRegistrarPool = (Get-CsOnlineUser -Identity ‘alice@contoso.com’).RegistrarPool
+		//* get the RegistrarPool parameter for your environment
+	Enable-CsMeetingRoom -Identity 'HUB01@contoso.com' -RegistrarPool $strRegistrarPool -SipAddressType EmailAddress
+
+
+
+
+
+	
+

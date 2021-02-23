@@ -1,0 +1,1 @@
+Canvas does not work through a reverse proxy

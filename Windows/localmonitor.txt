@@ -1,0 +1,29 @@
+download http://caspian.dotconf.net/menu/Software/SendEmail/sendEmail-v156.zip
+uzip to c:\sendEmail\
+
+c:\> edit localmonitor.bat
+@Echo Off
+rem GLOBAL VARIABLES DECLARATION
+set SERVERNAME=%COMPUTERNAME%
+for /f "s=3" %i in ('ping %COMPUTERNAME% -4 -n 1 ^| findstr Reply') do (set SERVERIP=%i)>Nul
+set SERVERIP=%SERVERIP:~0,11%
+set LONGDATETIME=%DATE% %TIME%
+
+rem TESTING THE TEAMVIEWER9 SERVICE
+set SERVICENAME="WAS"
+SC queryex "%SERVICENAME%"|Find "STATE"|Find /v "RUNNING">Nul&&(
+    Net start "%SERVICENAME%">nul||(
+	set NOTIFICATION="Service %SERVICENAME% is not running."
+	set SUBJECT="***** Server: %SERVERNAME% with IP: %SERVERIP% *****\n\nNotification: %NOTIFICATION% \n\nServer's Date/Time: %LONGDATETIME%\n\n\n"
+	c:\sendEMail\sendEmail.exe -f <Email> -t <Email> -u "** Host Alert: $SERVERNAME is %NOTIFICATION% **" -m "%SUBJECT%" -s <SMTPServer>:2525 -xu <Email> -xp <Password>
+        exit /b 1
+    )
+    echo "%ServiceName%" started
+    exit /b 0
+)||(
+    echo "%ServiceName%" working
+    exit /b 0
+)
+
+
+C:\> SchTasks /Create /RU "SYSTEM" /SC HOURLY /TN “Service Monitor” /TR “C:\localmonitor.bat”

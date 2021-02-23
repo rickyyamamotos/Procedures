@@ -1,0 +1,17 @@
+$ apt-get install zip unzip
+
+
+Unzipping:
+1) Unzipping only a file
+	$ unzip photos.zip image1.png
+2) Unzip to a directory
+	$ unzip photos.zip -d /directory/
+
+
+Test Zip File:
+$ unzip -t photos.zip
+
+List the files inside a zip file
+$ unzip -l photos.zip
+
+

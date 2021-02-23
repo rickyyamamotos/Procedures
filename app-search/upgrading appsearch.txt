@@ -1,0 +1,100 @@
+https://swiftype.com/documentation/app-search/self-managed/upgrade
+
+Methods of uprade
+	1) Simple in-place upgrade (with downtime, no client-side changes)
+	2) Snapshot-based upgrades (write downtime, no search downtime, client-side changes needed)
+	3) In-place upgrades in read-only mode (write downtime, no client-side changes)
+
+In-place upgrades in read-only mode
+	the easiest upgrade method
+	Process
+		1) Stop ALL of your App Search instances
+		2) Back up your data from Elasticsearch, using snapshots
+		3) Upgrade App Search packages on your servers.oor change your container image tags to point
+		   to the latest version if you use Docker or Kubernetes
+		4) Start up the new version of App Search and new instances will take care of coordinating 
+		   and performing the upgrade before starting up and accepting your <Site> traffic.
+
+
+
+Stop the AppSearch instance
+	fuser 3002/tcp
+		//* PID xxx
+	kill - 9 xxx
+
+Check the version of elasticsearch
+	ls /opt/elastic*
+		//* 7.5
+	(optional) $ curl -XGET <Site>1.<Site>:9200
+		//* 7.5
+Create a snapshot of elasticsearch
+	https://www.elastic.co/guide/en/elasticsearch/reference/7.x/snapshot-restore.html
+		my_backup = elasticsearch-backup
+	Check if a snapshot repository already exists
+		GET /_snapshot/_all
+		GET /_snapshot/elasticsearch-backup
+			//* true
+		(optional) $ curl -XGET "https://<Site>:9243/_snapshot/_all"
+		(optional) $ curl -XGET "https://<Site>:9243/_snapshot/elasticsearch-backup"
+	Create a snapshot repository if it does not exists yet
+		In kibana -> dev tools
+			PUT /_snapshot/elasticsearch-backup
+				{
+				  "type": "fs",
+				  "settings": {
+				    "location": "elasticsearch-backup"
+				  }
+				}
+		(optional) $ curl -XPUT "https://<Site>:9243/_snapshot/elasticsearch-backup" -H 'Content-Type: application/json' -d'{"type": "fs","settings": {	"location": "elasticsearch-backup"}}'
+	Cleanup repository
+		POST /_snapshot/elasticsearch-backup/_cleanup
+		(optional) $ curl -XPOST "https://<Site>:9243/_snapshot/elasticsearch-backup/_cleanup"
+	Create the snapshot
+		By default a snapshot of all open and started indices in the cluster is created
+		PUT /_snapshot/elasticsearch-backup/snapshot_beforeupgrade?wait_for_completion=true
+		(optional) $ curl -XPUT "https://<Site>:9243/_snapshot/elasticsearch-backup/snapshot_beforeupgrade?wait_for_completion=true"
+			//* ERROR: 405 not allowed
+			//*	on the server
+			//*		netstat -tulpn
+			//* 			XXX.XXX.XXX.168:9200
+			/* 		curl -XPUT "http://XXX.XXX.XXX.168:9200/_snapshot/elasticsearch-backup/snapshot-$vdate1?wait_for_completion=true"
+	See snapshot status
+		GET /_snapshot/elasticsearch-backu/_current
+		GET /_snapshot/elasticsearch-backup/snapshot_1
+		(optional) $ curl -XGET "https://<Site>:9243/_snapshot/elasticsearch-backup/_current
+			//* checks that no other snapshots is currently running
+		(optional) $ curl -XGET "https://<Site>:9243/_snapshot/elasticsearch-backup/snapshot_1"
+	Cancel or delete a snapshot
+		DELETE /_snapshot/elasticsearch-backup/snapshot_2
+
+Download the new version of AppSearch
+	https://www.elastic.co/downloads/app-search
+	$ cat /etc/*-release
+		//* centos
+	$ java -XshowSettings:properties -version
+		//* OpenJDK Runtime Environment build 1.8.0_222-b10
+		//* this is version 8
+	$ cd /tmp
+	$ wget https://artifacts.elastic.co/downloads/app-search/app-search-7.6.0.rpm
+		//* this requires javas 8 or java 11
+		//* elastic search must be up and running
+	$ nano /opt/elasticsearch-7.5.0/config/elasticsearch.yml
+		//* ensure that the following exist
+			action.auto_create_index: ".app-search-*-logs-*,-.app-search-*,+*"
+		//* if it does not exists, add it and restar elastic search
+	$ rpm -U app-search-7.6.0.rpm
+		//* U: upgrades package
+	$ /usr/share/app-search/bin/app-search
+	$ reboot now
+
+
+
+
+
+
+
+
+
+
+
+

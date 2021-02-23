@@ -1,0 +1,21 @@
+BACKKUP A DATABASE
+$ which pg_dump
+$ sudo su postgres
+$ /usr/bin/pg_dump --file=/tmp/<DBName>.pg_dump -Fc -v -b -o -O -x -C --host=XXX.XXX.XXX.68 --username=postgres --password <DBName>
+	//* Fc = Format=custom, which is a format needed by pg_dump
+	//* -C add script to create the database when restoring
+	//* password: <Password>
+$ scp -P <PortNumber> /tmp/regis*.pg_dump rick@x.x.x.x/tmp
+
+
+RESTORE A DATABASE
+$ which pd_restore
+$ sudo su postgres
+$ /usr/bin/pg_restore --file=/tmp/<DBName>.pg_dump -v -C --username=postgres --password
+	//* -C creates the database
+
+RESTORE JUST A TABLE WITHIN THE DATABASE
+$ /usr/bin/pg_restore --file=/tmp/<DBName>.pg_dump --dbname=<DBName> -v -C --username=postgres --password -t tablebname
+
+
+

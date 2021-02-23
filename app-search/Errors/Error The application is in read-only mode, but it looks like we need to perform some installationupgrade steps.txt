@@ -1,0 +1,47 @@
+From the console
+	Error: The application is in read-only mode, but it looks like we need to perform some installation/upgrade steps
+
+From app-search logs
+	Swiftype::ES::ReadOnlyModeWriteError
+
+
+Problem
+	app-search is on read-only mode
+
+Causes (or)
+	1) somebody set app-seach in read-only mode
+	2) the server is running out of storage space (95% usage) and ElasticSearch automatically put all its indexes on read-only
+	    to avoid disk full and total crash
+
+Solution for 1
+	https://swiftype.com/documentation/app-search/self-managed/read-only-mode
+	stop app-search
+	$ ./bin/app-search --disable-read-only-mode
+	start app-seach
+
+Solution for 2
+	https://www.reddit.com/r/elasticsearch/comments/d1odn6/forbidden12index_readonly_allow_delete_<Site>/
+	Increase disk space on the server
+	See if read_only_mode is enabled on elasticsearch using kibana
+		GET _all/_settings 
+	Disable read_only_mode:
+	1) Option 1 using kibana (WORKS!)
+	   Reference: https://stackoverflow.com/questions/34911181/how-to-undo-setting-elasticsearch-index-to-readonly
+		PUT _settings
+		{
+		  "index": {
+		    "blocks": {
+		      "read_only_allow_delete": false
+		    }
+		  }
+		}
+
+	2) Option 2 using kibana (DID NOT WORK)
+		PUT /*/_settings { "index.blocks.read_only_allow_delete": null } 
+	3) Option 3 using kibana (DID NOT WORK)
+		PUT /my_index/_settings
+		{
+		  "index.blocks.read_only_allow_delete": null
+		}
+	4) Option 4 using kibana (DID NOT WORK)
+		PUT /_settings {   "index": {     "blocks": {       "read_only_allow_delete": "true"     }   } }

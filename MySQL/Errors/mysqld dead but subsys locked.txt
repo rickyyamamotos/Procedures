@@ -1,0 +1,38 @@
+https://stackoverflow.com/questions/19358194/mysql-is-dead-but-subsys-locked
+
+$ service mysqld status
+	mysqld dead but subsys locked
+
+Solution1: (did not worked)
+$ cp /var/lock/subsys/mysqld /root/mysqld
+$ rm /var/lock/subsys/mysqld
+$ service httpd stop
+$ service otrs stop
+$ service mysqld restart
+$ service httpd restart
+$ service otrs restart
+
+
+solution2: 
+
+$ nano /var/log/mysql.error
+	[ERROR] Missing system table mysql.proxies_priv; please run mysql_upgrade to create it
+$ service mysqld stop
+backup your database, it will be a subdirectory of /var/lib/mysql/
+	$ cp /var/lib/mysql/v/* /tmp/v/
+set force recovery mode on
+	$ nano /etc/my.cnf
+		[mysqld]
+		innodb_force_recovery = 1
+remove all data
+	$ cd /var/lib/mysql/
+	$ rm -rf *
+set force recovery mode off
+	$ nano /etc/my.cnf
+		[mysqld]
+		# innodb_force_recovery = 1
+$ service myslqd start
+$ mysql -uroot -p
+	password 
+
+ 

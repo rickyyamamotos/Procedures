@@ -1,0 +1,5 @@
+git add *.bat *.config *.doc *.docx *.gif *.jpg *.jpeg *.lnk *.pdf *.png *.ppk *.rtf *.sh *.txt *.xls *.xlsx
+
+
+
+

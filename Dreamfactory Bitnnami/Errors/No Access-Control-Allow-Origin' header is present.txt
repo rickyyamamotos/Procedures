@@ -1,0 +1,9 @@
+No Access-Control-Allow-Origin' header is present
+	this error is shown in chrome developer tools when the client site access resources from the dreamfactory server
+
+Fix
+	in the dreamfactory server
+		$ nano /etc/httpd/conf/httpd.conf
+			//* Add the following line at the end
+			Header unset X-Frame-Options
+test site on https://tools.geekflare.com/tools/x-frame-options-test

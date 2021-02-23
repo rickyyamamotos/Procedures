@@ -1,0 +1,19 @@
+https://gist.github.com/JustThomas/141ebe0764d43188d4f2
+
+
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+
+# uploaded files
+RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
+
+# add a trailing slash to /<Username>
+RewriteRule ^([_0-9a-zA-Z-]+/)?<Username>$ $1<Username>/ [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)(wp-(content|<Username>|includes).*) $2 [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)(.*\.php)$ $2 [L]
+RewriteRule . index.php [L]

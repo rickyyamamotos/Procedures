@@ -1,0 +1,10 @@
+vmware converted does not support Ubuntu 18.04
+https://docs.vmware.com/en/vCenter-Converter-Standalone/6.2/com.vmware.convsa.guide/GUID-088E735A-CB88-4790-9BF2-EA0B9E34867F.html
+
+
+https://communities.vmware.com/thread/593790
+I used a free tool from starwinds to create a vmdk file out of a vhd file. I then created a new vm with the ubuntu profile, and connected the converted disk and worked fine.
+
+1) download and install StarWind V2V Converter from https://www.starwindsoftware.com/tmplink/starwindconverter.exe
+
+

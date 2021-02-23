@@ -1,0 +1,18 @@
+nmi received for unknown reason 21 do you have a strange power saving mode enabled
+showed after installation and reboot.
+
+Solution:
+Ensure that the server model is listed on http://hcl.xenserver.org/
+
+
+Did not worked
+-In the server BIOS disable "Demand-Based Power Management"
+-Update server BIOS
+	i showed new devices found, but error persisted
+
+
+
+-PowerEdge Expandable raid Controller BIOS H430 (Build Feb 25, 2005)
+	LSI Logic Corp
+-HA-0 (Bus 2 Dev 14) PERC 4e/Di Standard FW 521S DRAM =256Mb
+

@@ -1,0 +1,7 @@
+https://www.linuxbabe.com/ubuntu/ssh-two-factor-authentication-ubuntu-16-04-google-authenticator
+
+$ sudo apt install libpam-google-authenticator
+$ google-authenticator
+
+
+

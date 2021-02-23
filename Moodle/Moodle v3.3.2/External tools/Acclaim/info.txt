@@ -1,0 +1,8 @@
+
+Site <Site> -> Plugins -> Activity modules -> External tool -> Manage tools -> "cofigure a tool manually"
+	tool name: <Site>-Global
+	tool url: https://app.get<Site>/lti-launch/
+	consumer key: 
+	share secret: 
+	default launcher: embed
+	tool configuration usage: show in activity chooser and as preconfigured tool

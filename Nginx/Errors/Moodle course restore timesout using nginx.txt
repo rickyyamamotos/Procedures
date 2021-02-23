@@ -1,0 +1,96 @@
+Error: cant restore course, times out
+Chrome error: Chrome net::ERR_INCOMPLETE_CHUNKED_ENCODING error
+
+Server Response Header
+	HTTP/1.1 200 OK
+	Server: nginx/1.10.3 (Ubuntu)
+	Date: Mon, 07 May 2018 13:10:29 GMT
+	Content-Type: text/html; charset=utf-8
+	Transfer-Encoding: chunked
+	Connection: keep-alive
+	X-Powered-By: PHP/5.6.32
+	Expires: 
+	Cache-Control: private, pre-check=0, post-check=0, max-age=0, no-transform
+	Pragma: no-cache
+	Content-Language: en
+	Content-Script-Type: text/javascript
+	Content-Style-Type: text/css
+	X-UA-Compatible: IE=edge
+	Content-Encoding: gzip
+
+
+Solution:
+$ nano /var/www/html/config.php
+	$CFG->reverseproxy = true;
+$ nano /etc/nginx/sites-enabled/<Site>.<Domain>
+	server {
+	        listen 80;
+	        listen [::]:80;
+	        server_name <Site>.<Domain>;
+	        location ~ {
+                   	proxy_pass  http://XXX.XXX.XXX.61;
+			proxy_set_header        X-Real-IP               $remote_addr;
+			proxy_set_header        X-Forwarded-For         $proxy_add_x_forwarded_for;
+			proxy_set_header        X-Forwarded-Proto       $scheme;
+			proxy_read_timeout      300;
+	       }
+$ service nginx restart
+
+
+
+
+
+
+OTHERS THAT WERE NOT TRIED
+==========================
+try 
+$ nano /var/www/html/config.php
+	$CFG->reverseproxy = true;
+$ nano /etc/host
+	XXX.XXX.XXX.61	<Site>.<Domain>
+$ service network restart
+$ nano /etc/nginx/sites-enabled/<Site>.<Domain>
+	server {
+	        listen 80;
+	        listen [::]:80;
+	        server_name <Site>.<Domain>;
+	        location ~ {
+                   	proxy_pass  http://XXX.XXX.XXX.61;
+			proxy_set_header        X-Real-IP               $remote_addr;
+			proxy_set_header        X-Forwarded-For         $proxy_add_x_forwarded_for;
+			proxy_set_header        X-Forwarded-Proto       $scheme;
+			proxy_read_timeout      90;
+	       }
+$ service nginx restart
+
+
+
+//* The definition of 'internal' here is critical as it prevents client access to your dataroot.
+location /dataroot/ {
+    internal;
+    alias <full_moodledata_path>; # ensure the path ends with /
+}
+
+
+
+server {
+	listen 80 default_server;
+	server_name <Site>.<Domain> www.<Site>.<Domain>;
+	location ~ [^/]\.php(/|$) {
+		fastcgi_split_path_info  ^(.+\.php)(/.+)$;
+		fastcgi_index            index.php;
+		fastcgi_pass             XXX.XXX.XXX.61;
+		include                  fastcgi_params;
+		fastcgi_param   PATH_INFO       $fastcgi_path_info;
+		fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		}
+	location / {
+		proxy_pass http://your_server_ip:80;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		}
+	}
+
+}

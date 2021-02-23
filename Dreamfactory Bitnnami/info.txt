@@ -1,0 +1,34 @@
+
+Dreamfactory works on a env,
+	therefore mysql, apache, etc setting and bin files are in the dreamfactory root directory
+		mysql /$dreamfactoryrootdir/mysql/bin/mysql 
+
+
+Hook up any SQL or NoSQL database, file storage system, or external HTTP or SOAP service and DreamFactory instantly generates a flexible, comprehensive, and fully documented REST <Site> endpoint
+ that’s ready to use. Focus on building your applications, not hand-coding <Site>s for every new development project.
+
+Server-side scripting
+Any non-trivial application requires server-side business logic, such as data validation, workflow rules, calculations, and more. DreamFactory makes it easy to add logic to the request or 
+ response of any <Site> endpoint or build your own custom <Site>s with JavaScript V8, Node.js, PHP, or Python. You can also use scripting to create your own custom REST <Site>s.
+
+Turn SOAP into REST
+DreamFactory instantly turns any WSDL into a live, fully documented REST <Site>. DreamFactory automatically converts the JSON request into SOAP, calls the legacy SOAP service, and then the SOAP
+ response is converted back to JSON for the client application. DreamFactory also generates Live <Site> Docs from the WSDL for testing.
+
+Rock solid security
+Securing <Site>s is difficult and time consuming. DreamFactory makes it easy with User Management, SSO Authentication, JSON Web s (JWT), CORS, Role-Based Access Control on <Site> endpoints, 
+ record-level permissions on data, OAuth, LDAP, Active Directory, SAML Integration, and more.
+
+Run anywhere
+DreamFactory is a free, Apache 2 open source project that runs on Linux, Windows, and Mac OS X. DreamFactory is scalable, stateless, and portable. You can run it on private, public, or hybrid
+ infrastructure and easily move your apps between servers. DreamFactory is easy to deploy with Docker, Kubernetes, Bitnami, or directly from GitHub source.
+
+<Site> limits
+DreamFactory makes it easy to centrally manage <Site> limits across your entire organization. You can specify <Site> rate limits at the instance, role, user, and endpoint level. Each DreamFactory
+ instance is governed by <Site> limits and automatically throttles <Site> calls at runtime. <Site> limits help protect against malicious attacks and manage costs at the critical <Site> layer of your business.
+
+<Site> publishing
+DreamFactory makes it easy to publish your <Site>s for others to use. You can expose as many <Site>s and <Site> keys as you need and apply flexible role-based access control to every <Site> endpoint.
+ DreamFactory makes it easy to <Site>-enable your business with internal stakeholders, business partners, developers, end users, and anyone else who needs secure access to your <Site>.
+
+

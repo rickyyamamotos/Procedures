@@ -1,0 +1,158 @@
+https://www.tutorialspoint.com/ruby-on-rails/rails-database-setup.htm
+https://www.digitalocean.com/community/tutorials/how-to-setup-ruby-on-rails-with-postgres
+
+Note- some versions of ruby-on-rails only support PostgreSQL
+see database.yml in yoru ruby installation for details
+
+Install PostgreSQL onto the Ubuntu 16.04
+//* PostgreSQL. Versions 9.1 and up are supported by database.yml
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+$ sudo apt-get update -y
+$ apt-get install postgresql postgresql-contrib
+	Success. You can now start the database server using:
+	    /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
+	Ver Cluster Port Status Owner    Data directory              Log file
+	10  main    5433 down   postgres /var/lib/postgresql/10/main /var/log/postgresql/postgresql-10-main.log
+//* By default, Postgres uses a concept called "roles" to handle in authentication and authorization. These are, in some ways, similar to regular Unix-style accounts, but Postgres does not distinguish between users and groups and instead prefers the more flexible term "role".
+//* So, the installation create a linux user called postgres which will be used to log into postgres as root
+$ sudo systemctl start postgresql
+$ sudo systemctl enable postgresql
+
+Database Setup for PostgreSQL
+$ su - postgres
+$ psql
+postgres=# SELECT version();
+	//* verify that PostgreSQL. Versions 9.1 or higher
+postgres=# \q
+$ sudo -u postgres createuser <Username> -s
+$ sudo -u postgres psql
+postgres=# \password <Username>
+	//* <Password>
+postgres=# CREATE DATABASE <DBName> OWNER <Username>; 
+postgres=# CREATE DATABASE <Site>_production OWNER <Username>; 
+postgres=# CREATE DATABASE <Site>_test OWNER <Username>; 
+GRANT ALL PRIVILEGES ON DATABASE "<DBName>" to <Username>;
+GRANT ALL PRIVILEGES ON DATABASE "<Site>_production" to <Username>;
+GRANT ALL PRIVILEGES ON DATABASE "<Site>_test" to <Username>;
+postgres=# \q
+
+Configuring database.yml
+$ cd /
+$ find -name database.yml
+	/home/<Username>/<Site>/config/database.yml
+	/home/<Username>/<Site>/config/database.yml
+	/<Site>/config/database.yml
+//* Update all database.yml
+$ nano /<Site>/config/database.yml
+	default: &default
+	  adapter: postgresql
+	  encoding: unicode
+	development:
+	  <<: *default
+	  database: <DBName>
+	  username: <Username>
+	  password: <Password>
+	test:
+	  <<: *default
+	  database: <Site>_test
+	  username: <Username>
+	  password: <Password>
+	production:
+	  <<: *default
+	  database: <Site>_production
+	  username: <Username>
+	  password: <Password>
+$ nano /home/<Username>/<Site>/config/database.yml
+	default: &default
+	  adapter: postgresql
+	  encoding: unicode
+	development:
+	  <<: *default
+	  database: <DBName>
+	  username: <Username>
+	  password: <Password>
+	test:
+	  <<: *default
+	  database: <Site>_test
+	  username: <Username>
+	  password: <Password>
+	production:
+	  <<: *default
+	  database: <Site>_production
+	  username: <Username>
+	  password: <Password>
+$ cp /home/<Username>/<Site>/config/database.yml /home/<Username>/<Site>/config/
+	//* in my case it the yml file was missing
+$ nano  /home/<Username>/<Site>/config/database.yml
+	default: &default
+	  adapter: postgresql
+	  encoding: unicode
+	development:
+	  <<: *default
+	  database: <DBName>
+	  username: <Username>
+	  password: <Password>
+	test:
+	  <<: *default
+	  database: <Site>_test
+	  username: <Username>
+	  password: <Password>
+	production:
+	  <<: *default
+	  database: <Site>_production
+	  username: <Username>
+	  password: <Password>
+$ cd /home/<Username>/<Site>
+$ rake db:setup
+Error: Couldn't create database for {"adapter"=>"postgresql", "encoding"=>"unicode", "pool"=>5, "database"=>"<DBName>", "username"=>"<Username>", "password"=>"<Password>"}
+	$ nano /etc/postgresql/9.5/main/pg_hba.conf
+		REPLACE	local   all             postgres                                peer
+		WITH: 	local   all             postgres                                md5
+	$ sudo service postgresql restart
+$ rake db:setup
+Error: Couldn't create database for {"adapter"=>"postgresql", "encoding"=>"unicode", "pool"=>5, "database"=>"<DBName>", "username"=>"<Username>", "password"=>"<Password>"}
+	$ sudo -u postgres psql
+	postgres=# ALTER USER <Username> CREATEDB;
+	postgres=# \q
+	$ rake db:drop:all
+	$ rake db:create:all
+$ rake db:setup
+Error: /<Site>/db/schema.rb doesn't exist yet. Run `rails db:migrate` to create it, then try again
+
+
+
+
+
+
+
+
+This project is broken
+$ cd /home/<Username>/<Site>
+$ rake db:setup
+Error: You have already activated rake 12.3.0, but your Gemfile requires rake 12.2.1. Prepending `bundle exec` to your command may solve this.
+	$ bundle update rake
+$ rake db:setup
+Error: LoadError: cannot load such file -- nokogiri/2.3/nokogiri
+	$ ruby -v
+		//* version 2.3
+	$ gemm install nokogiri
+		//* it will install nokogiri version 1.82
+	$ gem uninstall nokogiri
+	$ bundle config build.nokogiri --use-system-libraries
+	$ bundle install
+	$ gem install nokogiri -- --use-system-libraries
+$ rake db:setup
+Error: NameError: uninitialized constant RubyVM::DebugInspector
+		/usr/local/rvm/gems/ruby-2.3.1/gems/binding_of_caller-0.7.3/lib/binding_of_caller/mri2.rb:21:in `callers': uninitialized constant RubyVM::DebugInspector (NameError)
+	$ gem uninstall debug_inspector
+	$ bundle
+$ rake db:setup
+Error: LoadError: incompatible library version - /usr/local/rvm/gems/ruby-2.3.1/gems/therubyracer-0.12.3/lib/v8/init.so
+		/usr/local/rvm/gems/ruby-2.3.1/gems/therubyracer-0.12.3/lib/v8.rb:4:in `require'
+
+
+
+
+
+
+	

@@ -1,0 +1,20 @@
+https://www.namecheap.com/support/knowledgebase/article.aspx/9419//installing-a-certificate-on-nginx
+
+on nginx
+$ cd /etc/ssl/yourdomainname/
+$ cat yourdomainname.crt yourdomainname_ca.crt >> yourdomainname_all.crt
+	//* joining the public and chain certs into a single file
+	//* godaddy gives you 2 crt files (domain.crt and domain_ca.crt
+$ cd /etc/nginx/sites-enabled
+$ nano yourdomainname
+	ssl_certificate 	/etc/ssl/yourdomainname/yourdomainname_all.crt
+	ssl_certificate_key	/etc/ssl/yourdomainname/yourdomainname.key
+
+
+
+Other way:
+$ cd /etc/nginx/sites-enabled
+$ nano yourdomainname
+	ssl_client_certificate	/yourdomain_ca.crt
+	ssl_verify_client on;
+	ssl_verify_depth 1;

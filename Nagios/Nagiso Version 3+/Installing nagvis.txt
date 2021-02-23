@@ -1,0 +1,25 @@
+Installing icinga
+Follow the instructions on icinga.pdf
+	<key>
+http://XXX.XXX.XXX.47/icingaweb2/authentication/login?renderLayout
+	icingaweb2<Username>/icingaweb2pass
+
+apt-get install nagvis
+	//* select icinga
+
+Fix error 500
+Fix Fatal error on /var/logs/apache2/error.log:  Redefinition of parameter $_unused_flag in /usr/share/nagvis/share/server/core/classes/objects/NagVisMapObj.php
+nano /usr/share/nagvis/share/server/core/classes/objects/NagiosService.php
+	//* Modify line 103 as follow
+	function queueState($_unused_flag = true) {
+nano /usr/share/nagvis/share/server/core/classes/objects/NagVisMapObj.php
+	//* Modify line 247 as follow
+	Public function queueState($_unused_flag = true) {
+
+Fix Error on nagvis\maps\Create Object: Unable to fetch data from backend - falling back to input field
+
+
+
+
+
+

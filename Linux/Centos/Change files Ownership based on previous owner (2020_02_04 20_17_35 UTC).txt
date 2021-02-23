@@ -1,0 +1,14 @@
+https://unix.stackexchange.com/questions/157007/change-file-ownership-based-on-previous-owner
+
+users
+$ find /path/here -user originaluser -exec chown newusername '{}' '+'
+	//* find will look at every file and directory recursively inside /path/here, matching all of those owned by user #500. With all of those files, it will execute chown yourusername file1 file2... as many times as required.
+
+or
+
+$ chown -R --from=originaluser newusername /path/here
+
+
+groups
+$ find /path/here -group originalgroup -exec chgrp newgroup '{}' '+'
+

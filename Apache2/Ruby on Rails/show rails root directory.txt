@@ -1,0 +1,7 @@
+$ cd /var/www/
+$ find . -mtime -1 -type f -exec ls -l {} \;
+
+or
+
+$ cd /
+$ find -name "startscript.sh"

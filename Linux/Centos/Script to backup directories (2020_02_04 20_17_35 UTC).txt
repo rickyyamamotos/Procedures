@@ -1,0 +1,49 @@
+This procedure will create script to backup local directories and run the script in a regular basis
+
+$ vi /nfs-local-backup.sh
+	#!/bin/bash
+	#Purpose = Backup of Important Data
+	#Created on 08/03/2017
+	#Author = Rick Yamamoto
+	#Version 1.0
+	#START
+	SRCDIR=/mnt/nfs/var/www/<Site>_data	# Location of Important Data Directory (Source of backup).
+	DESDIR=/var/www/<Site>_data		# Destination of backup directory
+	cp -fpr $SRCDIR/* $DESDIR/
+	#END
+$ chmod +x /nfs-local-backup.sh
+
+Adding the script to cron to start it everyday at 2:01 am
+$ crontab -e
+	01 02 * * * /bin/bash /nfs-local-backup.sh
+//*     f1 f2 f3f4f5  command
+//*     f1=Minutes (0-59)
+//*	f2=Hours (0-23)
+//*	f3=Day of Month(1-31)
+//*	f4=Month(1-12)
+//*	f5=Day of Week (0-6, 0 = Sunday)
+//*	Command= command to run
+
+Then modify the ssh login baner to 
+$ nano /etc/motd
+####################################################
+#
+# Welcome to '<Site>.<Domain>1'
+# This is an apache2 server member of a LB frontend
+#
+# Daily Backups of mdb1 (XXX.XXX.XXX.15) (v)
+# are stored in XXX.XXX.XXX.16/home/<Username>/backups &
+# XXX.XXX.XXX.16/tmp
+#
+# Daily Backups of mdata (XXX.XXX.XXX.17) (CFG->dataroot)
+# are stored in <Site>.<Domain>1/var/www/<Site>_data
+#
+# In case of disaster change <Site>.<Domain>2/var/
+#   www/html/config.php to point to
+#   $CFG->dataroot='\var\www\<Site>_data';
+#   $CFG->tempdir='\var\www\<Site>_data\temp';
+#   $CFG->cachedir='\var\www\<Site>_data\cache';
+#   $CFG->dbhost='XXX.XXX.XXX.16';
+#   then restart apache2
+#
+####################################################

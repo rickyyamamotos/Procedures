@@ -1,0 +1,12 @@
+Log onto mysql as root
+
+mysql> CREATE USER '<Username>'@'localhost' IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON *.* TO '<Username>'@'localhost' WITH GRANT OPTION;
+	GRANT ALL PRIVILEGES ON `%`.* TO '[user]'@'[hostname]' WITH GRANT OPTION;
+mysql> CREATE USER '<Username>'@'%' IDENTIFIED BY '<Password>';
+mysql> GRANT ALL PRIVILEGES ON *.* TO '<Username>'@'%' WITH GRANT OPTION;
+mysql> GRANT RELOAD,PROCESS ON *.* TO '<Username>'@'localhost';
+mysql> FLUSH PRIVILEGES;
+
+
+GRANT ALL PRIVILEGES ON `%`.* TO '<Username>'@'localhost' IDENTIFIED BY '<Password>' WITH GRANT OPTION;

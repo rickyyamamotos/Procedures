@@ -1,0 +1,30 @@
+ du -h --max-depth=1
+
+
+Find Largest Directories in Linux
+du -a /home | sort -n -r | head -n 5
+du -hs * | sort -rh | head -5
+
+display the largest folders/files including the sub-directories, run:
+du -Sh | sort -rh | head -5
+
+display the biggest file sizes only:
+find -type f -exec du -Sh {} + | sort -rh | head -n 5
+
+
+
+
+
+
+find . -type f -size +100000k -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
+	//* from main partition
+
+find . -type d -size +100M
+
+du -Sh | sort -rh | head -5
+
+du -hsx * | sort -rh | head -10
+
+
+find / -xdev -type f -size +100M -exec du -sh {} ';' | sort -rh | head -n50
+	// from all partition/mounts

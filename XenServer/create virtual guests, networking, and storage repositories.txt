@@ -1,0 +1,11 @@
+create virtual guests, networking, and storage repositories on XenServer 7.4.0:
+===============================================================================
+(https://www.tecmint.com/installation-of-xenserver-7-upgrade-xenserver-6-5-to-7/)
+
+-Open Xen Center from you desktop PC
+-Connect to the XenServer:
+	IP: 		XXX.XXX.XXX.65
+	Servername: 	XENSERVER-PE2850
+	Password:	<Password>
+-
+

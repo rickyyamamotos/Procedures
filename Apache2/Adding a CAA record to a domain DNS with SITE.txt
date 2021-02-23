@@ -1,0 +1,29 @@
+NOTE WINDOWS DOES NOT ALLOW THE CREATION OF A CAA RECORD
+but if you hace windows 2016, then you can use a worka around
+
+
+
+if it is a subdomain, and all certificates were issued by only 1 issuer
+	See "Adding a CAA record to a domain DNS with Godaddy.txt - Shortcut"
+Otherwise you will need to create a 
+	log onto <Site>
+	Administrative tools \ DNS
+	righ click on <Site>
+	Add Domain
+		Name: moodle
+	Expand moodle
+	New A record inside moodle
+		name: 			//* blank
+		IP address: XXX.XXX.XXX.248
+	Add an A record
+		Name: @
+		Flags: 0
+		Tag: issue
+		Value: godaddy.com
+		TTL: 1/2 hour
+	Add an A record
+		Name: @
+		Flags: 0
+		Tag: issue
+		Value: letsencrypt.org
+		TTL: 1/2 hour

@@ -1,0 +1,38 @@
+Can't connect to local MySQL server through socket 'varlibmysqlmysql.sock'
+
+180206 13:17:45 [ERROR] Missing system table mysql.proxies_priv; please run mysql_upgrade to create it
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_current' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_history' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_history_long' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'setup_consumers' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'setup_instruments' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'setup_timers' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'performance_timers' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'threads' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_summary_by_thread_by_event_name' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_summary_by_instance' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'events_waits_summary_global_by_event_name' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'file_summary_by_event_name' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'file_summary_by_instance' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'mutex_instances' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'rwlock_instances' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'cond_instances' has the wrong structure
+180206 13:17:45 [ERROR] Native table 'performance_schema'.'file_instances' has the wrong structure
+180206 13:17:45 [Note] Event Scheduler: Loaded 0 events
+180206 13:17:45 [Note] /usr/libexec/mysqld: ready for connections.
+Version: '5.5.44'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  MySQL Community Server (GPL) by Remi
+180206 13:17:45  InnoDB: Assertion failure in thread 140459891177216 in file trx0purge.c line 840
+InnoDB: Failing assertion: purge_sys->purge_trx_no <= purge_sys->rseg->last_trx_no
+InnoDB: We intentionally generate a memory trap.
+InnoDB: Submit a detailed bug report to http://bugs.mysql.com.
+InnoDB: If you get repeated assertion failures or crashes, even
+InnoDB: immediately after the mysqld startup, there may be
+InnoDB: corruption in the InnoDB tablespace. Please refer to
+InnoDB: http://dev.mysql.com/doc/refman/5.5/en/forcing-innodb-recovery.html
+InnoDB: about forcing recovery.
+18:17:45 UTC - mysqld got signal 6 ;
+This could be because you hit a bug. It is also possible that this binary
+or one of the libraries it was linked against is corrupt, improperly built,
+or misconfigured. This error can also be caused by malfunctioning hardware.
+We will try our best to scrape up some info that will hopefully help
+diagnose the problem, but since we have already crashed,

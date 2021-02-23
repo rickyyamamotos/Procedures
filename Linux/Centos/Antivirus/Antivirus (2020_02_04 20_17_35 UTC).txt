@@ -1,0 +1,151 @@
+install Linux Malware Detect (LMD) and ClamAV
+
+Installing LMD
+$ sudo yum -y install epel-release
+$ sudo yum -y install mailx
+	//** to email virus reports
+$ sudo yum install inotify-tools
+$ sudo su
+$ cd /tmp
+$ wget http://www.rfxn.com/downloads/maldetect-current.tar.gz
+$ tar -xvzf maldetect-current.tar.gz
+$ cd maldetect-XXX (Where XXX is the release number)
+$ ./install.sh
+$ ln -s /usr/local/maldetect/maldet /bin/maldet
+$ hash -r
+
+
+Configuring LMD
+$ nano /usr/local/maldetect/conf.maldet
+	email_alert="1"
+	email_addr="<Email>"
+	scan_clamscan="1"
+	quarantine_hits="1"
+	quarantine_clean="1"
+
+
+Installing ClamAV (it did not work)
+Optional:
+	$ nano /etc/yum.repos.d/dag.repo
+		[dag]
+		name=Dag RPM Repository for Red Hat Enterprise Linux
+		baseurl=http://apt.sw.be/redhat/el$releasever/en/$basearch/dag/
+		gpgcheck=1
+		gpgkey=http://dag.wieers.com/packages/RPM-GPG-KEY.dag.txt
+		enabled=1
+$ yum update
+$ yum install -y clamav-server clamav-data clamav-update clamav-filesystem clamav clamav-scanner-systemd clamav-devel clamav-lib clamav-server-systemd
+	optional	$ yum -y install clamd
+	optional	$ yum -y install clamav clamav-devel
+	
+//* clamd is the virus scanner engine. 
+//* clamdscan submits files to it for scanning
+//* clamav-milter submits email for scanning. 
+//* freshclam updates the virus database and notifies clamd. 
+//* clamscan is (I think) the standalone version of clamd+clamdscan, probably more memory-efficient because clamd won't be running all the time.
+If using SELinux
+	$ setsebool -P antivirus_can_scan_system 1
+
+Configuration of Clam daemon
+$ cp /usr/share/clamav/template/clamd.conf /etc/clamd.d/clamd.conf
+$ nano /etc/clamd.d/clamd.conf
+	# Example
+	User clamscan
+	LocalSocket /var/run/clamd.<SERVICE>/clamd.sock
+
+Enable Freshclam
+$ cp /etc/freshclam.conf /etc/freshclam.conf.bak
+$ sed -i ‘/^Example/d’ /etc/freshclam.conf
+	//* deletes the lines with: Example
+
+Missing systemd service file
+nano  /usr/lib/systemd/system/clam-freshclam.service
+	# Run the freshclam as daemon
+	[Unit]
+	Description = freshclam scanner
+	After = network.target
+	
+	[Service]
+	Type = forking
+	ExecStart = /usr/bin/freshclam -d -c 4
+	Restart = on-failure
+	PrivateTmp = true
+	
+	[Install]
+	WantedBy=multi-user.target
+$ systemctl enable clam-freshclam.service
+$ systemctl start clam-freshclam.service
+$ systemctl status clam-freshclam.service
+	//* check status
+
+Change service files
+	//* By default, the service files seem to be messy and not working.
+$ ls -l /usr/lib/systemd/system/clam*
+$ mv /usr/lib/systemd/system/clamd@.service /usr/lib/systemd/system/clamd.service
+$ nano  /usr/lib/systemd/system/clamd@scan.service
+	.include /lib/systemd/system/clamd.service
+$ nano /usr/lib/systemd/system/clamd.service
+	[Unit]
+	Description = clamd scanner daemon
+	After = syslog.target nss-lookup.target network.target
+	[Service]
+	Type = simple
+	ExecStart = /usr/sbin/clamd -c /etc/clamd.d/clamd.conf --nofork=yes
+	Restart = on-failure
+	PrivateTmp = true
+	[Install]
+	WantedBy=multi-user.target
+$ cd /usr/lib/systemd/system
+$ systemctl enable clamd.service
+$ systemctl enable clamd@scan.service
+$ systemctl start clamd.service
+$ systemctl start clamd@scan.service
+
+Testing LMD/ClamAV
+$ cd /var/www/html
+$ wget http://www.eicar.org/download/eicar.com.txt
+$ wget http://www.eicar.org/download/eicar_com.zip
+$ wget http://www.eicar.org/download/eicarcom2.zip
+$ maldet -a /va
+/www/html
+
+
+Enabling folder monitoring
+	//*  regularly monitor the folder(s) that house your server's files
+$ sudo maldet -m /var/www/html/,/data/
+	//* monitor both /var/www/html and /data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

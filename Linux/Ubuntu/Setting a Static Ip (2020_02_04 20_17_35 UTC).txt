@@ -1,0 +1,38 @@
+	gateway	XXX.XXX.XXX.1
+//* Temporary change
+ifconfig eth0 XXX.XXX.XXX.48
+ifconfig eth0 netmask <Subnet>
+ifconfig eth0 broadcast XXX.XXX.XXX.255
+route add default gw XXX.XXX.XXX.1 eth0
+
+//* Permanent change
+$ sudo nano /etc/network/interfaces
+auto ens160
+iface ens160 inet static
+	address XXX.XXX.XXX.48
+	netmask <Subnet>
+	network	XXX.XXX.XXX.0
+	broadcast	XXX.XXX.XXX.255
+	gateway XXX.XXX.XXX.1
+	dns-nameservers XXX.XXX.XXX.19 XXX.XXX.XXX.3 8.8.8.8
+$ sudo /etc/init.d/networking restart
+
+Ubuntu 18.04
+$ nano /etc/netplan/01-network-manager-all.yaml
+	network:
+	 version: 2
+	 renderer: networkd
+	 ethernets:
+	   ens32:
+	   dhcp4: no
+	   addresses: [XXX.XXX.XXX.97<CIDR>]
+	   gateway4: XXX.XXX.XXX.1
+	   nameservers:
+	    addresses: [XXX.XXX.XXX.20,XXX.XXX.XXX 19]
+$ sudo netplan try
+	//* test configuration
+$ netplan apply
+$ neplan generate
+$ sudo systemctl restart network-manager
+	//* or sudo systemctl restart system-networkd
+

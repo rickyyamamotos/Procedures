@@ -1,0 +1,9 @@
+It is the big NAS under <Username> Desk
+
+user: root / <Username>
+
+IP XXX.XXX.XXX.105
+
+user
+	<Username> / <Password>
+	rick / <Password>

@@ -1,0 +1,57 @@
+
+
+Check if clamv is installed
+$ rpm -q clamav
+
+$ yum install epel-release -y
+	//* Install/enable the EPEL repo
+$ yum install clamav clamd
+	//* If error: No package clamav available
+	//* check that epel is installed and enabled
+		yum --enablerepo=rpmforge install clamav clamd
+			//* if error: Error getting repository data for epel, repository not found
+				//* This is for epel-release-6-8.noarch version only
+				vi /etc/yum.repos.d/epel.repo
+					[epel]
+					name=Extra Packages for Enterprise Linux 6 - $basearch
+					#baseurl=http://download.fedoraproject.org/pub/epel/6/$basearch
+					mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch
+					failovermethod=priority
+					enabled=1
+					gpgcheck=1
+					gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+//* Set clamd to auto-start
+$ /etc/init.d/clamd start
+$ chkconfig clamd on
+$ /etc/init.d/clamd start
+
+//* Update the virus definitions database
+$ /usr/bin/freshclam
+	Note: ClamAV will update automatically, as part of /etc/cron.daily/freshclam
+
+
+Setting daily scans:
+$ vi /etc/cron.daily/dailyscan
+	#!/bin/bash
+	SCAN_DIR="/"
+		//* Scan the root
+	LOG_FILE="/var/log/clamav/dailyscan.log"
+	/usr/bin/clamscan -i -r --exclude-dir=^/sys $SCAN_DIR >> $LOG_FILE
+$ chmod +x /etc/cron.daily/dailyscan
+
+Manual scan
+$ clamscan -i -o -r --exclude-dir=^/sys /directory
+-i only print infected files
+-o skip printing OK file
+-r scan subdirectories
+-exclude-dir=^/sys exclude the /sys directory where sys is from the root only
+^ REGEX that means from the very beginning of the line
+
+
+Quaranteing files (Moving them to another directory)
+$ clamscan -r --move=/home/USER/VIRUS /home/USER
+-move moves infected files to a directory
+
+
+
+

@@ -1,0 +1,17 @@
+Log into canvas: <Site><Site>
+	username: <Password>
+	password: <Password>
+
+Add a Developer Key
+	Site <Username> -> Developer Keys -> Add Developer Key
+		key name: anyname
+		redirect URI: http://<Site>/manage_content
+
+Add the APP
+	Settings -> Apps Tab -> External Apps -> Add New App
+		Name: test
+		Consumer Key: <Key>
+		URL: http://<Site>/xml_config.xml
+
+Add Content
+	Courses -> Select a Course (<Site>1 Test) -> Module -> Gear -> Add Content -> Add "External Tool" -> 

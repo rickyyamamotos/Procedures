@@ -1,0 +1,4 @@
+for an existing site, if you want to change the domain, 
+just change the host name if the biding.
+	iis mgr -> site -> edit bidings -> edit http -> edit the name in the host box
+	restart the site

@@ -1,0 +1,49 @@
+136 WAN Primary IP  XXX.XXX.XXX.186/255.255.255.255 Host  WAN  This item cannot be edited This item cannot be deleted 
+137 Default Active WAN IP  XXX.XXX.XXX.186/255.255.255.255 Host  WAN  This item cannot be edited This item cannot be deleted 
+
+
+Firewalled Subnets WAN Primary IP "WAN Primary IP" "3CX Server Private" "3CXSIP Services" Original Any Any 148 
+ 216 Any Original WAN Primary IP 3CX Server Private 3CXSIP Services Original X1 Any 195 
+
+WAN Primary IP
+	XXX.XXX.XXX.186/255.255.255.255
+
+3CX Server Private
+	XXX.XXX.XXX.30/255.255.255.255
+
+
+
+3CXSIP Services
+	SIP
+		 UDP 5060 5061 
+	SIP-TCP
+		 TCP 5060 5061 
+	3CX-Secure
+		TCP 5001 
+	3CX-tcp-5090
+		TCP 5090 
+	3CX-UDP-5090
+		 UDP 5090 
+	3CXRTP
+		 UDP 9000 9255 
+
+Missing
+tcp 5001	3CX-SSL Services
+TCP 5015
+UDP 9000-10999
+
+
+
+
+OLD VERSIONS
+	3CX-FW-main
+		 UDP 9500 
+	3CXSIPTCP 
+		 TCP 5060 
+	Tcp 5038
+		UDP: 5060, 10000-20000, 4000-4999
+	rcp 5090
+	udp 5090
+	udp 9000-9255 
+	udp 9256-9499 
+	tcp 4516

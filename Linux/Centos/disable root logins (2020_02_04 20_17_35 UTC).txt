@@ -1,0 +1,5 @@
+$ nano /etc/passwd
+	root:XXXXXXXX:/root:/sbin/nologin
+
+$ passwd -d root
+

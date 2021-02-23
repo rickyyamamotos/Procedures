@@ -1,0 +1,14 @@
+mounted iscsi volume on windows is showing a write protected
+https://serverfault.com/questions/472150/iscsi-issue-the-media-is-write-protected
+
+on the computer that has the iscsi mounted, run cmd.exe as <Username>
+C:\> diskpart
+diskpart> list disk
+diskpart> select disk 7
+	//* replace the 7 with the correct number, see computer management -> disks
+diskpart> attributes disk
+	//* this will show:
+		Read-Only: yes
+diskpart> attr disk clear readonly
+diskpart> exit
+

@@ -1,0 +1,16 @@
+installed on <Site>-windows
+	tw XXXX / <Password>
+
+
+https://www.spiceworks.com
+username: <Email>
+password: <Password>
+
+rpd to \\spiceworks or \\XXX.XXX.XXX.128
+http://XXX.XXX.XXX.51:9675
+http://<Site>-spiceworks:9675/
+username: <Email>
+password: <Password>
+
+
+

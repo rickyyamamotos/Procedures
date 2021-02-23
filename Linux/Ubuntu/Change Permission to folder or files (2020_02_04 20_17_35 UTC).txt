@@ -1,0 +1,2 @@
+$ find /var/www/moodledata -type d -exec chmod 700 {} +
+$ find /var/www/moodledata -type f -exec chmod 600 {} +

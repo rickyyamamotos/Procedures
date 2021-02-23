@@ -1,0 +1,121 @@
+This plugin allow monitoring of esxi hosts
+
+Installation
+	1) Install the "vSphere SDK for Perl" as shown on 
+	   "Install VMWare vSphere SDK for Perl to CentOS 7 – CyberGround.pdf"
+	2) Install the "check_vmware_esx" plugin as shown on
+	   "BaldMansMojo - check_vmware_esx.pdf"
+	3) cp /check_vmware_esx-master/modules to /usr/lib64/nagios/plugins/
+	4) nano -c /usr/lib64/nagios/plugins/check_vmware_esx.pl
+		//* Line 1407 replace
+			use lib "modules";
+		//* with
+			use lib "/usr/lib64/nagios/plugins/modules";
+	5) copy vcenter-auth to nagios4:/usr/lib64/nagios/plugins/
+	6) on each host to be monitored, create a user, and give it a read-only permissions
+		nagios / <Site>nagios123$
+	7) Modify the h_host.cfg
+		define host{
+		#       use                     t_<Site>-vmware
+		        use                     t_<Site>_esxi
+		        host_name               h_XXX.XXX.XXX.50
+		        parents                 h_NetgearS3300-28X-ITRoom
+		        address                 XXX.XXX.XXX.50
+		        icon_image              vm-host.png
+		        statusmap_image         vm-host.gd2
+		        }
+			
+
+Usage
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50 -S runtime -s health
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50  --select=cpu
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50  --select=mem
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50  --select=net
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50  --select=volumes
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.50  --select=io
+
+Where
+	-S, --select=cpu                    CPU usage in percentage
+	-w, --warning=<threshold>           Warning threshold in percent.
+	-c, --critical=<threshold>          Critical threshold in percent.
+	
+	-S, --select=mem                    All mem info(except overall and no thresholds)
+	-s, --subselect=usage               Average mem usage in percentage
+	
+	-S, --select=net                    Shows net info
+	-s, --subselect=usage               Overall network usage in KBps(Kilobytes per Second).
+	
+	-S, --select=volumes                Shows all datastore volumes info
+	    --gigabyte                      Output in GB instead of MB
+	    --alertonly                     List only alerting volumes
+	-w, --warning=<threshold>           Warning threshold.
+	-c, --critical=<threshold>          Critical threshold.
+	                                    Thresholds should be either a simple counter or a percentage
+	                                    value in the n% (i.e. 90%). If checking more than a single
+	                                    with --usedspace volume only percent is allowed as threshold or
+	                                    --spaceleft must be used.
+	
+	-S, --select=io                     Shows all disk io info. Without subselect no thresholds
+	                                    can be given. All I/O values are aggregated from historical
+	                                    intervals over the past 24 hours with a 5 minute sample rate
+	-s, --subselect=usage               Aggregated disk I/O rate. For hosts, this metric includes
+
+
+
+
+To be fixed
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.120 -S runtime -s health
+	CRITICAL: 5 health issue(s) found in 79 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 2: Off Line-Disabled] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Critical] [Type: power] [Name: Power Supply 2 Status 0: Failure status - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	4) [Critical] [Type: power] [Name: Power Supply 2 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	5) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.54  -S runtime -s health
+	CRITICAL: 5 health issue(s) found in 96 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 2: Off Line-Disabled] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Critical] [Type: power] [Name: Power Supply 2 Status 0: Failure status - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	4) [Critical] [Type: power] [Name: Power Supply 2 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	5) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.56   -S runtime -s health
+	CRITICAL: 3 health issue(s) found in 117 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.57    -S runtime -s health
+	CRITICAL: 3 health issue(s) found in 117 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.58     -S runtime -s health
+	CRITICAL: 5 health issue(s) found in 79 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 1: Off Line-Disabled] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Failure status - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	4) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	5) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.59   -S runtime -s health
+	CRITICAL: 5 health issue(s) found in 96 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 1: Off Line-Disabled] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Failure status - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	4) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	5) [Warning] [Type: power] [Name: System Board 1 PS Redundancy 0 - Redundancy lost] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+/usr/lib64/nagios/plugins/check_vmware_esx.pl  --authfile=/usr/lib64/nagios/plugins/vcenter-auth --host=XXX.XXX.XXX.77   -S runtime -s health
+	CRITICAL: 3 health issue(s) found in 96 checks: 
+	1) [Critical] [Type: system] [Name: VMware Rollup Health State] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	2) [Critical] [Type: power] [Name: Power Supply 1 Status 0: Power Supply AC lost - Assert] [Label: Red] [Summary: Sensor is operating under critical conditions]
+	3) [Warning] [Type: voltage] [Name: System Board 1 5V PG 0 - State asserted] [Label: Yellow] [Summary: Sensor is operating under conditions that are non-critical]
+
+
+
+
+
+
+
+
+
+
+
+

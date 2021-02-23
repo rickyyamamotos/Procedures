@@ -1,0 +1,51 @@
+This is to share a public IP between multiple web server (domains)
+The forwarding is based on the URI.
+For example:
+	nginx.<Site> IP is XXX.XXX.XXX.248	Not forwader XXX.XXX.XXX.42
+	test.<Site>  IP is XXX.XXX.XXX.248	forwarded to XXX.XXX.XXX.36
+	
+
+change the A record of the test.<Site> to point to the public IP of the nginx server (XXX.XXX.XXX.248)
+
+Get a certificate for test.<Site> from godaddy
+   or from letsencrypt (you will need to assign a public ip to test.<Site> to get obtain the cert)
+
+HTTP and HTTPS 
+ssh <Username>@XXX.XXX.XXX.42 
+	//* <Username> / <Password>
+$ cd /etc/nginx/sites-available
+$ cp default test.<Site>
+	//* replace newsite.com with the URI of the new site. F.E. <Site>-back.<Site>
+$ ln -s /etc/nginx/sites-available/test.<Site> /etc/nginx/sites-enabled
+$ cd /etc/nginx/sites-enabled
+$ nano test.<Site>
+	server {
+		listen 80;
+	        listen [::]:80;
+	        server_name test.<Site>;
+	        return  301 https://$server_name$request_uri;
+	}
+	server {
+	        listen 443;
+	        ssl    on;
+	        ssl_certificate /etc/letsencrypt/live/test.<Site>/fullchain.pem;
+	        ssl_certificate_key   /etc/letsencrypt/live/test.<Site>/privkey.pem;
+	        server_name test.<Site>;
+	        location / {
+	           proxy_pass  http://XXX.XXX.XXX.36;
+			# XXX.XXX.XXX.36 is the internal web server
+			# https://test.<Site> is being proxied to https://XXX.XXX.XXX.36
+	           proxy_http_version 1.1;
+	           proxy_set_header Upgrade $http_upgrade;
+	           proxy_set_header Connection 'upgrade';
+	           proxy_cache_bypass $http_upgrade;
+	          }
+	}
+
+$ nginx -t
+	//* verify that there are no errors
+$ service nginx restart
+$ curl https://test.<Site>
+	//*test
+
+

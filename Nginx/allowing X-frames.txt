@@ -1,0 +1,33 @@
+nginx as reverse proxy
+on /etc/nginc/sites-enabled/servername
+    proxy_set_header        X-Forwarded-Proto $scheme;
+    proxy_set_header        Host              $http_host;
+    proxy_set_header        X-Real-IP         $remote_addr;
+    proxy_set_header        X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header        X-Frame-Options   SAMEORIGIN;
+
+
+
+//* Header always unset X-Frame-Options
+
+
+
+
+
+
+Others for nginx as webserver
+on /etc/nginc/sites-enabled/servername
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Robots-Tag none;
+    add_header X-Download-Options noopen;
+    add_header X-Permitted-Cross-Domain-Policies none;
+
+
+on security.conf
+add_header X-Content-Type-Options nosniff;
+add_header X-Frame-Options "SAMEORIGIN";
+add_header X-XSS-Protection "1; mode=block";
+add_header X-Robots-Tag none;
+add_header X-Download-Options noopen;
+add_header X-Permitted-Cross-Domain-Policies none;
+

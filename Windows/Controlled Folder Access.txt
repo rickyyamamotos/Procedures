@@ -1,0 +1,29 @@
+requirements
+-Windows 10 Creators
+Windows Defender Security Center -> Virus & Threat Protection -> Virus & Threat Protection Settings -> 
+
+
+
+
+GPO
+
+
+
+Powershell
+
+Set-MpPreference -EnableControlledFolderAccess Enabled
+	//* Enables Protected folders
+Set-MpPreference -EnableControlledFolderAccess Disabled
+	//* Disables Protected folders
+Set-MpPreference -EnableControlledFolderAccess AuditMode
+	//* enable the feauting in audit mode
+Add-MpPreference -ControlledFolderAccessAllowedApplications "c:\apps\test.exe"
+	//* allow specific apps through protected dolfers
+Add-MpPreference -ControlledFolderAccessProtectedFolders "c:\apps"
+	//* Protect additional folders
+
+App that needs to be allowed
+	Office
+	Acrobat
+	Windows Print
+	

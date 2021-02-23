@@ -1,0 +1,12 @@
+
+
+In CentOS 7
+$ ifconfig
+	//* shows if IPv6 is enabled
+$ nano /etc/sysctl.conf
+	//* Append
+	net.ipv6.conf.all.disable_ipv6 = 1
+	net.ipv6.conf.default.disable_ipv6 = 1
+$ sysctl -p
+$ ifconfig
+	//* shows if IPv6 is enabled

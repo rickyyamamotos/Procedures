@@ -1,0 +1,15 @@
+mysql> use <Site>;
+mysql> show table status where Engine='MyISAM';
+
+mysql> SELECT CONCAT('ALTER TABLE ',TABLE_NAME,' ENGINE=InnoDB;') FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE='MyISAM' AND table_schema = '<Site>' INTO OUTFILE '/var/lib/mysql-files/tables.sql';
+$ mysql -uroot -p <Site> < /var/lib/mysql-files/tables.sql
+
+
+
+
+
+
+
+
+
+       

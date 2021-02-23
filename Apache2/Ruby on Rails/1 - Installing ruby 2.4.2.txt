@@ -1,0 +1,121 @@
+https://gorails.com/setup/ubuntu/16.04
+
+installing ruby using rvm
+
+After reboot or login to start rvm and ruby run the following
+$ sudo source /usr/local/rvm/scripts/rvm
+
+Installing Ruby on Ubuntu 16.04 minimal
+
+Setting up ubuntu 16.04 minimal
+$ hostname passenger
+$ nano /etc/hosts
+	127.0.0.1	passenger
+$ ip addr
+	//* take note of the interface: ens160 (it could be something else like eth0)
+$ nano /etc/network/interfaces
+	auto ense160
+	iface ens160 inet statis
+		address XXX.XXX.XXX.31
+		netmask <Subnet>
+		network	XXX.XXX.XXX.0
+		broadcast	XXX.XXX.XXX.255
+		gateway XXX.XXX.XXX.1
+		dns-nameserver XXX.XXX.XXX.19
+		dns-nameserver XXX.XXX.XXX.3
+		dns-nameserver 8.8.8.8
+$ sudo /etc/init.d/networking restart
+
+
+Install Apache2
+$ sudo apt-get update
+$ sudo apt-get install apache2
+$ sudo apt-get install curl
+$ sudo ufw allow 'Apache Full'
+$ sudo ufw status
+go to http://localhost
+
+
+Installing SSH
+$ sudo apt-get install ssh
+$ sudo nano /etc/ssh/sshd_config
+	PermitRootLogin no
+		//* Disabling root login through ssh
+	Port <PortNumber>
+		//* Changing the port
+	AllowUsers <Username>
+$ sudo service sshd restart
+$ sudo systemctl enable ssh
+$ ufw allow from any to any port <PortNumber>
+$ ufw limit ssh
+	//* If an IP address is tries to connect more than 10 times in 30 seconds, all the following attempts will fail since the connections will be DROPped.
+	//* nano /etc/ssh/sshd_config
+	//* 	MaxStartups 2:30:10
+	//*		Between the third and tenth connection the system will start randomly dropping connections from 30% up to 100% at the tenth simultaneous connection. 
+
+
+Installing Ruby dependencies:
+$ apt-get update
+$ sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev nodejs
+
+Installing RVM and Using rvm to install ruby
+$ sudo apt-get install libgdbm-dev libncurses5-dev automake libtool bison libffi-dev
+$ gpg --keyserver hkp://keys.gnupg.net --recv-keys <key>
+$ curl -sSL https://get.rvm.io | bash -s stable
+	//* Created group  rvm
+	//* Installed RVM to /usr/local/rvm/
+	//* First you need to add all users that will be using rvm to 'rvm' group, and logout - login again, anyone using rvm will be operating with `umask u=rwx,g=rwx,o=rx`.
+	//* To start using RVM you need to run `source /etc/profile.d/rvm.sh` in all your open shell windows, in rare cases you need to reopen all shell windows.
+$ sed 's/:.*//' /etc/passwd
+	//* show users
+$ sudo usermod -a -G rvm www-data
+$ sudo usermod -a -G rvm <Username>
+$ sudo usermod -a -G rvm root
+
+$ source /usr/local/rvm/scripts/rvm
+	//* the above line was modified because the original line did not work: source ~/.rvm/scripts/rvm
+$ rvm install 2.4.2
+	//* gemset created /usr/local/rvm/gems/ruby-2.4.2.@global
+	//* gemset created /usr/local/rvm/gems/ruby-2.4.2
+	//* imported gemsets /usr/local/rvm/gemsets/default.gems
+	//* generated wrappers
+$ rvm use 2.4.2 --default
+	//* Using /usr/local/rvm/gems/ruby-2.4.2
+$ ruby -v
+	//* ruby 2.4.2p198 (2017-09-14 revision 59899) [x86_64-linux]
+
+$ gem install bundler
+	//* installs bundler
+
+Configuring Git
+$ git config --global color.ui true
+$ git config --global user.name "<Username>"
+$ git config --global user.email "<Email>"
+$ ssh-keygen -t rsa -b 4096 -C "<Email>"
+	//* created saved key onto /root/.ssh/id_rsa
+	//* password <Password>
+//* $ ssh-add /root/.ssh/id_rsa
+	//* This step is not required
+$ nano /root/.ssh/id_rsa
+	//* this is the private key
+-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+-
+
+$ cat ~/.ssh/id_rsa.pub
+	//* copy the public key
+	//* and paste it on https://github.com/settings/keys -> New SSH key
+ssh-rsa == <Email>
+
+ssh -T git@github.com
+	//* test the connection
+	//* paraphrase is <Password>
+	//* result: Hi <Username>! You've successfully authenticated, but GitHub does not provide shell access.
+
+
+CONTINUE WITH "2 - Installing Rails.txt'
+
+
+
+
+

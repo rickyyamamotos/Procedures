@@ -1,0 +1,49 @@
+https://httpd.apache.org/docs/2.4/mod/mod_substitute.html
+
+Enabling the mod_substitute in apache
+	ln -s /etc/apache2/mods-available/substitute.load /etc/apache2/mods-enabled
+	service apache2 restart
+Show if mod_substitute is loaded/enabled
+	apachectl -M
+
+Example
+nano /var/www/html/.htaccess
+	<IfModule mod_substitute.c>
+	    AddOutputFilterByType SUBSTITUTE text/html
+	    Substitute "s/foo/bar/ni"			
+	</IfModule>
+
+Example (If either the pattern or the substitution contain a slash character then an alternative delimiter may be used to make the directive more readable:)
+	<IfModule mod_substitute.c>
+	    AddOutputFilterByType SUBSTITUTE text/html
+	    Substitute "s|<BR */?>|<br />|i"
+	</IfModule>
+
+
+Example
+A common use scenario for mod_substitute is the situation in which a front-end server proxies requests to a back-end server which returns HTML with hard-coded embedded URLs that refer to the back-end server. These URLs don't work for the end-user, since the back-end server is unreachable.
+In this case, mod_substitute can be used to rewrite those URLs into something that will work from the front end:
+Rewriting URLs embedded in proxied content
+	<IfModule mod_substitute.c>
+	ProxyPass        "/blog/" "http://internal.blog.example.com/"
+	ProxyPassReverse "/blog/" "http://internal.blog.example.com/"
+	Substitute "s|http://internal.blog.example.com/|http://www.example.com/blog/|i"
+	</IfModule>
+
+Example with old.<<Site>
+replace the old <Site> url(<<Site>) with the new one(old.<<Site>)
+nano /var/www/html/.htaccess
+	<IfModule mod_substitute.c>
+	    AddOutputFilterByType SUBSTITUTE text/html
+	    Substitute "s|https://<Site>|https://old.<Site>/|i"
+	    Substitute "s|https//<Site>|http://old.<Site>/|i"
+	</IfModule>
+
+
+Issues
+pache mod_substitute works in curl but not on browser
+	Disabling gzip compression solves the issue. Add the below lines to httpd.conf SetEnv no-gzip 1 solves the problem
+
+
+
+

@@ -1,0 +1,50 @@
+Protect the Docker daemon socket
+
+
+specifying the tlsverify flag and pointing Docker’s tlscacert flag to a trusted CA certificate.
+
+Create a CA, server and client keys with OpenSSL
+First generate CA private and public keys:
+	$ openssl genrsa -aes256 -out ca-key.pem 4096 
+		Enter pass phrase for ca-key.pem: <Password>
+	$ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+		Common name: <Site>-DOCKER
+create a server key and certificate signing request (CSR). 
+	$ openssl genrsa -out server-key.pem 4096
+	$ openssl req -subj "/CN=<Site>-DOCKER" -sha256 -new -key server-key.pem -out server.csr
+sign the public key with our CA:
+	$ echo subjectAltName = DNS:<Site>-DOCKER,IP:XXX.XXX.XXX.48,IP:127.0.0.1 > extfile.cnf
+	$ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+		Enter pass phrase for ca-key.pem: <Password>
+create a client key and certificate signing request:
+	$ openssl genrsa -out key.pem 4096
+	$ openssl req -subj '/CN=<Site>D-IT-RickY' -new -key key.pem -out client.csr
+		!!! WHAT THE HEACK IS client
+create an extensions config file to make the key suitable for client authentication
+	$ echo extendedKeyUsage = clientAuth > extfile.cnf
+sign the public key:
+	$ openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out cert.pem -extfile extfile.cnf
+		Enter pass phrase for ca-key.pem: <Password>
+safely remove the two certificate signing requests:
+	$ rm -v client.csr server.csr
+make secret keys only readable by you, instead of being world-readable and writable for you and your group.
+	$ chmod -v 0400 ca-key.pem key.pem server-key.pem
+remove write access to certificates (world-readables) to prevent accidental damage
+	$ chmod -v 0444 ca.pem server-cert.pem cert.pem
+make the Docker daemon only accept connections from clients providing a certificate trusted by our CA:
+	$ dockerd --tlsverify --tlscacert=ca.pem --tlscert=server-cert.pem --tlskey=server-key.pem -H=0.0.0.0:2376
+		//* Error starting daemon: pid file found, ensure docker is not running or delete /var/run/docker.pid
+		//* resolution: $ ps axf | grep docker | grep -v grep | awk '{print "kill -9 " $1}' | sudo sh
+provide your client keys, certificates and trusted CA, make docker listen to 2376
+	$ docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem -H=<Site>-DOCKER:2376 version
+secure your Docker client connections by default
+	$ mkdir -pv ~/.docker
+	$ cp -v {ca,cert,key}.pem ~/.docker
+	$ export DOCKER_HOST=tcp://$HOST:2376 DOCKER_TLS_VERIFY=1		
+
+
+Connecting to the secure Docker port using curl
+	$ curl https://<Site>-DOCKER:2376/images/json --cert ~/.docker/cert.pem --key ~/.docker/key.pem --cacert ~/.docker/ca.pem
+
+https://docs.docker.com/engine/security/https/#client-modes
+

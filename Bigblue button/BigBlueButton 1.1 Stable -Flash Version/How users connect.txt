@@ -1,0 +1,21 @@
+Bibgluebutton ver 1.1
+
+To join or create a session:
+===========================
+http://bigbluebutton.<Site>
+	//* where bigbluebutton.<Site> is the FQDN
+
+
+
+To test creating a session (this must be disable for production)
+==========================
+http://bigbluebutton.<Site>/demo/demo1.jsp
+
+
+To check the user requirements to use bigblue
+=============================================
+http://bigbluebutton.<Site>/check
+
+
+
+

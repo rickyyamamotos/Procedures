@@ -1,0 +1,64 @@
+If you reinstalled the wazuh/ossec/securityonion, then puppet will not join the puppet client with the wazuhaster
+Because the wazuhaster lost their key,
+We need to delete the keys from the wazuhgent
+
+On the puppet master
+we need to disable wazuhgent.pp
+	$ cd  /etc/puppetlabs/code/environments/production/manifests/
+	$ mv wazuhgent.pp wazuhgent.pp.bak
+	$ cd /etc/puppetlabs/code/environments/production/modules/
+	$ mkdir deletewazuhclientkey
+	$ cd deletewazuhclientkey
+	$ mkdir files
+	$ mkdir manifests
+	$ mkdir templates
+	$ mkdir tests
+	$ cd files
+	$ nano deletewazuhclientkey.sh
+		#!/bin/bash
+		#SCRIPT NAME: deletewazuhclientkey.sh
+		#PURPOSE: Delete the wazuhssec client.key from wazuhlients
+		#         to force them to renjoin the wazuhsses/securityonion master
+		#         This is needed if we replace the securityonion master and all client 
+		#         keys were lost
+		#CREATED ON: 10/15/2019
+		#CREATED BY: Rick Yamamoto
+		#STARTING...
+		PATH=$PATH:/usr/local/bin:/usr/bin
+		vfile="/var/ossec/etc/client.keys"
+		if [ -f $vfile ] ; then
+		   mv /var/ossec/etc/client.keys /var/ossec/etc/client.keys.bak
+		fi
+	$ cd /etc/puppetlabs/code/environments/production/modules/deletewazuhclientkey/manifests/
+	$ nano init.pp
+		class deletewazuhclientkey {
+		    file { "/tmp/deletewazuhclientkey.sh":
+			ensure => "present",
+		        mode => "0711",
+		        owner => 'root',
+		        group => 'root',
+		        source => 'puppet:///modules/deletewazuhclientkey/deletewazuhclientkey.sh',
+		        checksum => mtime,
+		    }
+		    exec { "Deleting the client.key":
+		        command => "/tmp/XXXXX.sh",
+		        cwd => "/tmp",
+		        user => "root",
+		    }
+		}
+	$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+		node default {
+		   include deletewazuhclientkey
+		}
+	$ service puppetserver restart
+
+Give it 2 or 3 hours for all the keys to be deleted
+	$ nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+		node default {
+			remove this line =====>   include deletewazuhclientkey
+	$ cd  /etc/puppetlabs/code/environments/production/manifests/
+	$ mv wazuhgent.pp.bak wazuhgent.pp
+	$ service puppetserver restart
+
+Give it 2 or 3 hours and check the securityonion for new wazuhlients
+

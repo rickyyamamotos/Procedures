@@ -1,0 +1,4 @@
+The problem was that I was using Ubuntu, the php7.0-xml package does not come as default.
+Solved by:
+	$ apt-get install php7.0-xml
+	$ service apache2 restart

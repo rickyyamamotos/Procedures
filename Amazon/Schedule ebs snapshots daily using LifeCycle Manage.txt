@@ -1,0 +1,51 @@
+Configuring automatic Backups for <Site>
+General Settings
+1) a snapshot of the EBS volume used by <Site> will be backed up daily
+2) only the last 10 snapshots will be kept. (this setting can be modified as required)
+Procedure to Set a Backup Schedule
+log into the aws console -> EC2 -> EBS -> Volumes -> get "Volume ID" of the volume we want to backup
+	(i.e. vol-<ID>)
+log into the aws console -> EC2 -> EBS -> Volumes -> select the volume (i.e. vol-<ID>) 
+   -> Select the "Tags" tab -> ensure a tag exists for the volume, otherwise create a tag
+   (i.e. ["name"," storage of <Site>"])
+log into the aws console -> EC2 -> EBS -> "LifeCycle Manage" -> Click "Create Lifecycle Policy"
+   -> on "Policy type", select "EBS snapshot policy" -> on "Select resource type", select "Volume"
+   -> in the "Description*" box, type: snapshot of the ebs of <Site>
+   -> in the "Target with these tags" drop-down menu, select the tag and its value (i.e. ["name"," storage of <Site>"])
+      to identify what to backup
+   -> in the "IAM role", select "Default role"
+   -> in the "Schedule name" box, type: Schedule to backup the ebs of <Site> com
+   -> in "Frequency", select: daily
+   -> in "Every", select 24					//* once a day
+   -> in "Starting at", type 08:00 UTC				//* 8 am UTC == 3 am EST
+   -> in "Retention type*", select 10				//* keep only 10 days of backups
+   -> in "Policy status after creation", select "Enable policy"
+   -> click on "Create Policy"
+
+
+
+EBS volume Restoration Procedure
+First, create a new volume from the desired snapshot (backed up snapshot)
+Second, detach the existing volume from the <Site> EC2
+Third, attach the new volume to the <Site> EC2 instance as /dev/sda1
+Fourth, launch the instance
+Fifth, delete the old EBS volume.
+Finally, reconfigure the "LifeCycle Manage" rule to backup the new EBS volume.
+   by setting a tag to the new EBS volume, and updating the tag on the "LifeCycle Manage" rule
+
+
+Total Restoration Procedure
+First, create a new EC2 with free Ubuntu 20 ami (AMI ID:ami-0a91cd140a1fc148a, AMI Name:ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20201026)
+Second, create a new volume from the desired snapshot (backed up snapshot)
+Third, detach the existing volume from the new EC2
+Fourth, attach the new volume to the new EC2 instance as /dev/sda1
+Fifth, launch the instance, fix the public DNS A Record to point to the new IP addresss of the new Instance
+Sixth, delete the old EBS volume.
+Finally, reconfigure the "LifeCycle Manage" rule to backup the new EBS volume
+   by setting a tag to the new EBS volume, and updating the tag on the "LifeCycle Manage" rule
+
+
+
+
+
+ 

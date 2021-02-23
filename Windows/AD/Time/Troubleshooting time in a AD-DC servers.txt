@@ -1,0 +1,17 @@
+Identify the AD PDC
+	C:> NetDOM /query FSMO (from any DC)
+		OR
+	C:> nltest /DCNAME: (from any workstation)
+In the PDC
+	C:> w32tm /config /manualpeerlist:"time-a-g.nist.gov time-b-g.nist.gov time-c-g.nist.gov" /syncfromflags:manual /reliable:yes /update
+	C:> net stop w32time
+	C:> net start w32time
+Identify all the DCs in AD
+	C:> nltest /dclist:
+		//* 
+In Other DCs that are not the PDC
+	C:> w32tm /query /source
+		//* this must show the PDC server
+	C:> w32tm /config /syncfromflags:domhier /update
+	C:> net stop w32time
+	C:> net start w32time

@@ -1,0 +1,50 @@
+
+compress a folder and subfolders
+	tar cvzf MyImages-14-09-12.tar.gz /home/MyImages
+
+Untar tar Archive File
+	tar -xvf public_html-14-09-12.tar -C /home/public_html/videos/
+		//* If you want to untar in a different directory then use option as -C (specified directory)
+
+Create tar.bz2 Archive File
+	tar cvfj Phpfiles-org.tar.bz2 /home/php
+
+Uncompress tar.bz2 Archive File
+	tar -xvf videos-14-09-12.tar.bz2
+
+List Content of tar Archive File
+	tar -tvf uploadprogress.tar
+
+list all files modified 1 day ago
+	find /var/www -type f -daystart -mtime -1
+list all files modified 30 day ago
+	find /var/www -type f -daystart -mtime -30
+list all files modified between 30 and 90 days ago
+	find /var/www -type f -daystart -mtime -90 -mtime +30
+
+
+tar all files modified 1 day ago
+	find /var/www -type f -daystart -mtime -1 -print0 | xargs -0 tar -Ajf /tmp/changes.tar.bz2
+		//* does not work
+
+tar all files modified 1 day ago
+	find /var/www -type f -daystart -mtime -1 > /tmp/dir.txt
+	tar -cvzf myfile.tar.gz -T /tmp/dir.txt
+
+tar all files modified in the last 6 hours
+	find /var/www -type f -daystart -mtime -0.25 > /tmp/dir.txt
+		//* 24 hr * 0.25 = 6 hr
+	tar -cvzf myfile.tar.gz -T /tmp/dir.txt
+
+tar all files modified in the last 1 hour
+	find /var/www -type f -cmin -60 > /tmp/dir.txt
+	tar -cvzf myfile.tar.gz -T /tmp/dir.txt
+
+tar all files modified in the last 10 min
+	find /var/www -type f -cmin -10 > /tmp/dir.txt
+	tar -cvzf myfile.tar.gz -T /tmp/dir.txt
+
+
+
+
+	

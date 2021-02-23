@@ -1,0 +1,4 @@
+$ nano /var/www/html/wp-content/themes/yourthemename/functions.php
+	//* append the following line
+		remove_filter('template_redirect', 'redirect_canonical');
+$ service apache2 restart

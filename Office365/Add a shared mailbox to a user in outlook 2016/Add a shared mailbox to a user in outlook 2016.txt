@@ -1,0 +1,31 @@
+Giving permission to the user to access a shared account
+Log onto office.com using an Administrative account
+click on <Username>
+click on users
+click on Active users
+Click the account you want to share
+Click on Mail Settings
+Click on edit next to Mailbox permission
+click on edit next to "Read and Manage"
+Click on +Add Permission
+Type the email address of the user
+Check the user from the results list
+click on Save
+Click on edit next to "Send on behalf"
+Click on +Add Permission
+Type the email address of the user
+Check the user from the results list
+click on Save
+click on close
+click on close
+click on close
+
+Note- due to microsoft, it may take like 5 minutes for the above changes to be updated
+
+Configuring Outlook to display the shared account:
+Click the File tab > Account Settings > Account Settings.
+Select your email address in the account list.
+Click Change > More Settings > Advanced tab > Add.
+Enter the shared account name and click OK.
+Click Apply > OK > Next > Finish.
+The shared mailbox will now automatically display in your Folder pane in Outlook.

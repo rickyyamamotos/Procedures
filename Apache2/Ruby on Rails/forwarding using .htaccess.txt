@@ -1,0 +1,16 @@
+nano /railrootfolder/public/.htaccess
+
+I.E. in <Site>
+	nano /var/www/<Directory>/current/public/
+		RewriteEngine on
+		RewriteCond %{HTTP_HOST} ^www\.<Site>\.<Site>\.org [NC]
+		RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+		RewriteCond %{HTTP_HOST} ^<Site>\.<Site>\.org [NC]
+		RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+
+		RewriteCond %{HTTP_HOST} ^www\.<Site>\.<Site>\.com [NC]
+		RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+		RewriteCond %{HTTP_HOST} ^<Site>\.<Site>\.com [NC]
+		RewriteRule ^(.*)$ https://<Site>/$1 [R,L]
+	//* this will forward <Site> to https://<Site>
+

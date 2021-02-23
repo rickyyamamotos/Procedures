@@ -1,0 +1,11 @@
+nano /var/www/html/.htaccess
+	# add the following at the botton of the file
+	<IfModule mod_rewrite.c>
+		RewriteEngine On
+		# Redirect all except allowed IP
+		ReWriteCond %{REMOTE_ADDR} !^000\.000\.000\.001$
+		RewriteCond %{REMOTE_ADDR} !000\.000\.000\.002$
+		ReWriteCond %{REMOTE_ADDR} !^000\.000\.000\.003$
+		RewriteRule (.*) http://YourOtherWebsite.com/$1 [R=301,L] 
+	</IfModule>
+service httpd restart

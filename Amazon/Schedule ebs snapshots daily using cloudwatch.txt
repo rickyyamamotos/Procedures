@@ -1,0 +1,15 @@
+better use "Schedule ebs snapshots daily using LifeCycle Manage.txt"
+
+log into the aws console -> EC2 -> EBS -> Volumes -> get "Volume ID" of the volume we want to backup
+	vol-<ID> 
+log into the aws console -> Cloudwatch -> Events -> Rules -> Create Rule
+   -> Select "Schedule" -> in the "Fixed rate of" box, type 1 -> and select "days"
+   -> Click on "Add Targets" -> Select "EC2 CreateSnapshot <Site> call" from the drop-down menu
+   -> In the "Volume ID*" box, type the "Volume ID" obtained from the previous step (i.e. vol-<ID>)
+   -> Choose "Create a new role for this specific resource" -> Choose "Configure details"
+   -> give the rule a name -> Check "enabled" -> Click on "Create rule"
+
+To restore, create a new EC2 with free Ubuntu 20 ami, then attach a new volume created from the desired snapshot
+
+
+ 

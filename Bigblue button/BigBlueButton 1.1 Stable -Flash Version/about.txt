@@ -1,0 +1,8 @@
+BigBlueButton enables you to share your audio, slides, chat, video, and desktop with students.  Built-in polling makes it easy to engage students and recording your lectures means that you can make them available for later review
+Bibgluebutton ver 1.1
+
+-Live whiteboard for presenters and groups
+-Everyone can share a webcam
+-BigBlueButton has deep integrations with Canvas, Schoology, Jenzabar, and Moodle. BigBlueButton is also LTI 1.0 compliant.
+
+

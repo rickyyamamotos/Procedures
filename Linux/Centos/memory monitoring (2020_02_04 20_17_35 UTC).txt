@@ -1,0 +1,29 @@
+Whole memory
+	$ free -m
+By processes
+	$ cat /proc/meminfo
+AnonPages: Non-file backed pages mapped into userspace page tables
+Mapped: files which have been mmaped, such as libraries
+Slab: in-kernel data structures cache
+NFS_Unstable: NFS pages sent to the server, but not yet committed to stable storage
+Bounce: Memory used for block device "bounce buffers"
+VmallocTotal: total size of vmalloc memory area. 
+		The total amount of memory, in kilobytes, of total allocated virtual address space. 
+VmallocUsed: amount of vmalloc area which is used
+		The total amount of memory, in kilobytes, of used virtual address space. 
+VmallocChunk: largest contigious block of vmalloc area which is free
+	The largest contiguous block of memory, in kilobytes, of available virtual address space.
+
+
+
+Determining real free memory
+	//* the system will utlize all unused memory for cache purposes, and free-up the cache when needed
+	//* therefore, we need to <Site> the cache utitization
+$ free
+	look for the -+ buffers/cache used free
+	the free number is the potential free memory from cached
+
+			 total       	used       	free     shared    buffers     cached
+Mem:      		65,973,692   	56,119,084    	9854608     131680    1097620   45452368
+-/+ buffers/cache:    	9,569,096   	56,404,596
+Swap:      		4046844      	12488    	4034356

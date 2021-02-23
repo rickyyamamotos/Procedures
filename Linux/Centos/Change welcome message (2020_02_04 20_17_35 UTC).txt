@@ -1,0 +1,28 @@
+//* Customizing motd (message of the day) for ssh connections
+$ nano /etc/motd
+	##################################
+	#
+	# Welcome to 'mdb2'
+	#
+	# Backups from mdb1 (<Site>.<Domain>)
+	# are stored in /home/<Username>/backups
+	# and /tmp
+	#
+	##################################
+$ chmod +x /etc/motd
+$ nano /etc/ssh/sshd_config
+	PrintMotd yes
+$ service sshd restart
+
+
+
+//* Customizing ssh banner message
+//* This message is displayed before the actual login
+$ nano /etc/sshgreetings.txt.
+	###############################
+	#                             #
+	#      Welcome to Machine1    #
+	#                             #
+	###############################
+$ nano /etc/ssh/sshd_config
+	Banner /etc/sshgreetings.txt

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+varx=1
+vflag1=1
+vscrollid=""
+
+curl -XGET "https://<Site>:9243/.app-search-engine-<Key>/_search?scroll=1m" -H 'Content-Type: application/json' -d'{  "size": 1000,         "aggs":{      "Title":{        "terms": {          "field": "filename$string.enum", "size": 1000      }}}}' > $varx.txt
+sed -e 's/,/\n/g' $varx.txt | sed -e 's/[/\n/g' | sed -e 's/{/\n/g' | sed -e 's/},/\n/g' > a$varx.txt
+vscrollid=$(grep '"_scroll_id":' a$varx.txt)
+vscrollid=${vscrollid:18,-1}
+echo "$varx: Scrolling ID = $vscrollid"
+
+while [ $vflag1 -gt 0 ]
+do
+   varx=$((varx+1))
+   if $vscrollid ; then
+      curl -XPOST "https://<Site>:9243/_search/scroll" -H 'Content-Type: application/json' -d'{    "scroll" : "1m",     "scroll_id" : "$vscrollid" }' > $varx.txt
+      sed -e 's/,/\n/g' $varx.txt | sed -e 's/[/\n/g' | sed -e 's/{/\n/g' | sed -e 's/},/\n/g' > a$varx.txt
+      vscrollid=$(grep '"_scroll_id":' a$varx.txt)
+      vscrollid=${vscrollid:18,-1}
+      echo "$varx: Scrolling ID = $vscrollid"
+   else
+      echo "Finished scrolling data"
+      vflag1=0
+   fi
+   if [ $varx -gt 10 ] ; then
+      vflag1=0 
+   fi
+done
+
+

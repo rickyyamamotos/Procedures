@@ -1,0 +1,12 @@
+
+$ var1 = 10
+$ var2 = "ab"
+
+echo "$var1"
+function1 "$var1" "$var2"
+
+# error
+echo var1 $var1
+
+# correct
+echo "$var1"

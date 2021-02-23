@@ -1,0 +1,52 @@
+Plan
+	update the SSL Intermediate Certificates on the DBS, test the application
+	revert to the old cert if any issues
+
+https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL-certificate-rotation.html
+
+Amazon RDS certificate authority (CA) certificate used by Amazon RDS database instances (the us-east-1 Region)
+
+you need to update your Amazon RDS certificate authority (CA) certificate before the old certificate expires on March 5
+
+Client applications must add new CA certificates to their trust stores, including root and intermediate certificates where necessary
+
+For instructions on updating 
+============================
+database certificates for RDS databases 
+	https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL-certificate-rotation.html
+For Amazon Aurora databases 
+	https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.SSL-certificate-rotation.html
+
+
+Update your Amazon RDS SSL/TLS certificates before March 5, 2020
+	DB Name			DB Type		Security Group
+	XXXXXXX			PostgreSQL	rds-aXXXXX (sg-XXX)
+	<Site>video		PostgreSQL	rds-launch-wizard-1 (sg-XXX)
+
+Apps
+	EC2 Instance Name	Connects to 
+	<Site>-video-env	<Site>video
+	xxxx-dev-env		None
+	xxx-xx-2018-06-20	<Site>video
+	<Site>-video-env-2	<Site>video
+
+Steps
+1) Download CA Certificate
+2) Upload those certificates on the clients (remote computers that connects to RDS)
+3) Change the CA certificate on the RDS instances
+
+
+Updating Your CA Certificate by Modifying Your DB Instance
+1) Download the new SSL/TLS certificate
+	Intermediate Certificates for US East (N. Virginia)
+		https://s3.amazonaws.com/rds-downloads/rds-ca-2019-us-east-1.pem	(new)
+		https://s3.amazonaws.com/rds-downloads/rds-ca-2015-us-east-1.pem	(old/current)
+	root certificate
+		https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem		(new)
+		https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem		(old/current)
+	Bundle	certificate (if your app does not allow intermediate (ca) certs)
+		https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem	(new)
+2) Update your database applications to use the new SSL/TLS certificate
+
+
+

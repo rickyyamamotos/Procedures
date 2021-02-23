@@ -1,0 +1,48 @@
+https://severalnines.com/download-clustercontrol-database-management-system
+
+Requirements
+	Architecture: x86_64 only
+	RAM: >2 GB
+	CPU: >2 cores
+	Disk space: >20 GB
+	Network: conventional network interface (eth, en, em
+	Redhat/CentOS/Oracle Linux 6 and later, Ubuntu 12.04/14.04 LTS, or Debian 7.0 and later
+	MySQL server (5.1 or later, preferably 5.5 or later)
+	MySQL client
+	Apache web server (2.2 or later)
+		mod_rewrite
+		mod_ssl
+		allow .htaccess override
+	PHP (5 or later)
+		RHEL: php, php-mysql, php-gd, php-ldap, php-curl
+		Debian: php5-common, php5-mysql, php5-gd, php5-ldap, php5-curl, php5-json
+		Linux Kernel Security (SElinux or AppArmor) - must be disabled or set to permissive mode
+		OpenSSH server/client
+		BASH (recommended: version 4 or later)
+		NTP server - All servers’ time must be synced under one time zone
+		netcat - for streaming backups
+Supported Databases
+MySQL/MariaDB 
+MongoDB 3.2+
+PostgreSQL 9.x
+
+If ClusterControl is installed via installation script (install-cc) or package manager (yum/apt), all dependencies will be automatically satisfied.
+If you used Severalnines Configurator to deploy a cluster, the deployment script disables firewalls by default to minimize the possibilities of failure during the cluster deployment. Once it is completed, it is important to secure the ClusterControl node and the database cluster. 
+
+Required ports
+ICMP (echo reply/request)
+SSH (default is 22)
+HTTP (default is 80)
+HTTPS (default is 443)
+MySQL (default is 3306)
+CMON RPC (default is 9500)
+HAProxy stats (if installed on ClusterControl node - default is 9600)
+MySQL load balance (if HAProxy is installed on ClusterControl node - default is 3307)
+Streaming port for mysqldump through netcat (default is 9999)
+
+The etc/hosts file should be identical on all servers in your cluster.
+	127.0.0.1     localhost.localdomain localhost
+	10.0.1.10     clustercontrol clustercontrol.example.com
+	10.0.1.11     server1 server1.example.com
+	10.0.1.12     server2 server2.example.com
+You need to separate the 127.0.0.1 entry from your real hostname	

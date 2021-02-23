@@ -1,0 +1,21 @@
+503 Service Unavailable (Failed to connect to endpoint [<Key>] _serverNamespace =  action = Allow _pipeName =varrunvmwarevpxd-webserver-pipe)
+
+Issue
+	Expired certificate
+
+Resolution
+	https://communities.vmware.com/t5/vCenter-Server-Discussions/Cannot-start-vCenter-503-Service-unavailable/td-p/2295756
+	https://kb.vmware.com/s/article/2112283
+	https://communities.vmware.com/t5/vCenter-Server-Discussions/Cannot-start-vCenter-503-Service-unavailable/m-p/2295765#M75192
+
+SSH log into XXX.XXX.XXX.149:22
+	rick / <Password>
+shell.set --enabled true
+shell
+/usr/lib/vmware-vmca/bin/certificate-manager
+	
+
+FIX WORKED
+https://kb.vmware.com/s/article/76719
+
+

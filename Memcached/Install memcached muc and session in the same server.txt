@@ -1,0 +1,64 @@
+We are installing memcached to cache MUC and Session on the same server that have moodle and mysql
+$ yum install memcached
+$ vi /etc/sysconfig/memcached
+	PORT="11212"
+	CACHESIZE="1024"
+$ memcached -p 11211 -d
+	//* reboot will close the port 11211 and not open again
+$ memcached -p 11212 -d
+$ systemctl start memcached
+	or service memcached start  (centos 6)
+$ systemctl enable memcached
+	or chkconfig memcached on  (centos 6)
+$ firewall-cmd --permanent --zone=public --add-port=11212/tcp
+	or vi /etc/sysconfig/iptables
+		//* add the following line before the first REJECT all
+		-A INPUT -p tcp -m state --state NEW -m tcp --dport 11212 -j ACCEPT
+$ firewall-cmd --permanent --zone=public --add-port=11211/tcp
+	or vi /etc/sysconfig/iptables
+		//* add the following line before the first REJECT all
+		-A INPUT -p tcp -m state --state NEW -m tcp --dport 11211 -j ACCEPT
+$ yum -y install php-memcached
+$ vi /etc/php.d/z-memcached.ini
+	session.save_handler=memcached
+$ vi /var/www/html/config.php
+	$CFG->session_handler_class = '\core\session\memcached';
+	$CFG->session_memcached_save_path = 'XXX.XXX.XXX.18:11212';
+		//* XXX.XXX.XXX.18 is the msessioncache server
+	$CFG->session_memcached_prefix = 'memc.sess.key.';
+	$CFG->session_memcached_acquire_lock_timeout = 120;
+	$CFG->session_memcached_lock_expire = 7200; 
+	//* session_memcached_prefix needs to be different if your servers is serving multiple moodle sites, 1 client for moodle1, client2 for moodle2 needs different prefixes.
+$ service httpd restart
+
+In Moodle go to
+1) moodle\login\Site <Site>\Plugins\Caching\Configuration
+2) Under Installed cache stores look for Memcached and click the Add instance action.
+3) Give the store a name, i like 'Memcached_MUC'
+4) In server, assuming the basic config above, type 'XXX.XXX.XXX.19'. Save Changes.
+	//* 127.0.0.1:11211 is mmuccache which is the memcached muc server with port 11211
+5) Scroll to the bottom of the Cache <Site> page.
+6) Under Stores used when no mapping is present click Edit Mappings.
+7) In the Application drop down select the caches name. Save Changes.
+Note the conf file for MUC is dataroot/muc/config.php, where dataroot is defined in /var/www/html/config.php
+
+
+Permanent open port 11211 or more memcached instances 
+$ cp /etc/init.d/memcached /etc/init.d/memcached2 -fv
+$ cp /etc/sysconfig/memcached /etc/sysconfig/memcached2 -fv
+$ cp /var/run/memcached/memcached.pid /var/run/memcached/memcached2.pid
+$ touch /var/lock/subsys/memcached2
+$ replace "/etc/sysconfig/memcached" "/etc/sysconfig/memcached2" -- /etc/init.d/memcached2
+$ replace "/var/run/memcached/memcached.pid" "/var/run/memcached/memcached2.pid" -- /etc/init.d/memcached2
+$ replace "/var/lock/subsys/memcached2" "/var/lock/subsys/memcached2" -- /etc/init.d/memcached2
+$ replace "11212" "11211" -- /etc/init.d/memcached2
+$ replace "11212" "11211" -- /etc/sysconfig/memcached2
+//* re-verify that ports are 11211 in memcached and 11212 in memcached2
+$ vi php.ini
+	extension=memcache.so
+	memcache.default_port=11211,11212
+$ service httpd restart
+$ /etc/init.d/memcached start
+$ /etc/init.d/memcached2 start
+$ chkconfig --level 345 memcached2 on
+$ ss -nalp | grep memcache | grep LISTEN -i

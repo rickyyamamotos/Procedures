@@ -1,0 +1,1 @@
+ruby -rnet/http -e "Net::HTTP.get URI('https://<Site>')"

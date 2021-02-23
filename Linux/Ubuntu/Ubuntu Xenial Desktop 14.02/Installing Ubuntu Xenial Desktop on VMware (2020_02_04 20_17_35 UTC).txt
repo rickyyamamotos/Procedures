@@ -1,0 +1,21 @@
+
+Create VM
+	Linux
+	Ubuntu 64 bits
+	1 CPU
+	2048 Gb
+	64 Gb HD
+	SCSI LSI Logic Parallel
+	CDROM -> ISO
+
+Shutdown
+	VM->Setting->CDROM to CDROM
+
+reduce session timeout
+	settings/privacy/screen lock = 0ff
+
+Install VMaware tools
+	$ sudo apt-get install open-vm-tools open-vm-tools-desktop open-vm-tools-dkms
+	$ nano $HOME/.profile
+		Append the following line: 
+			vmware-user

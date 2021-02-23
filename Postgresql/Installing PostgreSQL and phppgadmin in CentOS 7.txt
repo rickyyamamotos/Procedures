@@ -1,0 +1,76 @@
+$ sudo yum install postgresql-server postgresql-contrib phppgmyadmin -y
+$ sudo postgresql-setup initdb
+//Allow password login
+$ nano /var/lib/pgsql/data/pg_hba.conf
+	host    all             all             127.0.0.1/32            md5
+	host    all             all             ::1/128                 md5
+//* Setup listeing addresses to allow all
+$ nano /var/lib/pgsql/data/postgresql.conf
+	listen_addresses = '*'
+	port = 5432   
+$ service postgresql restart
+$ sudo firewall-cmd --permanent --add-port=5432/tcp
+$ sudo firewall-cmd --permanent --add-port=3306/tcp
+$ sudo firewall-cmd --permanent --add-port=80/tcp
+$ sudo firewall-cmd --permanent --add-port=443/tcp
+$ sudo firewall-cmd --permanent --add-port=<SSHPort>/tcp
+$ sudo firewall-cmd --reload
+
+
+Access postgresql
+$ sudo -i -u postgres
+$ psql
+postgres=# \q
+
+Create user
+$ sudo -i -u postgres
+$ createuser --interactive
+
+
+Install phppgmyadmin
+//* If apache is not installed yet
+$ service https status
+$ yum install httpd -y
+$ service httpd restart
+//* if php is not installed yety
+
+$ php -v
+$ yum install php -y
+$ yum install php-pgsql
+//* Install phppgmyadmin
+$ yum install phppgmyadmin
+	//* Error: No package phppgmyadmin available.
+		$ sudo rpm -Uvh https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
+		$ yum update -y
+//* Setup listeing addresses to allow all 
+$ nano /etc/httpd/conf.d/phppgmyadmin.conf
+	Listen <SSHPort>
+	<VirtualHost *:<SSHPort>>
+	        ServerName localhost
+	        DocumentRoot /var/www/html
+	        Alias /phppgmyadmin /usr/share/phppgmyadmin
+	        Alias /phppgmyadmin /usr/share/phppgmyadmin
+	        Alias /phppgmyadmin /usr/share/phppgmyadmin
+	        Alias /phppgmyadmin /usr/share/phppgmyadmin
+	        <Directory  "/usr/share/phppgmyadmin">
+	                Options +Indexes +FollowSymLinks +MultiViews
+	                AllowOverride All
+	                Require all granted
+	        </Directory>
+	</VirtualHost>
+Adding local and remote servers
+$ nano /etc/phppgmyadmin/config.inc.php
+	//* replace
+		$conf['servers'][0]['host'] = 'localhost';
+		$conf['servers'][0]['port'] = 5432;
+	//* Append as many times as server you have
+		$i++;
+		$conf['Servers'][$i]['host'] = 'YourHostName:YourPort';
+		$conf['Servers'][$i]['port'] = 5432;
+
+$ service postgresql restart
+
+
+
+
+

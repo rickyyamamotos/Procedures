@@ -1,0 +1,5 @@
+Hotfixes are cumulative for each version.
+for version 10.2.4 just upload the last hotfix which is Hotfix-BIGIP-10.2.4-870.0-HF13.iso
+
+You dont need to install previous hotfixes for version 10.2.4
+

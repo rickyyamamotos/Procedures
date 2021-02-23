@@ -1,0 +1,2 @@
+Create a CID Inbound rule with the caller phone as an ID
+set to "End the Call"

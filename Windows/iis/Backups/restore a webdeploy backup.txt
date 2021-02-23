@@ -1,0 +1,52 @@
+
+SQL restore
+	Requisites
+		- Install SQL server
+		- Install Visual SQL studio
+		- Install ms web depoly Ver 3
+		- You need to create the MSQL database that you want to restoer and any users (whrn you run the msdeploy
+		  restore, it will tell you which users you ne4ed to create using visual sql studio)
+		- Copy the zip file of the backup into the server's /tmp/  folder
+	Command
+		cd \Program Files\IIS\Microsoft Web Deploy V3\
+		msdeploy.exe -verb:sync -dest:dbFullSql="data source=VET\SQLEXPRESS;Initial Catalog=<Site>new;User ID=rick;password=<Password>;User Instance=False;" -source:package="c:\tmp\2020-06-28-sql-<Site>2.<Site>.zip"
+			where VET is the server name
+			where <Site>new is the database name we are restoring
+			where <PortNumber>0-06-28-sql-<Site>2.<Site>.zip is the SQL backup
+			where <Password> is the backup encryption key (if used when the backup was made)
+			where User ID=rick;password=<Password> is any user (<Username>) you can create when installing SQL on the new server
+	Hint
+		extract the content of the zip file and open the bih file with notepa++ to see details of the restore in plain txt
+		You can edit theis file if needed
+	ToDo
+		create user <Site>
+
+IIS Restore
+	Requisites
+		- Install IIS
+		- Install ms web deploy Version 3
+		- Copy the zip file of the backup into the server's /tmp/  folder
+	Command
+		cd \Program Files\IIS\Microsoft Web Deploy V3\
+		msdeploy.exe -verb:sync -dest:webServer,computerName=VET -source:package=c:\tmp\2020-06-28-sites-<Site>2.<Site>.zip,encryptpassword=<Password>
+			where VET is the server name
+			where 2020-06-28-sites-<Site>2.<Site>.zip is the IIS backup
+			where <Password> is the backup encryption key (if used when the backup was made)
+
+Other data 
+	set vwwwroot1=<Site>2.<Site>
+	set servername1=%computername%
+	set dbname1=<Site>new
+	set username1=<Site>
+	set Password=<Password>
+
+Errors
+	Error: Child object 'hsts' cannot be added to object 'siteDefaults'. The 'siteDefaults' provider may not support this deployment.
+		sts is a new web.config features. I suspect you are using the very latest "IIS 10.0 version 1709+" version
+		   but try to deploy to an older IIS 10 version.
+		IIS 10 is available on Windows Server 2016+
+
+
+
+
+

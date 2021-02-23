@@ -1,0 +1,10 @@
+$ nano /etc/my.cnf
+	#Enabling slow querry log
+	# queries that do not use indexes for lookups, use log_slow_<Username>_statements an$
+	slow_query_log = 1
+	slow_query_log_file=/var/log/mysql/mysql-slow.log
+	long_query_time = 3
+	   # long_query_time value in seconds
+	# log_queries_not_using_indexes=1
+	   # enables log for unindexed queries
+

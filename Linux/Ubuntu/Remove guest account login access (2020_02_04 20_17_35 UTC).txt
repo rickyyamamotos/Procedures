@@ -1,0 +1,8 @@
+To disable guest account login:
+$ cd /etc/lightdm/
+$ sudo sh -c 'printf "[Seat:*]\nallow-guest=false\n" >/etc/lightdm/lightdm.conf.d/50-no-guest.conf'
+	//* Newer versions of LightDM (Ubuntu 15.10, or later) use [Seat:*] instead of [SeatDefaults]
+
+
+To enable guest account login
+sudo rm /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf

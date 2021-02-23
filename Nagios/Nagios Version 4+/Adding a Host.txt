@@ -1,0 +1,9 @@
+$ cd /usr/local/nagios/etc/objects
+$ nano localhost.cfg
+	/** add the following line
+	define host	{
+		use		<Site>-linux-webserver	//* inherit setting from the template <Site>-linux-webserver
+		host_name	hosttest1
+		alias		hosttest1_alias
+		address		XXX.XXX.XXX.1
+		}

@@ -1,0 +1,178 @@
+nano h_hosts.cfg
+=================================================
+define host{
+        use                     t_<Site>-http-check-disk-space
+        host_name               h_sandbox.<Domain>-DiskSpace
+        address                 sandbox.<Domain>
+        parents                 h_sandbox.<Domain>
+        icon_image              caldera.png
+        statusmap_image         caldera.gd2
+        }
+
+define host{
+        use                     t_<Site>-https-check-disk-space
+        host_name               h_test-prod.<Domain>-DiskSpace
+        address                 test-prod.<Domain>
+        parents                 h_test-prod.<Domain>
+        icon_image              caldera.png
+        statusmap_image         caldera.gd2
+        }
+define host{
+        use                     t_<Site>-https-check-mysql
+        host_name               h_test-prod.<Domain>-MySQL
+        address                 test-prod.<Domain>
+        parents                 h_test-prod.<Domain>
+        icon_image              caldera.png
+        statusmap_image         caldera.gd2
+        }
+
+nano t_templates.cfg
+=================================================
+define host{
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php
+        # to be used for moodle server that does not support https
+        name                    t_<Site>-http-check-disk-space
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          5
+        retry_interval          1
+        max_check_attempts      10
+        check_command           c_check_http-diskspace
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php of the moodle server
+        # to be used for moodle server that does not support https
+        name                    t_<Site>-https-check-disk-space
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          5
+        retry_interval          1
+        max_check_attempts      10
+        check_command           c_check_https-diskspace
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php of the moodle server
+        # to be used for moodle server that does not support https
+        name                    t_<Site>-http-check-mysql
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          5
+        retry_interval          1
+        max_check_attempts      10
+        check_command           c_check_http-mysql
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+define host{
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php of the moodle server
+        # to be used for moodle server that does not support https
+        name                    t_<Site>-https-check-mysql
+        use                     <Site>-WEB
+        check_period            24x7
+        check_interval          5
+        retry_interval          1
+        max_check_attempts      10
+        check_command           c_check_https-mysql
+        notification_period     24x7
+        notification_interval   50
+        notification_options    d,u,r,f
+        contact_groups          <Username>s
+        <Site>                0
+}
+
+
+nano c_commands.cfg
+=================================================
+define command{
+        command_name    c_check_http-diskspace
+        command_line    $<Username>$/check_http -H $HOSTADDRESS$ -u /nagios.php?id=DiskSpace -s "DiskSpaceHigherThan10Gb"
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php
+        }
+define command{
+        command_name    c_check_https-diskspace
+        command_line    $<Username>$/check_http -H $HOSTADDRESS$ --ssl=1+ -u /nagios.php?id=DiskSpace -s "DiskSpaceHigherThan10Gb"
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root/nagios.php for moodle servers
+        }
+define command{
+        command_name    c_check_http-mysql
+        command_line    $<Username>$/check_http -H $HOSTADDRESS$ --ssl=1+ -u /nagios.php?id=MySQL -s "OK"
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root\nagios.php for moodle servers
+        }
+define command{
+        command_name    c_check_https-mysql
+        command_line    $<Username>$/check_http -H $HOSTADDRESS$ --ssl=1+ -u /nagios.php?id=MySQL -s "OK"
+        # you need to copy the script /usr/local/nagios/etc/objects/nagios-moodle.php to the target server www-root\nagios.php for moodle servers
+        }
+
+
+
+Save the following script to the wwwroot of the moodle server as nagios.php
+<HMTL>
+<BODY>
+<?php
+# cant user "require_once('config.php');" because it will not show if the mysql is down
+
+function getvar1 ($var1, $var2) {
+   $var2 = substr($var1, strpos($var1, "'")+1);
+   $var2 = substr($var2, 0, strpos($var2, "'"));
+   return $var2;
+   }
+
+$i_id = $_GET["id"];
+if ($i_id == "") {
+   # unauthorized access
+   header("Location: $CFG->wwwroot");
+   die();
+   }
+else if ($i_id == "Rick") {
+      echo ("Hi");
+   }
+else if ($i_id == "DiskSpace") {
+   $df = disk_free_space("/");
+   if ($df < 10000000000) {
+         echo ("LowDiskSpace");
+      }
+   else {
+         echo ("DiskSpaceHigherThan10Gb");
+       }
+   }
+else if ($i_id == 'MySQL') {
+   $array = file("config.php");
+   foreach($array as $line) {
+      if (strlen($line) > 23){
+         if ((substr($line,0,1) <> "#") and (substr($line,0,1) <> "/")) {
+            if (strpos($line, "CFG->dbhost")) {
+               $vardbhost1 = getvar1 ($line, "CFG->dbhost");
+               }
+            else if (strpos($line, "CFG->dbname")) {
+               $vardbname1 = getvar1 ($line, "CFG->dbname");
+               }
+            else if (strpos($line, "CFG->dbuser")) {
+               $<Username> = getvar1 ($line, "CFG->dbuser");
+               }
+            else if (strpos($line, "CFG->dbpass")) {
+               $vardbpass1 = getvar1 ($line, "CFG->dbpass");
+               }
+            }
+         }
+      }
+   $link = mysqli_connect($vardbhost1, $<Username>, $vardbpass1) or die("Error: Unable to Connect to MYSQL Server: $vardbhost1");
+   mysqli_select_db($link, $vardbname1) or die("Error: Unable to open the db: $vardbname1 ");
+   echo ("OK");
+   }
+?>
+</BODY>
+</HTML>

@@ -1,0 +1,42 @@
+audio files needs to be .wav
+ with 16-bit signed PCM, 8khz, 16 bit, mono, 
+
+<Site> Main Greeting:
+=================
+Welcome to <Organization>.
+If you know your party's three digits extension, please dial it now,
+otherwise please listen carefully to the following menu options:
+For Technical Support, press Zero Zero One.
+For Order Inquires, press Zero Zero Two.
+For Sale and General Inquires, press Zero Zero Three.
+For a list of Key Personnel, press Zero Zero Four.
+To hear these options again, press Zero Zero Eight.
+
+<Site> Key Personnel:
+=================
+For XXX, at extension 150 , press Zero Zero 1.
+For XXX, at extension 140 , press Zero Zero 2.
+For XXX, at extension 176, press Zero Zero 4.
+For XXX, at extension 110, press Zero Zero 5.
+For XXX, at extension 130, press Zero Zero 6.
+For XXX, at extension 120, press Zero Zero 7.
+For <Username>, at extension 193, press Zero Zero 8.
+To hear these options again, press Zero Zero 9.
+To return to the previous menu, press Zero Zero Zero.
+
+<Site> After Hours:
+===============
+You have reach <Organization> outside of business hours. 
+Our office hours are Monday to Friday from Nine a.m. to Five p.m. Eastern time, except for major holidays.
+If you know your party's three digits extension, please dial it now,
+otherwise please listen carefully to the following menu options:
+For Technical Support, press Zero Zero One.
+For Sales, press Zero Zero Two.
+For a list of Key Personnel, press Zero Zero Three.
+For all other mattters, press Zero Zero Four.
+To hear these options again, press Zero Zero Eight.
+
+
+
+
+

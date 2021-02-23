@@ -1,0 +1,5 @@
+$ sudo adduser <username> sudo
+
+$ sudo visudo
+	//* put the following at the bottom of the page
+	<username>	ALL=NOPASSWD: ALL

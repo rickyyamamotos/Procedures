@@ -1,0 +1,16 @@
+https://support.portswigger.net/customer/portal/articles/1783071-Installing_Browser%20Configuration%20Check.html
+
+Click on the proxy tab
+Click on Options
+	//* ENsure that 127.0.0.1:8080 is running
+
+
+Configure your browser to use the proxy listener
+	Options -> Network Options -> Proxy
+		127.0.0.1:8080
+
+In Burp, go to the "Proxy" tab, and then the "Intercept" sub-tab.
+These tabs should be highlighted, and there should be an HTTP request showing in the main panel.
+
+Intercept does hold the HTTP request and responses from the browser, so it can be modified before being sent/received.
+

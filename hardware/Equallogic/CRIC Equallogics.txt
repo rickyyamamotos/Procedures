@@ -1,0 +1,61 @@
+moved to the office
+
+
+
+Model <Model>
+Product Family <Model>
+Chasis type: 1603
+Control Module slot 0
+	model: <Model>(type 8)
+	Boot rom: 8.1.1
+	firmware: Storage Array Firmware v5.0.0 (<Model>)
+Control Module slot 0
+	model: <Model>(type 8)
+	Boot rom: 8.1.1
+	firmware: Storage Array Firmware v5.0.0 (<Model>)
+
+dfwupdV2.5_r287352.bin
+
+kit_V5.0.4-R156082_2208699005.tgz	v 5.0.5
+kit_V5.0.5-R166528_2136492874.tgz	v 5.0.5
+
+must be th 32 bits image of the firmware
+
+https://www.dell.com/community/EqualLogic/PS6100x-and-<Model>-Firmware/td-p/4534494
+3. Your are not allowed to update to a newer FW on a member without active maintenance
+The support contract is what maintains your license to use the firmware.   There's nothing to prevent you from installing the FW, but it does break the EULA that you agreed to.
+
+To access the equallogics in the <Datacenter>
+	-log onto <Server> via teamviewer
+	-rdp to <Server> (XXX.XXX.XXX.90)
+	-Open Internet explorer and go to XXX.XXX.XXX.240 or XXX.XXX.XXX.241
+		<Username> / <Password>
+		Uncheck encrypt
+XXX.XXX.XXX.240	EqualLogic Inc	<MACAddress>
+	VM Host clients: XXX.XXX.XXX.98, XXX.XXX.XXX.100, XXX.XXX.XXX.101, XXX.XXX.XXX.106, 
+XXX.XXX.XXX.241	EqualLogic Inc	<MACAddress>
+	VM Host clients: XXX.XXX.XXX.98, XXX.XXX.XXX.100, XXX.XXX.XXX.101, XXX.XXX.XXX.106, 
+
+
+Potential VMs that connect directly to Equallogic (needs to be verified)
+		<Server>				XXX.XXX.XXX.70		VMware, Inc.	<MACAddress>						VM windows serf
+		<Server>.<Site>	XXX.XXX.XXX.90		VMware, Inc.	00:0C:29:A4:D1:AF						VM www.<Site>
+		<Server>				XXX.XXX.XXX.91		Dell Inc.	<MACAddress>
+		<Server>				XXX.XXX.XXX.92		Dell Inc.	<MACAddress>						Baremetal
+		<Server>					XXX.XXX.XXX.93		VMware, Inc.	<MACAddress>
+		<Server>				XXX.XXX.XXX.113		VMware, Inc.	<MACAddress>						<Server> XXX.XXX.XXX.113	IIS
+		<Server>					XXX.XXX.XXX.138		VMware, Inc.	<MACAddress>						VM IIS
+		<Server>				XXX.XXX.XXX.153		Dell Inc.	<MACAddress>						VM IIS
+		<Domain>				XXX.XXX.XXX.172		<Domain> (direct link t <Server>)					
+		<Server>				XXX.XXX.XXX.173		mysql for <Domain> (direct link to <Domain>)
+		XXX.XXX.XXX.235				XXX.XXX.XXX.235		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.236				XXX.XXX.XXX.236		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.244				XXX.XXX.XXX.244		VMware, Inc.	<MACAddress>						VM Host XXX.XXX.XXX.98
+		XXX.XXX.XXX.245				XXX.XXX.XXX.245		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.246				XXX.XXX.XXX.246		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.247				XXX.XXX.XXX.247		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.248				XXX.XXX.XXX.248		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.249				XXX.XXX.XXX.249		VMware, Inc.	<MACAddress>
+		XXX.XXX.XXX.250				XXX.XXX.XXX.250		VMware, Inc.	<MACAddress>
+
+Equallogic

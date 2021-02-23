@@ -1,0 +1,10 @@
+The standard library is required for the file_line class to work
+
+https://superuser.com/questions/1053789/puppet-how-to-add-a-line-to-an-existing-file
+In the puppet master
+$ puppet module install puppetlabs-stdlib
+
+
+
+THIS PROCEDURE DID NOT WORK
+https://puppet.com/blog/module-of-week-puppetlabs-stdlib-puppet-labs-standard-library

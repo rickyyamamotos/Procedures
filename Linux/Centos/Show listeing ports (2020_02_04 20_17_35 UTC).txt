@@ -1,0 +1,4 @@
+$ ss -tulpn
+$ netstat -tulpn
+
+$ sudo lsof -i -n -P 

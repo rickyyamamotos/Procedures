@@ -1,0 +1,26 @@
+https://github.com/firehol/netdata/issues/3333
+nano /opt/netdata/etc/netdata/netdata.conf
+[global]
+	history = 600
+		//* stores up to 10 minutes
+	update every = 1
+		//* get new data every 1 second
+
+[global]
+	clean history after = 600
+		//* keep last 600 history entries and then start to clean older history
+	keep one data every = 60
+		//* keep one history entry every 60 and delete other 59  
+
+
+nano /opt/netdata/etc/netdata/netdata.conf
+[global]
+	history = 600
+	update every = 1
+	low rate history = 2880
+	low rate update = 60
+		//* High rate history has 10 minutes of realtime data Low rate history has 48 hours of data
+[global]
+	clean history after = 600
+	keep one data every = 60
+		//* with a 3600 history size, we have 50 hours of history: last 600 entries, one every 1 second, older 3000 entries, one every 60 seconds

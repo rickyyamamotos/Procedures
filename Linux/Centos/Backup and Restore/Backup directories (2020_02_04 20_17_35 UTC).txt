@@ -1,0 +1,1 @@
+$ tar -czvf /path/to/backupfile/name.tar.gz /path/to/filetobackup/directoryname/

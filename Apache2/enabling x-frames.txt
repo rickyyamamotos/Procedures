@@ -1,0 +1,27 @@
+
+
+$ sudo a2enmod headers
+$ nano /etc/apache2/apache2.conf
+	//* append the following line in the virtualhost section
+		//* To allow iframe from pages of the same server
+					Header always append X-Frame-Options SAMEORIGIN
+		//* To allow iframe from any pages
+				Header always unset X-Frame-Options
+		//* To allow iframe from https://www.that-site.com
+				Header set X-Frame-Options ALLOW-FROM https://www.that-site.com
+
+If you do not have access to your httpd.conf or apache.conf file, you can create a .htaccess file in the directory you want to exempt (/example.com/docroot/frameme in this example) and include the following line in the file:
+Header always unset X-Frame-Options
+In .htaccess
+$ nano /var/www/html/.htaccess
+	# append the following line To allow iframe from pages of the same server
+	Header append X-FRAME-OPTIONS "SAMEORIGIN"
+	#OR
+	# append the following lines to allow it from other sites
+	Header set X-Frame-Options SAMEORIGIN
+	Header append X-Frame-Options "ALLOW-FROM http://www.example.com/"  
+	Header append X-Frame-Options "ALLOW-FROM http://example.com/"
+	Header append X-Frame-Options "ALLOW-FROM https://www.example.com/"
+	Header append X-Frame-Options "ALLOW-FROM https://example.com/"
+
+

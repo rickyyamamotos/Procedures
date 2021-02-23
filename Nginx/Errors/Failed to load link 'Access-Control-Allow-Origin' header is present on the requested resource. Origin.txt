@@ -1,0 +1,35 @@
+This happens when a server load media from another one
+If this another one is reverse proxied by nginx, we need to allow cross site to allow x-frames
+
+In the ngix server
+$ nano /etc/nginx/sites-enabled/<Site>
+server {
+    listen 80;
+    server_name <Site>;
+    location ~ {
+               proxy_pass http://XXX.XXX.XXX.82;
+               proxy_set_header HOST $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               add_header 'Access-Control-Allow-Origin' '*';
+               add_header 'Access-Control-Allow-Credentials' 'true';
+               add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Origin,X-Auth-,Aut    horization,Accept,Client-Security-';
+               add_header 'Access-Control-Allow-Methods' 'OPTIONS, GET, POST, PATCH, PUT, DELETE';
+               }
+       }
+
+server {
+    listen 443;
+    ssl on;
+    ssl_certificate         /etc/letsencrypt/live/<Site>/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/<Site>/privkey.pem;
+    server_name <Site>;
+    location ~ {
+               proxy_pass  https://XXX.XXX.XXX.82;
+               proxy_set_header HOST $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               add_header 'Access-Control-Allow-Origin' '*';
+               add_header 'Access-Control-Allow-Credentials' 'true';
+               add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Origin,X-Auth-,Aut    horization,Accept,Client-Security-';
+               add_header 'Access-Control-Allow-Methods' 'OPTIONS, GET, POST, PATCH, PUT, DELETE';
+               }
+      }

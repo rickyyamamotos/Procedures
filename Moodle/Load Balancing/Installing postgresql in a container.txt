@@ -1,0 +1,99 @@
+Credentials for remote postgresql
+XXX.XXX.XXX.48:5432
+	postgres/<Password> (sql root)
+	postgresqlrole/<Password> (a 2nd sql user for remote connections)
+
+Requirements
+- GNU make version 3.80 or newer 
+	$ make --version
+- an ISO/ANSI C compiler (at least C89-compliant). Recent versions of GCC are recommended
+- tar is required to unpack
+- You need Kerberos, OpenSSL, OpenLDAP, and/or PAM, if you want to support authentication or encryption using services.
+
+create a container from a ubuntu image
+$ docker run ubuntu:xenial
+
+Install & Configure your PostgreSQL Server
+# apt-get update
+# apt-get upgrade
+# apt-get install postgresql postgresql-contrib
+# service postgresql start
+# ps ax | grep postgresql
+	//* Check is it is running
+# adduser postgresqluser
+	//* password: <Password>
+# cat /etc/passwd
+	//* check if user was created
+# su - postgres
+# psql
+	//* logs into postgresql
+posgres=# \password
+	//* changes postgress root password, default was blank
+	//* password: <Password>
+posgres=# \q
+	//* quit postgresql
+# createuser --interactive
+	//* Creates a new Postgresql role to allow us to connect our linux account to our database
+	//* name of role: postgresqlrole
+# createdb postgresqlrole
+# psql
+posgres=# ALTER DATABASE postgresqlrole OWNER TO postgresqlrole;
+posgres=# ALTER USER postgresqlrole WITH PASSWORD '<Password>';
+posgres=# \q
+
+Configure PostgreSQL to Allow Remote Connections
+<Ctrl>-P <Ctrl>-Q
+Back in the Docker Host
+$ docker cp "CONTAINER ID":/etc/postgresql/9.5/main/postgresql.conf /tmp/
+$ nano /tmp/postgresql.conf
+	//* change the following line #listen_addresses = 'localhost'   to:
+		listen_addresses = '*'
+			//* We're telling PostgreSQL to list for connections from any source, not only locally.
+			//* you may want to put the IP of the moodle server only
+$ docker cp /tmp/postgresql.conf "CONTAINER ID":/etc/postgresql/9.5/main/postgresql.conf
+$ docker cp "CONTAINER ID":/etc/postgresql/9.5/main/pg_hba.conf /tmp/
+$ nano /tmp/pg_hba.conf
+	//* You will need to add the following two lines to the end of it:
+		host     all   all   0.0.0.0/0   md5
+		hostssl  all   all   0.0.0.0/0   md5
+$ docker cp /tmp/pg_hba.conf "CONTAINER ID":/etc/postgresql/9.5/main/pg_hba.conf
+	//* telling postgres to allow connections from any IP/host to any database as long as the usernames & passwords match.
+$ docker attach "CONTAINER ID"
+Back in the container
+# cd /etc/postgresql/9.5/main/
+# chown postgres:postgres pg_hba.conf
+# chmod u+rwx pg_hba.conf
+# chown postgres:postgres postgresql.conf
+# chmod u+rwx postgresql.conf
+# service postgresql restart
+	//* This can be used optionall if you dont to reboot thes server
+		# select pg_reload_conf();
+<Ctl>-P <ctrl>-Q
+Back in the docker host
+$ docker commit "CONTAINER ID" "NEW IMAGE NAME"
+$ docker attach "CONTAINER ID"
+# exit
+$ docker run -ti -p 5432:5432 "NEW IMAGE NAME"
+
+
+Connect to your Database Remotely
+In another linux with postgresql
+$ postgresql://postgresqluser:<Password>@XXX.XXX.XXX.54:5432/<database>
+	//* postgresql://<username>:<password>@<server>:5432/<database>
+OR
+$ psql -h <server> -U <username> -d <database> -W
+posgres=# 
+
+
+
+FIX ERROR: could not open configuration file "/etc/postgresql/9.5/main/pg_hba.conf": Permission denied
+# cd /etc/postgresql/9.5/main/
+# chown postgres:postgres pg_hba.conf
+# chmod u+rwx pg_hba.conf
+
+To login into psql
+# su postgres
+# psql
+	psql> \q
+
+

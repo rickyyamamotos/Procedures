@@ -1,0 +1,192 @@
+Installing ModSecurity 2.7.3-5 (https://geekflare.com/apache-web-server-hardening-security/#6-Mod-Security)
+$ yum --enablerepo=epel install mod_security mod_evasive
+	main configuration file
+		/etc/httpd/conf.d/mod_security.conf
+		/etc/httpd/conf.d/mod_evasive.conf
+	all other configuration files for the mod_security 
+		/etc/httpd/modsecurity.d/activated_rules
+	Logs debug messages for debugging mod_security rules and other problems.
+		/var/log/httpd/modsec_debug.log
+	Logs All requests that trigger a ModSecurity events (as detected) or a serer error are logged (“RelevantOnly”) 
+		/var/log/httpd/modsec_audit.log
+	
+$ apachectl -M | grep --color sec
+	You should see a module named “security2_module (shared)” which indicates that the module was loaded.
+$ httpd -M | grep evasive
+	You should see a module named “evassive20_module (shared)” which indicates that the module was loaded.
+$ httpd -M | grep security
+	You should see a module named “security2_module (shared)” which indicates that the module was loaded.
+$ nano /etc/httpd/conf.d/mod_security.conf
+	SecRuleEngine On
+$ nano cve-2018-6389.conf
+	SecRule REQUEST_URI "@rx (?i:/<Username>/load-(styles|scripts)\.php\?.*?(load%5B%5D|load\[\]|load%5B\]|load\[%5D)=([^&,]*,){20,})" "id:1,msg:'Potential use of CVE-2018-6389',deny"
+$ curl "http://localhost/<Username>/load-scripts.php?c=1&load%5B%5D=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21&ver=4.9"
+	//* test
+//* Loading the OWASP Rules
+$ cd /tmp
+$ wget https://github.com/SpiderLabs/owasp-modsecurity-crs/zipball/master
+$ mv master master.zip
+$ yum -y install unzip
+$ unzip master.zip
+$ mv /tmp/SpiderLabs-owasp-modsecurity-crs-56cad3a /etc/httpd/
+$ cd /etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a
+$ mv modsecurity_crs_10_setup.conf.example modsecurity_crs_10_setup.conf
+$ nano /etc/httpd/conf.d/mod_security.conf
+	Include SpiderLabs-owasp-modsecurity-crs-56cad3a/modsecurity_crs_10_setup.conf
+		# Mod Security main configuration file 
+	IncludeOptional SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules/*.conf
+		# Mod Security Core Rules to protect web applications
+		# IncludeOptional: it will be silently ignored (instead of causing an error) if wildcards are used and they do not match any file or directory or if a file path does not exist on the file system
+$ cd /etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules
+$ mkdir wrong
+	//* moving rules that crashes httpd 
+$ mv modsecurity_crs_40_generic_attacks.conf ./wrong
+$ mv modsecurity_crs_41_sql_injection_attacks.conf ./wrong
+$ mv modsecurity_crs_41_xss_attacks.conf ./wrong
+$ service httpd restart
+Base Rules – these rules are heavily tested, and probably false alarm ratio is less.
+Experimental Rules – these rules are for an experimental purpose, and you may have the high false alarm. It’s important to configure, test and implement in UAT before using these in a production environment.  
+Optional Rules – these optional rules may not be suitable for the entire environment. Based on your requirement you may use them.
+$ nano /etc/clamd.d/scan.conf
+	//*Excluding directories from clamav
+	ExcludePath /etc/http/modsecurity.d 
+	ExcludePath /etc/http/SpiderLabs-owasp-modsecurity-crs-56cad3a
+	OnAccessExcludePath /etc/http/modsecurity.d
+	OnAccessExcludePath /etc/http/SpiderLabs-owasp-modsecurity-crs-56cad3a
+Monitoring:
+//*Logs location
+$ nano /etc/httpd/conf.d/mod_security.conf
+	SecDebugLog /var/log/httpd/modsec_debug.log
+	SecAuditLog /var/log/httpd/modsec_audit.log
+$ tail -f /var/log/httpd/error_log
+$ tail -f /var/log/httpd/modsec_debug.log
+$ tail -f /var/log/httpd/modsec_audit.log
+
+
+
+Rules
+The common problem with standard OWASP (CRS) is that it gives so many false positive results. The audit logs can be used to fine-tune modsec
+types of logs
+	1) Error Logs: it uses the same error log of apache
+	2) Audit Logs: primary troubleshooting tool.
+	3) Debug Logs
+Debug Logs:
+$ nano /etc/httpd/conf.d/mod_security.conf
+	SecDebugLogLevel 3
+		Debug log 	level	Description
+		0		No logging
+		1		Errors (e.g., fatal processing errors, blocked transactions)
+		2		Warnings (e.g., non-blocking rule matches)
+		3		Notices (e.g., non-fatal processing errors)
+		4		Informational
+		5		Detailed
+		9		Everything!Next
+	Keep the debug log level in production low (either at 3 if you want a copy of all messages in the debug log, 
+	or at 0 if you’re happy with having them only in the error log). This is because you can expect in excess of 50 
+	debug log messages (each message is an I/O operation) and at least 7 KB of data for an average transaction. 
+	Logging all that for every single transaction consumes a lot of resources.
+Audit Logs:
+$ nano /etc/httpd/conf.d/mod_security.conf
+	# Serial audit log
+	SecAuditEngine RelevantOnly
+	SecAuditLogRelevantStatus ^2-5
+	SecAuditLogParts ABCIFHZ
+	SecAuditLogType Serial
+	SecAuditLog /var/log/httpd/modsec_audit.log
+	//* Where
+		SecAuditEngine	On		Log all transactions
+				Off		log none
+				RelevantOnly	Only log transactions that have triggered a warning, errors, or have a relevant status code
+		SecAuditLogRelevantStatus	it specifies which response status code is to be considered relevant for the purpose of audit 
+						logging. As of now we have defined 2-5. It means Mod Security will recode all the log entries 
+						which are not relevant.
+		SecAuditLogParts		through this option we can actually tell the Mod Security what should be logged in the error 
+						logs and what should be ignored
+				A	Audit log header (mandatory)
+				B	Request headers
+				C	Request body
+				D	Reserved 
+				E	Response body
+				F	Response headers
+				G	Reserved
+				H	Audit log trailer, which contains additional data
+				I	Compact request body alternative (to part C). which excludes tiles 
+				3	Reserved
+				K	Contains a list of all rules that matched for the transaction
+				Z	Final boundary (mandatory)
+		SecAuditLogType		Defines how to store the logs.
+				Serial		the entire log will be stored in a single file
+				Concurrent	one file per transaction is used for logging. This approach is more scalable when heavy
+						logging is required, as multiple transactions can be recorded in parallel.
+		SecAuditLog	defines the audit log files name for Serial or the path of the directory for Concurrent
+	These logs are not configured by default
+	when Mod Security detects that a malicious event has occurred and has been inserted into error logs, it will 
+	generate an audit log entry in an audit log file according to the configuration
+	it has the actual client request including the client header and data payload about the attack or event
+Analyzing the audit log
+$ tail -f /var/log/httpd/modsec_audit.log
+Each event has varios parts, each part is identify by a Unique ID for each log event followed by the letter corresponding to the SecAuditLogParts Option.
+For example --ff760f08-A, --ff760f08-B, ... --ff760f08-Z
+What we are interested in in the part H(Audit log trailer) and K(Contains a list of all rules that matched for the transaction)
+
+Example of a audit log's event
+	--715be603-H--
+	Message: Warning. Pattern match "\\%((?!$|\\W)|[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})" at ARGS:_wp_http_referer. [file "/etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules/modsecurity_crs_20_protocol_violations.conf"] [line "465"] [id "950109"] [rev "2"] [msg "Multiple URL Encoding Detected"] [severity "WARNING"] [ver "OWASP_CRS/2.2.9"] [maturity "6"] [accuracy "8"] [tag "OWASP_CRS/PROTOCOL_VIOLATION/EVASION"]
+	Message: Warning. Operator LT matched 5 at TX:inbound_anomaly_score. [file "/etc/httpd/SpiderLabs-owasp-modsecurity-crs-56cad3a/base_rules/modsecurity_crs_60_correlation.conf"] [line "33"] [id "981203"] [msg "Inbound Anomaly Score (Total Inbound Score: 3, SQLi=0, XSS=0): Multiple URL Encoding Detected"]
+	Apache-Handler: application/x-httpd-php
+	Stopwatch: 1523896262102863 530787 (- - -)
+	Stopwatch2: 1523896262102863 530787; combined=1192, p1=356, p2=606, p3=3, p4=93, p5=134, sr=118, sw=0, l=0, gc=0
+	Producer: ModSecurity for Apache/2.7.3 (http://www.modsecurity.org/); OWASP_CRS/2.2.9.
+	Server: Apache
+	Engine-Mode: "DETECTION_ONLY"
+
+Handling False Positives:
+1) The methodology is to <Site> the modsecurity log (/var/log/httpd/modsec_audit.log, /var/log/httpd/error_log) and locate the ids for errors and warning, then add those ids to /etc/httpd/conf.d/whitelist.conf
+2) Check the logs for warning or error events, then locate the id for each event.
+3) add the ids into /etc/httpd/conf.d/whitelist.conf
+4) restart apache
+In the above sample, modsecurity_crs_20_protocol_violations.conf
+In the above sample, the rule ID that caused the error/warning is 950109
+In the above sample, the message displayed by the rule is: Multiple URL Encoding Detected
+$ nano /etc/httpd/conf.d/whitelist.conf
+	# Remove Mod Security Rules
+	<LocationMatch .*>
+		<IfModule mod_security2.c>
+		    SecRuleRemoveById 950109
+		</IfModule>
+	</LocationMatch>
+//* The LocationMatch directive creates a location specific configuration context. 
+//*    for example: LocationMarch .* will apply the rule to the entire application.
+//*    for example: LocationMatch auth.php the rule will apply only to auth.php
+//* Mod Security module identifies which module is being modified
+//* SecRuleRemoveById directive is used to remove a rule according to rule ID
+		example: SecRuleRemoveById 950109, 950110, 950111
+		example: SecRuleRemoveById 950109-950111
+//* SecRuleRemoveByMsg directive is used to remove a rule according to message displayed
+//* 		esample: SecRuleRemoveByMsg "Multiple URL Encoding Detected"
+$ service httpd restart
+
+Disable Mod Security Firewall on a URL
+$ nano /etc/httpd/conf.d/whitelist.conf
+	<LocationMatch /upload/upload.php>
+		<IfModule mod_security2.c>
+		    SecRuleEngine Off 
+		</IfModule>
+	</LocationMatch>
+
+Other rules that showed on /var/log/httpd/modsec_audit.log
+950109	"Multiple URL Encoding Detected"
+970901	"The application is not available"
+981203	"Inbound Anomaly Score (Total Inbound Score: 3, SQLi=0, XSS=0): Multiple URL Encoding Detected"
+981205	"Outbound Anomaly Score Exceeded (score 4): The application is not available"
+Therefore, we add the 950109 and 970901, but not 981203 or 981205 because the last 2 correspond to broken links
+$ nano /etc/httpd/conf.d/whitelist.conf
+	# Remove Mod Security Rules
+	<LocationMatch .*>
+		<IfModule mod_security2.c>
+		    SecRuleRemoveById 950109, 970901
+		</IfModule>
+	</LocationMatch>
+$ service httpd restart
+
+

@@ -1,0 +1,30 @@
+
+
+$ nano /etc/ssh/sshd_config
+	//* replace the following line
+		Subsystem sftp internal-sftp
+	//* append the following
+		Match Group filetransfer
+		    ChrootDirectory %h
+		    X11Forwarding no
+		    AllowTcpForwarding no
+		    ForceCommand internal-sftp
+$ service ssh restart
+$ addgroup --system filetransfer
+$ useradd <Username> -d /home/<Username> -m
+$ passwd <Username>
+	<Site>-<Username>
+$ usermod -G filetransfer <Username>
+$ usermod -G www-data <Username>
+	//* this will allow user read access to /var/www/html/
+$ chown root:root /home/<Username>
+$ chmod 755 /home/<Username>
+$ cd /home/<Username>
+$ mkdir docs
+$ chown <Username>:filetransfer *
+
+if you want to give the user <Username> access to any directory, just create a link
+$ cd /home/<Username> 
+$ ln -s /var/www/html /home/<Username>/html
+
+

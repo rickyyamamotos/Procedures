@@ -1,0 +1,6 @@
+ls /var/spool/crontab/ -la
+	//* see if any current crontab has a certbot-auto auto renewal
+sudo su
+crontab -e
+	45 2 1 * * cd /usr/bin// && ./certbot-auto renew && /etc/init.d/httpd restart
+

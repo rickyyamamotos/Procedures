@@ -1,0 +1,12 @@
+Access denied for user root@localhost while attempting to grant privileges
+
+cause:
+	 after upgrading to MySQL 5.5 from MySQL 5.1 without following the instructions. The new version add field to the user database making privileges to be messed
+
+solution
+	mysql database if off limits, then
+	mysql> GRANT ALL PRIVILEGES ON `%`.* TO '<Username>'@'localhost' IDENTIFIED BY '<Password>' WITH GRANT OPTION;
+
+
+optionally
+	$ mysql_upgrade

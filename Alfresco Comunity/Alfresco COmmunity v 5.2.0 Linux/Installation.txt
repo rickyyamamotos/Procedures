@@ -1,0 +1,161 @@
+Issue: cant rename or move file in alfresco Webdav
+	it is an issue caused by the webdav design itself. There is not fixes for the issue
+
+
+Installing Alfresco v5.2f on CentOS 7
+https://www.tecmint.com/install-alfresco-community-edition-on-centos-debian-ubuntu/
+
+Download site:
+https://www.alfresco.com/thank-you/thank-you-downloading-alfresco-community-edition
+alternative site: https://sourceforge.net/projects/alfresco/files/Alfresco%20201707%20Community/
+
+Download File
+https://download.alfresco.com/release/community/201707-build-00028/alfresco-community-installer-201707-linux-x64.bin
+
+Requirements
+	RAM usable by linux 4+ Gb (vm with 6+ Gb)
+	install libreoffice
+
+Start alfresco
+$ cd /opt/alfresco-community
+$ ./alfresco.sh start
+
+Info
+<Username> Console
+	http://alfresco.<Site>/alfresco/s/<Username>
+		rick / <Password>
+Dashboard
+	http://alfresco.<Site>/share
+	https://alfresco.<Site>/share
+	username: <Username> password: <Password>
+	username: rick password: <Password>
+Webdav
+	http://alfresco.<Site>/alfresco/webdav/
+	https://alfresco.<Site>/alfresco/webdav/
+	username: <Username> password: <Password>
+	username: rick password: <Password>
+
+Config
+	/opt/alfresco-communitiy/tomcat/shared/classes/alfresco-global.properties
+
+url: alfresco.<Site>
+IPs:	XXX.XXX.XXX.79		(local)
+	XXX.XXX.XXX.248		(nginx main wan)
+	XXX.XXX.XXX.184		(nginx backup wan)
+
+Mapping a network drive to Alfresco (Windows users)
+1) In Windows Explorer, select Map network drive using your preferred method.
+	In Drive: choose any drive. I.E. Y:
+	In Folder enter : https://alfresco.<Site>/alfresco/aos
+			\\alfresco.<Site>@SSL\DavWWWRoot\Alfresco
+	Check "Reconnect at sign-in"
+	Check "Connect using different credentials"
+	Clcik on "finish"
+2) Enter your alfresco user's credentials
+	rick / <Password>
+	<Username> / <Password>
+	or ask the <Username> to create credentials for you
+3) Accessing alfresco
+	Click on the "Windows Start" button
+	Click or type on "This PC"
+	Double click on the drive letter selected on step 1. I.E. Y:
+
+
+
+Using alfresco collaboration
+Once you get in you should see a user dashboard. Keep in mind that Alfresco is the repository that runs in the background while Share is the web UI to work with Alfresco. Share was designed to be a collaboration tool. As such, it uses the concept of "Sites" where folders and documents are created. So, let's go ahead and create a site.
+At the top, choose Sites > Create Site
+I used these defaults:
+	Name: TestSite1
+	Automatically, Site ID will be filled in with testsite1.
+	Choose Public
+Click Create
+This will redirect you to the TestSite1 dashboard.
+At the top right hand side, click on Document Library.
+Click Upload and select any file on your workstation (preferrably a word document, pdf or image file) and upload it.
+My file name was called TheAlfrescoDatabase.docx. Click on your document's name in the document list. This will take you to a document detail page. A preview should be generated.
+Click the Back button or click on Documents (above the document's name) and you should be directed back to the document list page or Document Library page.
+There should now be a thumbnail for the document.
+In the upper right hand corner, you should see an input that has the text, Search files, people, sites. Enter the name of your document and click enter.
+We should now see a list of search results with the name of our document. This is probably the most basic smoke test you can perform to make sure that Alfresco is running as expected. If you have gotten this far without any significant problems, then your installation of Alfresco Community was successful.
+
+
+
+
+Installation steps
+-install CentOS 7
+	During OS installation remove the /home partition, and increase the size of the \ partition
+	IP address XXX.XXX.XXX.79
+	SSH <PortNumber>	rick / <Password>
+			<Username> / <Password>
+	hostname: alfresco.<Site>
+nano /etc/selinux/config
+	//* disabled
+nano /etc/hosts
+	XXX.XXX.XXX.79	alfresco.<Site>
+nano /etc/selinux/config
+	SELINUX=disabled
+nano /etc/ssh/sshd_config
+	Port <PortNumber>
+	PermitRootLogin no
+firewall-cmd --add-port=<PortNumber>/tcp --permanent
+firewall-cmd --add-port=8080/tcp --permanent
+firewall-cmd --add-port=8433/tcp --permanent
+firewall-cmd --add-port=7070/tcp --permanent
+firewall-cmd --add-port=445/tcp --permanent
+firewall-cmd --reload
+reboot
+yum update -y
+yum install curl wget nano -y
+yum remove postfix -y
+yum install fontconfig libSM libICE libXrender libXext cups-libs libcups libGLU libcairo2 libgl1-mesa-glx -y
+wget https://download.alfresco.com/release/community/201707-build-00028/alfresco-community-installer-201707-linux-x64.bin
+chmod +x alfresco-community-installer-201707-linux-x64.bin
+./alfresco-community-installer-201707-linux-x64.bin
+-Errors:
+	No package libcups available
+	No package libcairo2 available.
+	No package libgl1-mesa-glx available.
+   $ yum install libreoffice -y
+
+Enabling CIFS (SMB, share for windows)
+nano /opt/alfresco-communitiy/tomcat/shared/classes/alfresco-global.properties
+	//* Append the following
+	### CIFS/SMB Server Configuration ###
+	cifs.enabled=true
+	cifs.serverName="alfresco.<Site>"
+	cifs.hostannounce=true
+yum -remove samba
+reboot
+//* Access alfresco from windows
+	//* Open a file explorer
+	//* in the address bar, type: \\XXX.XXX.XXX.79
+
+
+Installation directory
+	/opt/alfresco-community
+Database Server parameters
+	Database port 5432
+Tomcat Port Configuration
+	Tomcat webserver Domain: XXX.XXX.XXX.79
+	Tomcat server port: 8080
+	Tomcat Shutdown port: 8005
+	Tomcat SSL port: 8443
+	Tomcat AJP port: 8009
+Libreoffice server port
+	Libreofficeserver port: 8100
+FTP port
+	FTP port: 21
+<Username> Password
+	username: <Username> password: <Password>
+
+Start Server
+$ /opt/alfresco/postgresql/scripts/ctl.sh
+
+Installation Folder
+	/opt/alfresco-community
+Webserver Domain
+	XXX.XXX.XXX.79
+
+
+

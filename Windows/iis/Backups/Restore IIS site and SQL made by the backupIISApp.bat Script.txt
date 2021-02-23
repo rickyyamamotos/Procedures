@@ -1,0 +1,115 @@
+backup files are encrypted with password=<Password>
+
+Install WebDeploy
+1) Download and "Complete" install https://www.iis.net/downloads/microsoft/web-deploy
+
+To restore an IIS 6.0 Web site
+Note- backup files are encrypted with password=<Password>
+1) On the destination server
+2) Copy the backupfile "2018-10-10-sites-<Site>.zip" to the destination server c:\temp\
+3) Install dependencies
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:metakey=lm/w3svc/1 --whatiff
+		//* Shows any dependencies that needs to be installed. Like NetFramework 2.0
+4) Install unmeet/required dependencies
+5) Restore all sites
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:metakey=lm/w3svc/1 >> c:\temp\WebDeployPackage.log
+		//* restores all sites
+
+
+To restore an IIS 7 or Above Web site
+Note- backup files are encrypted with password=<Password>
+1) On the destination server
+2) Copy the backupfile "2018-10-10-sites-<Site>.zip" to the destination server c:\temp\
+3) Find unmeet dependencies
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:apphostconfig="Default Web Site" --whatiff
+		//* shows unmeet dependencies to restore a specific site
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:webServer,computerName=%servername1% --whatiff
+		//* shows unmeet dependencies to restore all sites
+		//* replace %servername1% with ???
+4) Install unmeet/required dependencies to restore sites
+5) Restore sites
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:apphostconfig="Default Web Site" >> c:\temp\WebDeployPackage.log
+		//* restores a specific site
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sites-<Site>.zip -dest:webServer,computerName=%servername1% >> c:\temp\WebDeployPackage.log
+		//* restores all sites
+		//* replace %servername1% with ???
+6) Find unmeet/required dependencies to restore databases
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sql-<Site>.zip -dest:dbFullSql="data source=%servername1%;Initial Catalog=%dbname1%;User ID=%username1%;Password=%<Password>%;User Instance=False;" --whatiff
+		//* shows unmeet dependencies to restore databases
+7) Install unmeet/required dependencies to restore databases
+8) Restore databases
+	msdeploy.exe -verb:sync -source:package=c:\temp\2018-10-10-sqk-<Site>.zip -dest:dbFullSql="data source=%servername1%;Initial Catalog=%dbname1%;User ID=%username1%;Password=%<Password>%;User Instance=False;" >> c:\temp\WebDeployPackage.log
+		//* restores all sites
+9) Do an IISRESET
+	C:\> IISReset
+10) Better if destination server is rebooted
+
+
+
+
+
+
+
+
+
+-----------------OLDS----------------------------------------------------------------------------------------------------------------
+
+Creating a backup
+1) Backup the IIS global server configuration
+	C:\> %windir%\system32\inetsrv\appcmd add backup “MyBackup”
+		//* appcmd availaible on IIS 7+
+		//* This backups the IIS configuration
+	C:\> dir C:\windows\system32\inetsrv\backup\MyBackup.*
+		//* configuration is saved in this folder
+2) List Website dependencies
+	C:\> msdeploy -verb:getDependencies -source:metakey=lm/w3svc/1 > C:\windows\system32\inetsrv\backup\dependencies.txt
+		//* list the Website's dependencies, I.E. netframework 2, etc
+3) Create a compressed package file of IIS websites.
+	C:\> msdeploy -verb:sync  -source:metakey=lm/w3svc/1 -dest:package=c:\Site1.zip > WebDeployPackage.log
+
+	     msdeploy -verb:sync -source:webServer,computerName=server1 -dest:package='defaultWebsiteBackup.zip',encryptpassword=<Password> 
+
+
+Restoring a backup
+1) Restore the IIS Configuration
+	//* On the destination server
+	C:\> copy \\drobo\MyBackup.* C:\windows\system32\inetsrv\backup\
+	C:\> %systemroot%\system32\inetsrv\APPCMD restore backup "MyBackup"
+		//* appcmd availaible on IIS 7+
+2) Install the Website's dependencies (like NetFramework 2, etc)
+	//* On the destination server
+	C:\> copy \\drobo\Site1.zip \Site1.zip
+		//* copies the backup to the destination server
+	C:\> msdeploy -verb:sync -source:package=c:\Site1.zip -dest:metakey=lm/w3svc/1 -whatif > WebDeploySync.log
+		//* -whatif will show if any dependencies are missing in the destination server.
+	//* Install any missing dependency. I.E. NetFramework 2
+3) Restore IIS websites
+	C:\> msdeploy -verb:sync -source:package=c:\Site1.zip -dest:metakey=lm/w3svc/1 > WebDeploySync.log
+		//* 
+4) Do an IISRESET
+	C:\> IISReset
+
+
+
+
+
+
+The powershell script backs up all running IIS websites and deletes old backups, you can set the days to keep backups with the $daysToKeep variable.
+	$msdeploy = 'C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe'
+		# location of msdeploy command line tool 
+	$backupPath = '[ENTER BACKUP DROPBOX FOLDER PATH HERE]'
+		# location of folder to save backups (make sure it's in your dropbox folder!!)
+	$daysToKeep = 60
+		# number of days to keep backups before deleting them
+	Get-ChildItem $backupPath -Recurse | Where {$_.LastWriteTime -lt (Get-Date).AddDays(-$daysToKeep)} | Remove-Item -Force
+		# delete old backups
+	foreach($website in Get-Website | Where-Object State -eq 'Started') {
+		New-Item -ItemType Directory -Force -Path ($backupPath + $website.Name) & 
+		$msdeploy @('-verb:sync', '-enableLink:AppPoolExtension', ('-source:appHostConfig="' + $website.Name + '"'), ('-dest:package=' + $backupPath + $website.Name + '\' + $website.Name + '-' + (Get-Date -Format yyyyMMddHHmm) + '.zip'))
+           }
+		# create new backups
+
+
+
+
+

@@ -1,0 +1,3 @@
+canvasurl/error_reports
+I.E.:
+	https://<Site>.<Domain>/error_reports

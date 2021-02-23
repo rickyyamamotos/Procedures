@@ -1,0 +1,44 @@
+$ passenger-status
+	//* /home/<Username>/<Site>/public (development):
+
+
+
+$ cd $RAIL_ROOT
+	//* replace $RAIL_ROOT with the app root directory
+$ bundle exec rails c
+	//* IF error "Your Ruby version is 2.3.1, but your Gemfile specified 2.3.5"
+		rvm use 2.3.5 --default
+		rvm reload
+		bundle exec rails c
+2.3.5 :001> Rails.env
+		//* ==> "development"
+
+
+
+OR
+
+
+$ cd $RAIL_ROOT
+	//* replace $RAIL_ROOT with the app root directory
+$ rake about
+	//* Enviroment	development
+
+
+OR
+
+
+$ echo $RAIL_ENV
+
+
+
+OR
+
+
+
+$ cat /etc/apache2/sites-enable/* | grep "passenger_app_env"
+
+
+OR
+
+
+

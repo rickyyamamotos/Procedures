@@ -1,0 +1,4 @@
+$ cat <Site>.crt <Site>_ca.crt > <Site>_bundle.crt
+
+use <Site>_bundle.crt instead cat <Site>.crt
+

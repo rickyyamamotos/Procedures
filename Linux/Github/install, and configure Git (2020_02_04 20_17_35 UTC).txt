@@ -1,0 +1,102 @@
+Show github current configuration
+$ git config --list
+	//* current user
+$ git config --list --system
+	//* System level (applied to every user on the system and all their repositories)
+$ git config --list --global
+	//* Global level (values specific personally to you, the user. )
+$ git config --list --local
+	//* Repository level (specific to that single repository)
+$ git config user.name --local
+$ git config user.name --list --global
+$ git config user.name --list --local
+
+From https://help.github.com/articles/set-up-git/
+
+$ git clone https://github.com/git/git
+$ git config --global user.name "<Username>"
+	//* Set Git username for the computer
+$ git config --global user.email "<Email>"
+
+
+
+$ cd /var/www/<Site>_cap/current
+$ git init
+	Reinitialized existing Git repository in /var/www/<Directory>/releases/20150414111736/.git/
+
+
+On github.com
+//* Add a new repository: <Site>
+
+In the server
+//* Quick setup — if you’ve done this kind of thing before
+	https://github.com/<Username>/<Site>.git
+//* OR create a new repository on the command line
+	echo "# <Site>" >> README.md
+	git init
+	git add README.md
+	git commit -m "first commit"
+	git remote add origin https://github.com/<Username>/<Site>.git
+	git push -u origin master
+//* OR push an existing repository from the command line
+	git remote add origin https://github.com/<Username>/<Site>.git
+	git push -u origin master
+//* OR import code from another repository
+	//* You can initialize this repository with code from a Subversion, Mercurial, or TFS project.
+	https://github.com/<Username>/<Site>/import
+
+
+
+If you clone with HTTPS:
+
+
+
+If you clone with SSH, you must generate SSH keys on the computer
+	See https://help.github.com/articles/which-remote-url-should-i-use/#cloning-with-ssh-urls
+	See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+
+
+Setup a new server / repository			
+	log into the github.com		
+		<Site> -> New (Customize pinned repository) -> name: <Site>.<Domain> -> private -> create repository	
+	In the server		
+		cd /var/www/html	
+		git config --global user.name "<Email>"	
+		git config --global user.email "<Email>"	
+		echo "# <Site>.<Domain>" >> README.md	
+		git init	
+		git add README.md	
+		git commit -m "first commit"	
+		git remote add origin https://github.com/<Site>/<Site>.<Domain>.git	
+			 //* OPTIONALLY we can use a ssh key to authorize. See below
+			 //* <Password>
+			 //* if error, you may need to update your git version
+		git push -u origin master	
+delete the remote connection			
+	git remote rm origin		
+Recursively add the entire folder to a repository			
+	git add *		
+#             - We will use a ssh key to authenticate our server with the github.com			
+#               1) Determine if any existing key exists			
+#                  $ sudo su			
+#                  $ ls -al ~/.ssh			
+#                      //* if id_rsa and id_rsa.pub dont exist, then we will create new ssh keys. ~/.ssh equals /root/.ssh			
+#               2) Create new ssh keys			
+#                  $ sudo su			
+#                  $ ssh-keygen -t rsa			
+#                       //* accept the default for all questions			
+#               3) copy the public key			
+#                  $ sudo su			
+#                  $ nano ~/.ssh/id_rsa.pub			
+#                      //* copy the content into the clipboard			
+#               4) log into the github.com using a <Username> account			
+#               5) go to "Account" icon -> Settings -> SSH and GPG keys -> "New SSH key" -> name the key using the $HOSTNAME of this server, and paste the clipboard into the key box -> "Add SSH key"			
+#               6) Ensure that the remote origin is using SSH instead of HTTP			
+#                  $ cd $vdir1			
+#                      //* replace $vdir1 with the path of the directory where the .git is installed (place where git init was made)			
+#                      //* I.E. cd /var/www/html			
+#                  $ git remote rm origin			
+#                  $ git remote add origin git+ssh://git@github.com/<Site>/$HOSTNAME.git			
+#                      //* replace $HOSTNAME with the hostname of this server			
+#                      //* I.E. git remote add origin git+ssh://git@github.com/<Site>/<Site>.<Domain>.git			
+

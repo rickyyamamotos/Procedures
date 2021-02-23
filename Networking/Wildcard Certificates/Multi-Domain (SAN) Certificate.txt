@@ -1,0 +1,20 @@
+Names:
+	-Multi-Domain (SAN) Certificate
+	-Subject Alternative Names (SANs)
+	-Unified Communication Certificate (UCC) SSLs.
+
+Advantages:
+-securing multiple names across different domains and subdomains (e.g., Exchange/OCS environments). 
+-Add, change, or delete a SAN at any point during the lifecycle of the certificate for no extra charge.
+-Wildcards can be added as domains in multi-domain certificates or Unified Communications Certificates (UCC).
+-Protect up to 100 websites.
+-Godaddy offers it. Godaddy price is for 5 websites, more websites for an additional fee.
+
+
+Example:
+www.example.com
+www.example2.com
+www.example3.net
+mail.example.net
+
+

@@ -1,0 +1,22 @@
+curl -Is $URL -k| grep HTTP | cut -d ' ' -f2`
+example
+	curl -Is https://www.<Site>:443 | grep HTTP | cut -d ' ' -f2
+
+Creating the commnad
+define command{
+	command_name	curl_check
+	command_line	/usr/bin/curl -Is $URL -k| grep HTTP | cut -d ' ' -f2`
+	}
+define service{
+	use	
+	host_name	
+	check_command	curl_check!arg1!arg2
+	}
+
+
+Advanced option
+Check the response from the website first
+	curl https://www.<Site>:443
+Get a string that always shows when website is up
+Send the command
+	curl https://www.<Site>:443 | grep "STRING" 

@@ -1,0 +1,10 @@
+You need to use VMWorkstation Pro to choose which VMs to autostart
+Then you can use the webconsole to set autostart priorities
+
+Setup a virtual server in f5 to point to a pool with XXX.XXX.XXX.4 or XXX.XXX.XXX active and destination XXX.XXX.XXX.234
+To set autostart you need to remotely connect to the VMHOST using "VMWorkstation Pro"
+Open VMWare Workstation Pro and connect to a remote server XXX.XXX.XXX.234
+Right click on XXX.XXX.XXX.234 from the left pane
+Click on "Manage Autostart VMs"
+
+

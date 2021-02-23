@@ -1,0 +1,5 @@
+Set boot priorities in exsi (https://kb.vmware.com/s/article/850)
+	Give focus to the host in vCenter.
+	Click the Configuration tab.
+	Select Virtual Machine Startup / Shutdown under Software.
+	Click Properties in the upper right hand side of the window.

@@ -1,0 +1,137 @@
+Global search lets users search everywhere on the Moodle site that you have access to.
+
+Requirements
+- A search engine provided by the PHP Solr extension and a Solr server
+- set everything up first, index the site contents and only then enable Global search in moodle.
+
+<Site> will be the moodle server
+	moodle v. 3.4
+	php v. 7.2
+solr.<Site> will be the server hosting solr
+	IP XXX.XXX.XXX.29 (<Datacenter>)
+	   XXX.XXX.XXX.238
+	CentOS 7
+
+Increase the memory used by solr
+	//* recommended 10-20 gb for large sites
+	$ sudo nano /etc/default/solr.in.sh
+		#SOLR_HEAP="512m"
+		SOLR_JAVA_MEM="-Xms8g -Xmx8g"
+	$ sudo reboot
+
+
+Start solr
+in solr.<Site>
+	/opt/solr/bin/solr start
+
+Solr logs
+	nano /var/solr/logs
+
+
+In the solr.<Site> (different) server
+=======================================================================================================================
+-Create a server with CentOs 7
+-Install java openjdk
+	$ yum install java-1.8.0-openjdk
+- Add user for solr
+	$ adduser solr
+- Install solr
+	cd /opt
+	wget http://archive.apache.org/dist/lucene/solr/6.6.0/solr-6.6.0.tgz
+	tar zxvf solr-6.6.0.tgz
+	cp solr-6.6.0/bin/install_solr_service.sh .
+	rm -rf solr-6.6.0
+	./install_solr_service.sh solr-6.6.0.tgz
+		//* Customize Solr startup configuration in /etc/default/solr.in.sh
+	chkconfig solr on
+- Create the index
+	su - solr -c "/opt/solr/bin/solr create_core -c moodle"
+		Creating new core 'moodle' using command:
+		http://localhost:8983/solr/<Username>/cores?action=CREATE&name=moodle&instanceDir=moodle
+		//* Now moodle can use this to index its files.
+
+Open the port 8983
+	firewall-cmd --permanent --zone=public --add-port=8983/tcp
+	firewall-cmd --reload
+
+Test that Solr is running
+	http://XXX.XXX.XXX.80:8983
+
+Secure the Solr Server (OPTIONAL)
+	$ nano /opt/solr-6.6.0/server/etc/webdefault.xml
+		//* append the following
+	  <security-constraint>
+	   <web-resource-collection>
+	       <web-resource-name>Solr <Site></web-resource-name>
+	       <url-pattern>/*</url-pattern>
+	   </web-resource-collection>
+	   <auth-constraint>
+	       <role-name>solr-<Username></role-name>
+	   </auth-constraint>
+	  </security-constraint>
+	  <login-config>
+	   <auth-method>BASIC</auth-method>
+	   <realm-name>Solr <Site></realm-name>
+	  </login-config>
+	$ nano /opt/solr-6.6.0/server/etc/realm.properties 
+		<Username>: <Password>, solr-<Username>
+	$ nano /opt/solr-6.6.0/server/etc/jetty.xml
+	<Call name="addBean">
+	 <Arg>
+	  <New class="org.eclipse.jetty.security.HashLoginService">
+	    <Set name="name">Solr <Site></Set>
+	    <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/realm.properties</Set>
+	    <Set name="refreshInterval">0</Set>
+	  </New>
+	 </Arg>
+	</Call>
+
+
+
+In the <Site> (moodle) server
+=======================================================================================================================
+This server has php v 7.2.3
+
+Install the PHP Solr Extension for php v7
+	$ yum install libxml2-devel pcre-devel libcurl-devel php70w-devel php70w-pear
+	$ yum install php-pear php7-dev php-devel
+	//* Dont use => $ pecl install solr
+		ERROR: php_solr.c:560: error: ‘ZEND_ACC_CLONE’ undeclared here (not in a function)
+			Bug in php7.2 and solr
+				https://github.com/moodlehq/moodle-php-apache/issues/19
+		SOLUTION: https://github.com/moodlehq/moodle-php-apache/issues/16
+			//* dont do use pecl. Use Yum instead
+			$ yum install php-solr
+	$ echo "extension=solr.so" > /etc/php.d/solr.ini
+	$ service httpd restart
+
+Configure Moodle
+Site <Site> > Plugins > Search > Manage global search
+	 selecting Solr as the search engine and ticking search area checkboxes as required
+Site <Site> > Plugins > Search > Solr
+	set Host name to XXX.XXX.XXX.80, Port to 8983 and Index name to 'moodle' (this was configured in the solr server)
+	Check "Enable file Indexing"
+Site <Site> > Plugins > Search > Search areas
+	Update Indexed contents
+in the moodle server
+$ cd /var/www/html
+$ sudo -u apache php search/cli/indexer.php --force
+Site <Site> > Advanced features
+	check "Enable global search"
+
+Some themes dont allow the spyglass icon to show (including lamda)
+change theme to standard
+
+
+
+
+
+
+
+
+
+
+
+
+
+

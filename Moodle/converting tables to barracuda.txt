@@ -1,0 +1,29 @@
+https://docs.moodle.org/33/en/<Site>_via_command_line
+
+
+Tool for converting tables
+A command line tool is included in Moodle for converting tables to Barracuda.
+
+To view tables requiring conversion, use the list option:
+
+$ php <Username>/cli/mysql_compressed_rows.php --list
+Here is an example output:
+
+mdl_data                            Compact     (needs fixing) 
+mdl_data_fields                     Compact     (needs fixing)
+mdl_enrol_paypal                    Compact     (needs fixing)
+To proceed with the conversion, run the command using the fix option:
+
+$ php <Username>/cli/mysql_compressed_rows.php --fix
+Successful table conversion will be reported in the output, for example:
+
+mdl_data                   ... Compressed
+mdl_data_fields            ... Compressed
+mdl_enrol_paypal           ... Compressed
+Please note that the commands must be executed on your moodle directory. Once tables are fixed, the warning message will no longer be displayed.
+
+For further information on InnoDB file formats see the MySQL InnoDB glossary - Antelope and the MySQL InnoDB glossary - Barracuda.
+
+If you get errors due to having insufficient privileges to run these commands (this is quite likely) then the easiest solution is to generate the required SQL commands using,
+
+$ php <Username>/cli/mysql_compressed_rows.php --showsql

@@ -1,0 +1,3 @@
+<Ctrl>-c
+$ nano -c file
+

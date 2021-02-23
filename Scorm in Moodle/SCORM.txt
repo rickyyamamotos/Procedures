@@ -1,0 +1,23 @@
+SCORM: 	Sharable Content Object
+	creating units of online training material that can be shared (reused) across systems.
+	Content can be created one time and used in many different systems and situations without modification. 
+SCOs: 	sharable content objects
+	aka Module, a chapter, or a page
+	It is the smallest piece of content that is both reusable and independent. In terms of how the 
+	   LMS treats it, this is the item shown separately in the table of contents and tracked
+	   separately from other items. 
+	It can contain its own bookmark, score and completion status.
+imsmanifest File
+	XML file that contains every piece of information required by the LMS to import and launch content
+	   without human intervention.
+SCORM Functions
+1) Packaging content
+	aka content aggregation model (CAM) 
+	It defines how a piece of content should be delivered in a physical sense.
+	Its configuration is saved in the imsmanifest File
+2) Run-Time communication
+	Aka data exchange
+	It defines how the content ”talks” to the LMS while the content is actually playing
+	Components:
+		2.1) the content has to “find” the LMS. 
+		2.2) communicate through a series of “get” and “set” calls and an associated vocabulary. 

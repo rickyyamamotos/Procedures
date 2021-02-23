@@ -1,0 +1,11 @@
+centos 7:
+	$ wget http://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/p/pv-1.4.6-1.el7.x86_64.rpm
+	$ rpm -Uvh pv-1.4.6-1.el7.x86_64.rpm
+	$ pv /tmp/tmp/v-backup.sql | mysql -uroot -p v
+		//* will restore the sql dump and show progress
+centos 6
+	$ wget http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/x86_64/rpmforge/RPMS/pv-1.1.4-1.el6.rf.x86_64.rpm
+	$ rpm -Uvh pv-1.1.4-1.el6.rf.x86_64.rpm
+	$ pv /tmp/tmp/v-backup.sql | mysql -uroot -p v
+		//* will restore the sql dump and show progress
+	

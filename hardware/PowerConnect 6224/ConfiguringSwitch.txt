@@ -1,0 +1,20 @@
+INITIAL CONFIGURATION TO ALLOW WEB INTERFACE
+-Connect a RS-232 crossover cable to the serial port of the switch
+-Configure the terminal
+	SSH
+		9600 baud
+		8 data bits
+		1 stop bit
+		no parity
+		no flow control
+		terminal emulation VT100
+		Set terminal keys for Function, Arrow, Ctrl keys
+-Boot the switch
+-Configure password, WebMGmt IP, gateway, etc
+
+Then you can acces the webMgmt
+
+
+Factory default
+	there is not default ip, user or password
+	you need to connect via RS232 cable

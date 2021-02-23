@@ -1,0 +1,95 @@
+SCRIPT OF A SIMPLE BACKUP OF A FOLDER
+=========================
+$ vi /backup.sh
+	#!/bin/bash
+	#Purpose = Backup of Important Data
+	#Created on 17-1-2012
+	#Author = Rick Yamamoto
+	#Version 1.0
+	#START
+	TIME=$(date "+%b-%d-%y")	# This Command will add date in Backup File Name.
+	FILENAME=backup-$TIME.tar.gz	# Here i define Backup file name format.
+	SRCDIR=/imp-data		# Location of Important Data Directory (Source of backup).
+	DESDIR=/mybackupfolder		# Destination of backup file.
+	tar -cpzf $DESDIR/$FILENAME $SRCDIR
+					# tar = Tape archive
+					# c = Create
+					# v = Verbose mode
+					# p = Preserving files and directory permissions.
+					# z = This will tell tar that compress the files further to reduce the size of tar file.
+					# f = It allows tar to get file name.
+					# u = update
+					# d = find differences between archive and file system
+					# --recursion = recurse into directories
+
+	#END
+$ crontab -e
+	01 13 * * 1,6 /bin/bash /backup.sh
+					# Minutes Hours  Day of Month Month Day of Week  Command
+
+
+
+BACKUP OF A FOLDER WITH INCREMENTALS
+$ FILENAME=backup-$TIME.tar.gz	# Here i define Backup file name format.
+$ SRCDIR=/imp-data		# Location of Important Data Directory (Source of backup).
+$ DESDIR=/mybackupfolder		# Destination of backup file.
+$ tar -cpzf $DESDIR/$FILENAME -listed-incremental=$DESDIR/backup.snar  $SRCDIR
+	# This will create in $DESDIR/$FILENAME an incremental backup of the $SRCDIR file system, storing additional 
+	# metadata in the file $DESDIR/backup.snar. If this file does not exist, it will be created. The created 
+	# archive will then be a level 0 backup.
+	# Otherwise, if the file $DESDIR/backup.snar exists, it determines which files are modified. In this case
+	# only these files will be stored in the archive. 
+	# Incremental dumps depend crucially on time stamps, so the results are unreliable if you modify a file's
+	# time stamps during dumping (e.g., with the `--atime-preserve=replace' option), or if you set the clock
+	# backwards.
+
+EXTRACT A INCREMENTAL BACKUP
+# To extract from the incremental dumps, use `--listed-incremental' together with `--extract' option 
+# In this case, tar does not need to access snapshot file, since all the data necessary for extraction are stored
+# in the archive itself. So, when extracting, you can give whatever argument to `--listed-incremental', the usual
+# practice is to use `--listed-incremental=/dev/null'. Alternatively, you can use `--incremental', which needs no
+# arguments
+# When extracting from the incremental backup GNU tar attempts to restore the exact state the file system had when
+# the archive was created. In particular, it will delete those files in the file system that did not exist in their
+# directories when the archive was created. If you have created several levels of incremental files, then in order
+# to restore the exact contents the file system had when the last level was created, you will need to restore from
+# all backups in turn.
+# Example:
+	$ tar --extract --listed-incremental=/dev/null --file backupJAN-01-17.tar
+	$ tar --extract --listed-incremental=/dev/null --file backupFEB-01-17.tar
+
+
+OPTIONAL
+Add hostname to the tar filename
+TIME=$(date "+%b-%d-%y")
+FILENAME=backup-$hostname-$TIME.tar.gz
+
+====================================================================================================================
+
+PLAN
+1) On the source server
+	1.1) Make a full backup (level 0 using a new snar file) every Monday
+		1.1.1) Copy the backup of the day to the nfs
+		1.1.2) delete any previous backup file and snar files)
+	1.2) Make incrementals backup (using the snar file on step 1) on other days
+		1.2.1) copy the backup file to the nfs
+2) On the NFS server
+	2.1) Move the backups files from the NFS share to a local folder
+	2.2) If the backups are more than 4 then delete the older backup set (7 backups from level 0 to 6)
+	# This will keep the backups for a month
+	2.3) Verify that backups are correct, check that the size of the backup level 0 file is bigger than the previous one
+		Verify that the last backup is of today's date for all source servers.
+		Email a notification if any discrepancies.
+
+
+PLAN MAKE A FULL BACKUP (LEVEL 0)
+On the source server create a cron tab to point to a script
+1) <Site>
+
+
+
+
+
+
+
+

@@ -1,0 +1,102 @@
+GDPR Concept
+	General Data Protection Regulation
+	Effective on EU from May 25th, 2018
+	It applies to everyone handling the personal data of EU citizens, even if they are not based in the EU.
+	Failing to comply with GDPR are subject to fines for up to 20 million euros or 4% of your yearly turnover, whichever is higher. 
+	A person’s personal data is always owned by that person. This means that they must have control over it (with some exceptions).
+
+Definitions
+	Data subject
+		a human-being (user, customer, employee, etc) whose personal information you are processing.
+	Processing
+		Any activity or set of activities performed on personal data, e.g. viewing, collecting, storing, transferring, modifying, eras
+	Personal data
+		It is almost any data about a person
+			1) name
+			2) email
+			3) age
+			4) personal identification number
+			5) location info
+			6) appearance description
+			7) information about hobbies
+			8) income
+			9) cultural preferences
+			10) analytics
+			11) comments
+			12) reviews/posts
+			13) etc
+	Sensitive data
+		1) racial or ethnic origin
+		2) political opinions
+		3) religious or philosophical beliefs
+		4) trade union membership
+		5) health
+		6) sex life or sexual orientation
+		7) genetic data
+		8) biometric data
+	Anonymous data
+		Data after removing everything that ties to to a person that it belongs to.
+		You cant identify the user from the data itself
+		After anonimized, data is not personal data anymore
+	Controller
+		It can be a natural or legal person, public authority, agency or other body
+		It is someone who controls personal data of others. This person determines the purpose (the why) and means 
+		   (the how) of processing personal data
+		If you own a website that does anything with its visitors personal data, you are the controller. 
+	Processor
+		It processes personal data on behalf of someone else. 
+		It is any other natural or legal person who processes or stores data on behalf of the Controller.
+		   It can be the web hosting company, a mail service company, etc
+		""""There has to be a written contract between the Controller and the data processor""""
+
+User's rights under GDPR
+	1) Users can request a copy of all of their data you are storing, both in human- and machine-readable format
+	   The controller must comply within 30 days.
+	2) Users can request you to delete all of their data. The controller must comply within 30 days.
+	3) Users must provide you consent for each use of their data that you perform. 
+	   Users must be able to withdraw the consent they’ve given at any time
+	4) User must be informed of everythig you do (like sharing) with their data
+
+Business' responsibilities under GDPR
+	1) You need to keep a registry of all data processing activities.
+	2) You might need to appoint a Data Protection Officer.
+	3) You need to have contracts with everyone you share customer data with
+	4) You are not allowed to process sensitive data without an explicit consent from the data subject
+	5) Sensitive data also requires more strict safety and security measures
+	6) You cannot transfer customer data to someone who does not comply with GDPR.
+	7) If a data breach occurs, you need to notify your local supervisory authority and possibly your customers
+	8) If you store a lot of data or work with sensitive data, you might be obliged to make a Data Protection Impact Assessment. 
+	   And you are responsible for demonstrating that you’re GDPR-compliant to your supervisory authority
+	9) Portability. By request of the Data Subject to transfer his/her data to another company, you must provide the data to 
+	   the other company in a machine-readable format or alternatively, transfer it directly to another company or service.
+Features of the WordPress GDPR Framework by Data443
+	1) It provides various tools and features to help you make your website properly compliant. 
+	   All the base requirements of GDPR are covered.
+	2) It guides you through the maze of rules, regulations and requirements of GDPR.
+	3) it aims to provide solutions for various complex corner cases regarding data privacy and customer rights.
+	4) it’s a framework for developers. It is opensource
+	5) It provides a page where visitors can authenticate via email or login. This page allow visitors themselves to 
+		view, export or delete their personal data automatically
+		- Request to view their personal data,
+		- Request to export their personal data in a machine-readable format,
+		- Request to delete their personal data,
+		- View and withdraw consents they have given (more on that later).
+		- Anonymize their data
+	
+Limitations of the WordPress GDPR Framework by Data443
+	1) Most existing plugins are not GDPR compliant
+	2) It is well suited for simple Wordpress websites
+	3) It is compatible with woocommerce and Form7
+
+
+
+
+Configuring the plugin
+	<Username> dashboard via Tools > Privacy.
+
+
+
+
+
+
+

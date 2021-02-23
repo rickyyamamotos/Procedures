@@ -1,0 +1,16 @@
+NEW SERVER
+XXX.XXX.XXX.47/nagios
+<Username>\<Password>
+
+ssh XXX.XXX.XXX.47
+rick\<Password>
+
+
+OLD SERVER
+XXX.XXX.XXX.98/nagios
+<Username>\<Password>
+
+ssh XXX.XXX.XXX.98
+rick\<Password>
+
+

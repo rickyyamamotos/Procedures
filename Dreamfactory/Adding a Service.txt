@@ -1,0 +1,9 @@
+Dreamfactory is a <Site> platform
+It allows you to use <Site>s for services like sql
+
+Log into Dreamfactory via http
+Go to services - Add
+Then create the <Site> pointing to a SQL
+
+Go to Schema
+Add the <Site> to the Schema
